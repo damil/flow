@@ -51,3 +51,30 @@ Un autre port peut être spécifié :
 plackup -p 4999 flow.psgi
 ```
 
+### Local Installation with Container
+
+To simplify the installation you can also use Docker containers.
+
+Docker must be installed on you system.
+
+To launch the database and the server containers:
+
+```shell
+docker-compose up -d
+```
+
+Create the databases:
+
+```shell
+# Create the databases
+docker exec -it flow_postgres_container psql -U postgres -c "CREATE DATABASE flow;"
+docker exec -it flow_postgres_container psql -U postgres -c "CREATE DATABASE traduction_utf8;"
+
+# import the dumps
+docker exec -i flow_postgres_container psql -U postgres -d flow < ./dumps/flow.sql
+docker exec -i flow_postgres_container psql -U postgres -d traduction_utf8 < ./dumps/traduction_utf8.sql
+```
+
+Site can be found at
+
+http://localhost:5000/flow
