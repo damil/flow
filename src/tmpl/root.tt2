@@ -86,8 +86,9 @@
 
   // click handler pour les icônes de changement de langage
   function lang_click_handler(lang) {
-    document.searchform.action = '[% uri = c.new_uri;
-                                     uri.match('\?') ? uri _ '&' : uri _ '?' %]lang='+lang;
+    document.searchform.action = '[% uri = c.new_uri(lang => []);
+                                     GET uri;
+                                     GET uri.match('\?') ? '&' : '?' %]lang='+lang;
     document.getElementById('searchpop').value = '[% searchtable %]';
     document.getElementsByName('searchid')[0].value = '[% c.param('searchid') %]';
     document.getElementById('[% searchtable %]').value = '[% c.param('search') %]';
