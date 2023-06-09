@@ -201,11 +201,11 @@
   <br />
 
   
-  <div class="contentContainer card">
-    [% TRY;   PROCESS $xpage;
-       CATCH; PROCESS default_page;
-       END; %]
-  </div>
+
+  [%~ TRY;   PROCESS $xpage;
+      CATCH; PROCESS default_page;
+      END; ~%]
+
 
   [% IF xpage == 'explorer' and not url_param('loading') %]
      <div class='contentContainer'>
@@ -298,76 +298,92 @@
 
   
 [%~ BLOCK project ~%]
-[%#
+<br>
+<div class="contentContainer card" style="width: 970px; padding: 15px;">
+  <table>
+    <tr>
+      <td style="padding-right: 20px; width: 700px;">
+        <span class="paragrafTitleStyle" name="ori">[% traduc('ori_key') %]</span>
+        <p />
+        [% traduc('oritxt') %]
+      </td>
+      <td style="width: 100px;">
+        <img alt="intricata" height="200px" src="/flowdocs/intricata.png" width="100px" />
+      </td>
+    </tr>
+  </table>
+  <table>
+    <tr>
+      <td style="padding-right: 20px;"><img alt="vohimana" height="150px" src="/flowdocs/vohimana3.png" width="200px" /> 
+        <p />
+      </td> 
+      <td>
+        <span class="paragrafTitleStyle" name="desc">[% traduc('descr_key') %]</span>          
+        <p />
+        [% traduc('presenttxt') %]
+      </td>
+    </tr>
+  </table>
+  <table>
+    <tr>
+      <td style="padding-right: 20px;">
+        <span class="paragrafTitleStyle" name="tech">[% traduc('tech_key') %]</span>          
+        <p />
+        [% traduc('techtxt') %]
+      </td>
+      <td><img alt="fulgore" height="200px" src="/flowdocs/fulgore2.png" width="180px" /></td>
+    </tr>
+  </table>
+  <table>
+    <tr>
+      <td>
+        <span class="paragrafTitleStyle" name="com">[% traduc('community') %]</span>          
+        <p />
+        [% traduc('commutxt') %]
+      </td>
+    </tr>
+  </table>
+  <table>
+    <tr>
+      <td style="padding-right: 20px;">
+        <span class="paragrafTitleStyle" name="col">[% traduc('collabos') %]</span>          
+        <br />
+        <br />
+        [% traduc('collabtxt') %]
+        <br />
+        <br />
+        <a href="http://www.gbif.org/"><img src="/flowdocs/gbif.jpg" style="border: 0; height:50px; width: 89px;" /></a> 
+        <a href="http://www.sp2000.org/"><img src="/flowdocs/sp2k.png" style="border: 0; height:50px; width: 113px;" /></a> 
+        <a href="http://www.biocase.org/index.shtml"><img src="/flowdocs/biocase.png" style="border: 0; height:50px; width: 77px;" /></a>
 
-		$content = 	table(
-					Tr(
-					td({-style=>"padding-right: 20px; width: 700px;"},
-							span({-name=>'ori', -class=>'paragrafTitleStyle'}, $traduction->{'ori_key'}->{$xlang}),p,
-							$traduction->{'oritxt'}->{$xlang}
-						),
-						td({-style=>'width: 100px;'}, img({-src=>$docpath."intricata.png", alt=>"intricata", width=>'100px', height=>'200px'}))
-					)
-				).
-				table(
-					Tr(
-						td({-style=>"padding-right: 20px;"}, img({-src=>$docpath."vohimana3.png", alt=>"vohimana", width=>'200px', height=>'150px'}),p),
-						td(
-							span({-name=>'desc', -class=>'paragrafTitleStyle'}, $traduction->{'descr_key'}->{$xlang}),p,
-							$traduction->{'presenttxt'}->{$xlang}
-						)
-					)
-				).
-				table(
-					Tr(
-						td({-style=>"padding-right: 20px;"},
-							span({-name=>'tech', -class=>'paragrafTitleStyle'}, $traduction->{'tech_key'}->{$xlang}),p,
-							$traduction->{'techtxt'}->{$xlang}
-						),
-						td(img({-src=>$docpath."fulgore2.png", alt=>"fulgore", width=>'180px', height=>'200px'}))
-					)
-				).
-				table(
-					Tr(
-						td(
-							span({-name=>'com', -class=>'paragrafTitleStyle'}, $traduction->{'community'}->{$xlang}),p,
-							$traduction->{'commutxt'}->{$xlang}
-						)
-					)
-				).
-				table(
-					Tr(
-						td({-style=>"padding-right: 20px;"},
-							span({-name=>'col', -class=>'paragrafTitleStyle'}, $traduction->{'collabos'}->{$xlang}), br, br,
-							$traduction->{'collabtxt'}->{$xlang}, br, br,
-							a({-href=>"http://www.gbif.org/"}, img{-src=>$docpath.'gbif.jpg', -style=>'border: 0; height:50px; width: 89px;'}),
-							a({-href=>"http://www.sp2000.org/"}, img{-src=>$docpath.'sp2k.png', -style=>'border: 0; height:50px; width: 113px;'}),
-							a({-href=>"http://www.biocase.org/index.shtml"}, img{-src=>$docpath.'biocase.png', -style=>'border: 0; height:50px; width: 77px;'}), p
-						)
-					)
-				).
-				table(
-					Tr(
-						td({-style=>"padding-right: 20px;"},
-							span({-name=>'ctb', -class=>'paragrafTitleStyle'}, $traduction->{'contrib_key'}->{$xlang}), p({-style=>'text-indent: 20px'}),
-							$traduction->{'contribtxt'}->{$xlang}
-						)
-					)
-				).
-				table(
-					Tr(
-						td(
-							$traduction->{'dbtnt_standards'}->{$xlang}. p
-						)
-					)
-				).
-				span({-class=>'paragrafTitleStyle'}, $traduction->{'arigato'}->{$xlang}). p.	
-				$traduction->{'thkintro'}->{$xlang}.		
-				ul( "$traduction->{'fulgothanks'}->{$xlang}" );
-
-			$content = br.div({-class=>'contentContainer card', -style=>'width: 970px; padding: 15px;'}, $content);
-%]
-
+        <p />
+      </td>
+    </tr>
+  </table>
+  <table>
+    <tr>
+      <td style="padding-right: 20px;">
+        <span class="paragrafTitleStyle" name="ctb">[% traduc('contrib_key') %]</span>
+        <p style="text-indent: 20px" />
+        [% traduc('contribtxt') %]
+      </td>
+    </tr>
+  </table>
+  <table>
+    <tr>
+      <td>
+        [% traduc('dbtnt_standards') %]
+        <p />
+      </td>
+    </tr>
+  </table>
+  <span class="paragrafTitleStyle">[% traduc('arigato') %]</span>
+  <p />
+  [% traduc('thkintro') %]
+  <ul>
+    [% traduc('fulgothanks') %]
+  </ul>
+</div>
 [%~ END; # BLOCK project ~%]
 
 
@@ -446,6 +462,7 @@
 
 
 [%~ BLOCK default_page ~%]
+  <div class="contentContainer card">
     <div style="text-align: center;">
       <br />
       <table border="0">
@@ -499,7 +516,7 @@
       </iframe>'
 
     [% END; # IF loading %]
-
+  </div>
 [%~ END; # BLOCK default_page ~%]
 
 
