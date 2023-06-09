@@ -1,0 +1,51 @@
+  <div class="contentContainer card" style="width: 970px; margin-left: 0px; padding: 15px;">
+    <span class="paragrafTitleStyle">[% traduc('fulgointrotitle') %]</span> 
+    <p style="text-indent: 20px" />
+    [% traduc('fulgointro') %]
+    <p style="text-indent: 20px" />
+    <img src="/flowdocs/DSC02119.jpg" style="width: 259px; height: 194px" /> 
+    <img src="/flowdocs/DSC02158.jpg" style="width: 259px; height: 194px" /> 
+    <img src="/flowdocs/IMG_0492.jpg" style="width: 257px; height: 194pix" /> 
+    <br /> 
+    <br /> 
+    <span class="paragrafTitleStyle">[% traduc('beetitle') %]</span>
+    <p style="text-indent: 20px" />
+    [% traduc('fulgobio') %]
+    <br /> 
+    <br /> 
+    <span class="paragrafTitleStyle">[% traduc('econotitle') %]</span>
+    <p style="text-indent: 20px" />
+    [% traduc('pests') %]
+    <br /> 
+    <br /> 
+    <span class="paragrafTitleStyle">[% traduc('fulgobiogeotitle') %]</span>
+    <p style="text-indent: 20px" />
+    [% traduc('fulgobiogeo') %]
+    <br /> 
+    <br /> 
+    <img src="/flowdocs/DSC02404.jpg" style="width: 150px; height: 200px; margin-right: 50px; " /> 
+    <img src="/flowdocs/IMG_0234.jpg" style="width: 133px; height: 200px; margin-right: 50px;" /> 
+    <img src="/flowdocs/IMG_0380.jpg" style="width: 133px; height: 200px" /> 
+    <br /> 
+    <br /> 
+    <span class="paragrafTitleStyle">[% traduc('fulgomorphotitle') %]</span>
+    <p style="text-indent: 20px" />
+    [% traduc('fulgomorpho') %]
+    <br /> 
+    <br /> 
+    <img src="/flowdocs/IMG_0301.jpg" style="width: 143px; height: 200px; margin-right: 50px; " /> 
+    <img src="/flowdocs/IMG_0469.jpg" style="width: 300px; height: 200px" /> 
+    <br />
+    <br /> 
+    <span class="paragrafTitleStyle">[% traduc('fulgophylotitle') %]</span>
+    <p style="text-indent: 20px" />
+    [% traduc('fulgophylo') %]
+    <br /> 
+    <br /> 
+
+    <span class="paragrafTitleStyle">[% traduc('refstitle') %]</span>
+    <p style="text-indent: 20px" />
+    <div style="position: relative; overflow: auto; height: 450px; width: 950px; margin-top: 20px; padding: 0; background: transparent;">
+      [% traduc('flow_refs_list') %]
+    </div>
+  </div>

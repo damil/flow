@@ -1,0 +1,104 @@
+  <div class="contentContainer card">
+    <div style="text-align: center;">
+      <br />
+      <table border="0">
+        <tr>
+          <td style="width: 300px; text-align: center;">
+            <a href="http://www.mnhn.fr/museum/foffice/transverse/transverse/accueil.xsp"
+               style="text-decoration: none;"
+               target="_blank">
+              <img src="/flowdocs/logo_mnhn.png" alt="MNHN" height="80px" style="border: 0;" />
+            </a>
+          </td>
+          <td rowspan="2" style="width: 400px; text-align: center; font-size: 66px;">FLOW</td>
+          <td style="width: 300px; text-align: center; vertical-align: bottom;">
+            <br />
+            <br />
+          </td>
+        </tr>
+        <tr>
+          <td style="width: 300px; text-align: center; vertical-align: top;">
+            <a href="https://www.sorbonne-universite.fr" style="text-decoration: none;" target="_blank">
+              <img src="/flowdocs/sorbone_university.png" alt="UPMC" height="60px"  style="border: 0;" />
+            </a>
+          </td>
+          <td style="width: 300px; text-align: center; vertical-align: top;">
+            Version:  <span style="font-size: 110%; font-weight: bold">8</span>
+            <br />
+            [% traduc('dmaj') %]: <span style="font-size: 110%; font-weight: bold">[% last_update %]</span>
+          </td>
+        </tr>
+      </table>
+      [% traduc('home_intro') %]
+      <br>
+      <p style="text-indent: 20px" />
+      [% PROCESS carrousel %]
+      <br>
+    </div>
+
+
+    [% IF loading %]
+
+    <div class="contentContainer">
+      <div id="loadDiv" style="position: relative; top: 146px; left: 46%; z-index=11;">
+        loading...<br><br>
+        <img src="/flowdocs/flowloading1.gif" style="width: 40px;" />
+      </div>
+      [% frame    = self_url.replace(';loading=1', ''); 
+         framecss = "overflow:hidden;overflow-x:hidden;overflow-y:hidden;height:100%;width:100%;position:absolute;top:0px;left:0px;right:0px;bottom:0px;border:none;z-index:10;";
+      %]
+      <iframe id="mainFrame" src="[% frame %]" style="[% framecss %]" height="100%" width="100%"
+              onload="'document.getElementById('loadDiv').style.display = 'none'">
+      </iframe>'
+
+    [% END; # IF loading %]
+  </div>
+
+
+
+[%~ BLOCK carrousel ~%]
+  <script type='text/javascript'>
+    $(function(){
+      $("#carousel").infiniteCarousel({
+        transitionSpeed: 4000,
+        displayTime: 0,
+        displayProgressBar: false,
+        displayThumbnails: false,
+        displayThumbnailNumbers: false,
+        displayThumbnailBackground: false,
+        imagePath: "",
+        easeLeft: "linear",
+        easeRight: "linear",
+        inView: 5,
+        padding: "0px",
+        advance: 1,
+        showControls: false,
+        autoHideControls: false,
+        autoHideCaptions: false,
+        autoStart: true,
+        prevNextInternal: true
+      });
+      $("div.thumb").parent().css({"margin":"0 auto","width":"900px"});
+    });
+    function ImageMax(chemin) {
+      var html = '<html><body><img src="'+chemin+'" border=0 height="900"/></body></html>';
+      var popupImage = window.open('','_blank','toolbar=0, location=0, scrollbars=0, directories=0, status=0, resizable=1');
+      popupImage.document.open();
+      popupImage.document.write(html);
+      popupImage.document.close();
+    };
+  </script>
+  <div id='carousel' style='width: 900px'>
+    <ul>
+      [% FOREACH photo IN photos %]
+        <li><img alt="FLOW planthopper fulgoroidea fulgoromorpha insect"
+                 src="/flowfotos/carousel/thumbnails/[% photo %].png"
+                 height="150" width="200"
+                 onMouseOver="this.style.cursor='pointer'"
+                 onclick="ImageMax('/flowfotos/carousel/1280/[% photo %].jpg')">
+         </li>
+      [% END; # FOREACH %]
+    </ul>
+  </div>
+[%~ END; # BLOCK carrousel ~%]
+  

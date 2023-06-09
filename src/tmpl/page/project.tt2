@@ -1,0 +1,86 @@
+<br>
+<div class="contentContainer card" style="width: 970px; padding: 15px;">
+  <table>
+    <tr>
+      <td style="padding-right: 20px; width: 700px;">
+        <span class="paragrafTitleStyle" name="ori">[% traduc('ori_key') %]</span>
+        <p />
+        [% traduc('oritxt') %]
+      </td>
+      <td style="width: 100px;">
+        <img alt="intricata" height="200px" src="/flowdocs/intricata.png" width="100px" />
+      </td>
+    </tr>
+  </table>
+  <table>
+    <tr>
+      <td style="padding-right: 20px;"><img alt="vohimana" height="150px" src="/flowdocs/vohimana3.png" width="200px" /> 
+        <p />
+      </td> 
+      <td>
+        <span class="paragrafTitleStyle" name="desc">[% traduc('descr_key') %]</span>          
+        <p />
+        [% traduc('presenttxt') %]
+      </td>
+    </tr>
+  </table>
+  <table>
+    <tr>
+      <td style="padding-right: 20px;">
+        <span class="paragrafTitleStyle" name="tech">[% traduc('tech_key') %]</span>          
+        <p />
+        [% traduc('techtxt') %]
+      </td>
+      <td><img alt="fulgore" height="200px" src="/flowdocs/fulgore2.png" width="180px" /></td>
+    </tr>
+  </table>
+  <table>
+    <tr>
+      <td>
+        <span class="paragrafTitleStyle" name="com">[% traduc('community') %]</span>          
+        <p />
+        [% traduc('commutxt') %]
+      </td>
+    </tr>
+  </table>
+  <table>
+    <tr>
+      <td style="padding-right: 20px;">
+        <span class="paragrafTitleStyle" name="col">[% traduc('collabos') %]</span>          
+        <br />
+        <br />
+        [% traduc('collabtxt') %]
+        <br />
+        <br />
+        <a href="http://www.gbif.org/"><img src="/flowdocs/gbif.jpg" style="border: 0; height:50px; width: 89px;" /></a> 
+        <a href="http://www.sp2000.org/"><img src="/flowdocs/sp2k.png" style="border: 0; height:50px; width: 113px;" /></a> 
+        <a href="http://www.biocase.org/index.shtml"><img src="/flowdocs/biocase.png" style="border: 0; height:50px; width: 77px;" /></a>
+
+        <p />
+      </td>
+    </tr>
+  </table>
+  <table>
+    <tr>
+      <td style="padding-right: 20px;">
+        <span class="paragrafTitleStyle" name="ctb">[% traduc('contrib_key') %]</span>
+        <p style="text-indent: 20px" />
+        [% traduc('contribtxt') %]
+      </td>
+    </tr>
+  </table>
+  <table>
+    <tr>
+      <td>
+        [% traduc('dbtnt_standards') %]
+        <p />
+      </td>
+    </tr>
+  </table>
+  <span class="paragrafTitleStyle">[% traduc('arigato') %]</span>
+  <p />
+  [% traduc('thkintro') %]
+  <ul>
+    [% traduc('fulgothanks') %]
+  </ul>
+</div>
