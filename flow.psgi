@@ -12,25 +12,18 @@ use App::AutoCRUD;
 
 use lib "$Bin/lib";
 use App::Flow::Controller::SearchJs;
-
-$ENV{FLOW_CONF_YAML} = "$Bin/flow_conf.yaml";
-$ENV{FLOW_CONFDIR}   = "$Bin/etc";
-$ENV{FLOW_SRCDIR}    = "$Bin/www";
-my $crud_conf        = "$Bin/crud_conf.yaml";
-
-my $config = YAML::XS::LoadFile($ENV{FLOW_CONF_YAML});
+use App::Flow::Controller::Root;
 
 
+my $flow_config = YAML::XS::LoadFile("$Bin/flow_conf.yaml");
+my $crud_config = YAML::XS::LoadFile("$Bin/crud_conf.yaml");
 
-my $cgi_script = "$Bin/www/cgi-bin/flow/flowsite.pl";
-my $sub = CGI::Compile->compile($cgi_script);
-my $cgi_app = CGI::Emulate::PSGI->handler($sub);
 
 my $app = builder {
-  mount "/flowdocs/search_flow.js" => App::Flow::Controller::SearchJs->new(config => $config)->to_app;
-  mount "/flow"                    => $cgi_app;
-  mount "/crud"                    => App::AutoCRUD->new(config => YAML::XS::LoadFile($crud_conf))->to_app;
-  mount "/"                        => Plack::App::File->new(root => "$Bin/www/html/Documents")->to_app;
+  mount "/flowdocs/search_flow.js" => App::Flow::Controller::SearchJs->new(config => $flow_config)->to_app;
+  mount "/flow"                    => App::Flow::Controller::Root->new(config => $flow_config)    ->to_app;
+  mount "/crud"                    => App::AutoCRUD->new(config => $crud_config)                  ->to_app;
+  mount "/"                        => Plack::App::File->new(root => "$Bin/www/html/Documents")    ->to_app;
 };
 
 
@@ -46,9 +39,3 @@ unless (caller) {
 
 return $app;
 
-__END__
-
-TODO
-  - suppr écriture dans fichier search_flow.js (persistence des id de noms)
-  - unifier les multiples copies de modules DBCommand
-  - redirect main url

@@ -1,3 +1,4 @@
+requires 'perl'  => '5.030';
 requires 'App::AutoCRUD';
 requires 'CGI::Compile';
 requires 'CGI::Emulate::PSGI';

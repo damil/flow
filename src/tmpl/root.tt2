@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+<title>Planthoppers: FLOW Website</title>
+
+<link rev="made"                              href="mailto:anta@mnhn.fr" />
+
+<base href="[% root_url %]" target="_parent" />
+
+<meta http-equiv="Content-Type"               content="text/html; charset=UTF-8" />
+<meta name="description"                      content="FLOW: a taxonomic and bibliographical database for planthoppers (Insecta Hemiptera Fulgoromorpha Fulgoroidea) their distribution and biological interactions" />
+<meta name="keywords"                         content="FLOW, Fulgoromorpha, planthoppers, Fulgoroidea, Taxonomy, dbtnt" />
+<meta name="copyright"                        content="FLOW" />
+<meta name="publisher"                        content="FLOW" />
+<meta name="google-site-verification"         content="hRYnUapr5kRBc7qIuZ4_WmKgulqneO3AZQsjjWUowUA"  />
+<link rel="shortcut icon" type="image/x-icon" href="/flowdocs/wheel/img/minifulgo.png"  />
+<link rel="stylesheet"                        href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.5.0/css/ol.css" />
+<link rel="icon" type="image/x-icon"          href="/flowdocs/wheel/img/minifulgo.png"  />
+<link rel="stylesheet" type="text/css"        href="/flowdocs/flow.css" />
+<script type="text/javascript" src="/flowdocs/browserdetect.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.5.0/build/ol.js"></script>
+<script type="text/javascript" src="/flowdocs/SearchAutoComplete_utf8.js"></script>
+<script type="text/javascript" src="/flowdocs/javascriptFuncs.js"></script>
+<script type="text/javascript" src="/flowdocs/search_flow.js"></script>
+<script type="text/javascript" src="/flowdocs/js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="/flowdocs/js/mouseScrolling.js"></script>
+<script type="text/javascript" src="/flowdocs/js/jquery.infinitecarousel2_0_2.js"></script>
+<script type="text/javascript" src="/explorerdocs/js/json2.js"></script>
+<script type="text/javascript" src="/explorerdocs/js/OpenLayers-2.13.1/OpenLayers.js"></script>
+<script type="text/javascript" src="/explorerdocs/js/compositeMaps.js"></script>
+<script type="text/javascript" src="/explorerdocs/js/cs_script.js"></script>
+<script type="text/javascript" src="https://www.googletagmanager.com/gtag/js?id=UA-21288992-1"></script>
+<script type="text/javascript">
+
+  // Google analytics
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-21288992-1');
+
+
+  // search form
+  function clear_search_except(from, identity) {
+    var identities = new Array('auteurs','pays','noms_complets');
+    var valeur;
+    for (index in identities) {
+      if (document.getElementById(identities[index]).value) { valeur = document.getElementById(identities[index]).value; }
+      if (identities[index] != identity) {
+        document.getElementById(identities[index]).style.visibility = 'hidden';
+      }
+      else {
+        document.getElementById(identities[index]).style.visibility = 'visible';
+      }
+      document.getElementById(identities[index]).value = 'Search';
+    }
+    if (from == 'popup') {
+      if (valeur) {
+        document.getElementById(identity).value = valeur;
+        document.getElementById(identity).focus();
+      }
+    }
+  }
+
+  // bulles associées aux icônes en haut de page
+  function makeBulle (myelem, myid) {
+    var bulle = document.getElementById(myid);
+    var pos = findPosII(myelem);
+    bulle.style.left = pos[0] + 30 + 'px';
+    bulle.style.top = pos[1] - 9 + 'px';
+    bulle.style.display = 'block';
+  }
+  function findPosII(obj) {
+    var curleft = curtop = 0;
+    var strleft = strtop = '';
+    if (obj.offsetParent) {
+       do {
+         if (obj.tagName != 'TABLE') { curleft += obj.offsetLeft; }
+         curtop += obj.offsetTop;
+         strleft += obj.tagName + ':' + obj.offsetLeft + '<br>';
+         strtop += obj.tagName + ':' + obj.offsetTop + '<br>';
+       } while (obj = obj.offsetParent);
+    }
+    return [curleft,curtop,strleft,strtop];
+  }
+
+
+  // click handler pour les icônes de changement de langage
+  function lang_click_handler(lang) {
+    document.searchform.action = '[% uri = c.new_uri;
+                                     uri.match('\?') ? uri _ '&' : uri _ '?' %]lang='+lang;
+    document.getElementById('searchpop').value = '[% searchtable %]';
+    document.getElementsByName('searchid')[0].value = '[% c.param('searchid') %]';
+    document.getElementById('[% searchtable %]').value = '[% c.param('search') %]';
+    document.searchform.submit();
+  }
+</script>
+</head>
+
+<body onload="[%
+    "clear_search_except('onload', 'noms_complets');";
+    "Autocomplete_Create('noms_complets', noms_complets, 'noms_completsids', authors, 10);";
+    "AutoComplete_Create('auteurs', auteurs, auteursids, '', 10);";
+    "AutoComplete_Create('pays', pays, paysids, '', 10);";
+    "if (isIE) {document.getElementById('searchpop').style.height = '20px';}";  %]">
+
+<div id='main_container'>
+  <table id='iconsSearchbar'>
+    <tr>
+      <td id="logoCell" rowspan=2>
+        <a href="[% c.new_uri(page => 'home') %]" style="text-decoration: none;">
+          <img alt="FLOW" height="46px" src="/flowdocs/logoFLOW.png" style="border: 0;" />
+        </a>
+      </td>
+      <td rowspan=2>
+	<table>
+          <tr>
+            <td colspan=2 style='height: 16px; font-size: 11px; vertical-align:text-top;'>
+              [% traduc('followFLOW') %] FLOW:
+            </td>
+          </tr>
+	  <tr>
+            <td>
+              <a href="https://twitter.com/FLOWwebsite" target="_blank">
+                <img alt="Twitter" height="20px" src="/flowdocs/twiter.png" />
+              </a>
+            </td>
+            <td>
+              <a href="https://www.facebook.com/FLOWwebsite" target="_blank">
+                <img alt="Facebook" height="20px" src="/flowdocs/facebook.png" />
+              </a>
+            </td>
+          </tr>
+        </table>
+      </td>
+      <td class='iconsCell'>
+        [% PROCESS display_icon FOREACH icon IN icon_descriptions; %]
+      </td>
+      <td>
+        [% PROCESS display_icon FOREACH icon IN icon2_descriptions; %]
+      </td>
+      <td id='flagsCell'>
+       	<div id="flagsDiv">
+          [% PROCESS display_lang_flag FOREACH lang IN lang_descriptions; %]
+
+          [%# icône de triangle pour pulldown des drapeaux des pays %]
+          <div style="text-align: center"
+               onmouseover="this.style.cursor = 'pointer'; magicFlags('reactiveFlags', 'onMouseOver', '[% xlang %]')"
+               onmouseout="magicFlags('reactiveFlags', 'onMouseOut', '[% xlang %]')">
+             <img src="/flowdocs/triangle.png" />
+          </div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td id='searchCell' colspan=2>
+	<table>
+          <tr>
+            <td id='searchPill'>
+              <form name="searchform" method="post" enctype="multipart/form-data" class="searchForm"
+                    action="[% c.new_uri(page => 'explorer', card => 'searching') %]">
+                <table cellpadding="0" cellspacing="0" id="searchTable">
+                  <tr>
+                    <td style="height: 24px; margin: 0; padding-left: 6px; vertical-align: middle;">
+                      <a href="[% c.new_uri(reload => 1) %]" style="text-decoration: none;">
+                        <img src="/flowdocs/wheel/img/reload.png" alt="reload" border="0" width="20" />
+                      </a>
+                    </td>
+                    <td style="height: 24px; padding-left: 4px; vertical-align: middle;"></td>
+                    <td style="height: 24px; margin: 0; padding: 0; vertical-align: middle;">
+                      <select name="searchtable"  class="searchPopup" id="searchpop" 
+                              onchange="clear_search_except('popup', this.value)">
+                        [% FOREACH st IN search_types %]
+                          <option class="searchOption" value="[% st.id %]"[% " selected" IF st.id == searchtable %]>
+                            [%~ st.name ~%]
+                          </option>
+                        [% END; # FOREACH st IN search_types %]
+                      </select>
+                    </td>
+
+                    <td style="width: 180px; height: 24px; margin: 0; padding: 0; vertical-align: top;">
+                      <span style="position: absolute; margin: 0; padding: 0;">
+                        [% FOREACH st IN search_types %]
+                        <input type="text" name="search[% loop.count %]"  class="searchField" id="[% st.id %]"
+                               onblur="if(!this.value) { this.value = '[% traduc('search') %]' }"
+                               onfocus="if(this.value != '[% traduc('search') %]'){AutoComplete_ShowDropdown(this.getAttribute('id'))} else {this.value=''}"
+                               style="z-index: [% loop.count %]" />
+                        [% END; # FOREACH st IN search_types %]
+                      </span>
+                    </td>
+                  </tr>
+                </table>
+                <input type="hidden" name="searchid" value=""  />
+              </form>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+  <br />
+
+  
+  <div class="contentContainer card">
+    [% TRY;   PROCESS $xpage;
+       CATCH; PROCESS default_page;
+       END; %]
+  </div>
+
+  [% IF xpage == 'explorer' and not url_param('loading') %]
+     <div class='contentContainer'>
+       Explorer content : NOT IMPLEMENTED YET (needs external call to explorer20.pl)
+       [%# ============================================
+          my @script_args = ("-searchtable='$searchtable'", "-search='$search'");
+          push @script_args, "-searchid=$searchid" if $searchid;
+
+
+          for my $p (qw/db card id lang alph from to rank mode privacy limit/) {
+            my $val = url_param($p);
+            push @script_args, "-$p=$val" if $val;
+          }
+
+          $activepage = url_param('card') eq 'board' ? "Synopsis" : $traduction->{'flow_db'}->{$xlang};
+
+          my $id = url_param('id') || '';
+
+          my $alph = url_param('alph') || 'NULL';
+          $pagetitle = get_title($dbc, $xbase, $card, $id, $search, $xlang, 'NULL', $alph, $traduction);
+
+          $script = join " ", "/var/www/html/perl/explorer20.pl", @script_args;
+
+          system $script;
+       %]
+     </div>
+  [% END; # IF xpage == 'explorer' & !url_param('loading' %]
+
+
+  
+  <div class="card" style="background: #DDDDDD; margin-left: 10px;">
+    <table style="width: 100%; /*table-layout: fixed;*/ font-size: 12px; line-height: 10px;">
+      <tr>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        [% FOREACH col IN bottom_cols %]
+        <td style="vertical-align: top;">
+          <ul style="text-align: left[% "; margin-left: 15px" IF loop.first %]">
+            <li style="padding-bottom: 3px;"><b>[% col.title %]</b></li>
+            [% FOREACH link IN col.links %]
+            <li><a href="[% link.href %]" style="text-decoration: none"[% link.target %]>[% link.txt.ucfirst %]</a></li>
+            [% END; # FOREACH link IN col.links %]
+          </ul>
+        </td>
+        [% END; # FOREACH col IN bottom_cols %]
+      </tr>
+      <tr><td>&nbsp;</td></tr>
+    </table>
+  </div>
+
+</div>
+</body>
+</html>
+
+
+
+
+[%~ BLOCK display_icon;
+    traduc_entry = icon.traduc || icon.name;
+    txt_traduc   = traduc(traduc_entry) || traduc_entry  ~%]
+<div class="info" id="[% icon.name %]" style="position: absolute; z-index: 10; display: none;">
+  [%~ txt_traduc.ucfirst ~%]
+</div>
+<a href="[% icon.href %]"
+   onmouseout="document.getElementById('[% icon.name %]').style.display = 'none';"
+   onmouseover="makeBulle(this, '[% icon.name %]');"
+   style="text-decoration: none;">
+  <img alt="[% icon.alt %]" class="icon1" src="/flowdocs/wheel/img/[% icon.img %]">
+</a>
+[%~ END; # BLOCK display_icon ~%]
+
+
+[%~ BLOCK display_lang_flag ~%]
+  <span class="reactiveFlags" id="[% lang.id %]" style="display: [% lang.display %]"
+        onmouseover="this.style.cursor = 'pointer'; magicFlags('reactiveFlags', 'onMouseOver', '[% xlang %]');"
+        onmouseout="magicFlags('reactiveFlags', 'onMouseOut', '[% xlang %]');"
+        onclick="lang_click_handler('[% lang.id %]')"
+        >
+     <img alt="[% lang.name %]" border="0" src="/flowdocs/[% lang.img %]" width="22" />
+  </span>
+[%~ END; # BLOCK display_lang_flag ~%]
+
+
+
+
+[%~ BLOCK explorer ~%]
+[%~ END; # BLOCK explorer ~%]
+
+
+  
+[%~ BLOCK project ~%]
+[%#
+
+		$content = 	table(
+					Tr(
+					td({-style=>"padding-right: 20px; width: 700px;"},
+							span({-name=>'ori', -class=>'paragrafTitleStyle'}, $traduction->{'ori_key'}->{$xlang}),p,
+							$traduction->{'oritxt'}->{$xlang}
+						),
+						td({-style=>'width: 100px;'}, img({-src=>$docpath."intricata.png", alt=>"intricata", width=>'100px', height=>'200px'}))
+					)
+				).
+				table(
+					Tr(
+						td({-style=>"padding-right: 20px;"}, img({-src=>$docpath."vohimana3.png", alt=>"vohimana", width=>'200px', height=>'150px'}),p),
+						td(
+							span({-name=>'desc', -class=>'paragrafTitleStyle'}, $traduction->{'descr_key'}->{$xlang}),p,
+							$traduction->{'presenttxt'}->{$xlang}
+						)
+					)
+				).
+				table(
+					Tr(
+						td({-style=>"padding-right: 20px;"},
+							span({-name=>'tech', -class=>'paragrafTitleStyle'}, $traduction->{'tech_key'}->{$xlang}),p,
+							$traduction->{'techtxt'}->{$xlang}
+						),
+						td(img({-src=>$docpath."fulgore2.png", alt=>"fulgore", width=>'180px', height=>'200px'}))
+					)
+				).
+				table(
+					Tr(
+						td(
+							span({-name=>'com', -class=>'paragrafTitleStyle'}, $traduction->{'community'}->{$xlang}),p,
+							$traduction->{'commutxt'}->{$xlang}
+						)
+					)
+				).
+				table(
+					Tr(
+						td({-style=>"padding-right: 20px;"},
+							span({-name=>'col', -class=>'paragrafTitleStyle'}, $traduction->{'collabos'}->{$xlang}), br, br,
+							$traduction->{'collabtxt'}->{$xlang}, br, br,
+							a({-href=>"http://www.gbif.org/"}, img{-src=>$docpath.'gbif.jpg', -style=>'border: 0; height:50px; width: 89px;'}),
+							a({-href=>"http://www.sp2000.org/"}, img{-src=>$docpath.'sp2k.png', -style=>'border: 0; height:50px; width: 113px;'}),
+							a({-href=>"http://www.biocase.org/index.shtml"}, img{-src=>$docpath.'biocase.png', -style=>'border: 0; height:50px; width: 77px;'}), p
+						)
+					)
+				).
+				table(
+					Tr(
+						td({-style=>"padding-right: 20px;"},
+							span({-name=>'ctb', -class=>'paragrafTitleStyle'}, $traduction->{'contrib_key'}->{$xlang}), p({-style=>'text-indent: 20px'}),
+							$traduction->{'contribtxt'}->{$xlang}
+						)
+					)
+				).
+				table(
+					Tr(
+						td(
+							$traduction->{'dbtnt_standards'}->{$xlang}. p
+						)
+					)
+				).
+				span({-class=>'paragrafTitleStyle'}, $traduction->{'arigato'}->{$xlang}). p.	
+				$traduction->{'thkintro'}->{$xlang}.		
+				ul( "$traduction->{'fulgothanks'}->{$xlang}" );
+
+			$content = br.div({-class=>'contentContainer card', -style=>'width: 970px; padding: 15px;'}, $content);
+%]
+
+[%~ END; # BLOCK project ~%]
+
+
+[%~ BLOCK intro ~%]
+[%#
+		$content  = br.div({-class=>'contentContainer card', -style=>'width: 970px; margin-left: 0px; padding: 15px;'},
+			span({-class=>'paragrafTitleStyle'}, $traduction->{'fulgointrotitle'}->{$xlang}), p({-style=>'text-indent: 20px'}),
+			$traduction->{'fulgointro'}->{$xlang}, p({-style=>'text-indent: 20px'}),
+			img({-src=>$docpath.'DSC02119.jpg', -style=>"width: 259px; height: 194px"}),
+			img({-src=>$docpath.'DSC02158.jpg', -style=>"width: 259px; height: 194px"}),
+			img({-src=>$docpath.'IMG_0492.jpg', -style=>"width: 257px; height: 194pix"}), br, br,
+			span({-class=>'paragrafTitleStyle'}, $traduction->{'beetitle'}->{$xlang}), p({-style=>'text-indent: 20px'}),
+			$traduction->{'fulgobio'}->{$xlang}, br, br,
+			span({-class=>'paragrafTitleStyle'}, $traduction->{'econotitle'}->{$xlang}), p({-style=>'text-indent: 20px'}),
+			$traduction->{'pests'}->{$xlang}, br, br,
+			span({-class=>'paragrafTitleStyle'}, $traduction->{'fulgobiogeotitle'}->{$xlang}), p({-style=>'text-indent: 20px'}),
+			$traduction->{'fulgobiogeo'}->{$xlang}, br, br,
+			img({-src=>$docpath.'DSC02404.jpg', -style=>"width: 150px; height: 200px; margin-right: 50px; "}),
+			img({-src=>$docpath.'IMG_0234.jpg', -style=>"width: 133px; height: 200px; margin-right: 50px;"}),
+			img({-src=>$docpath.'IMG_0380.jpg', -style=>"width: 133px; height: 200px"}), br, br,
+			span({-class=>'paragrafTitleStyle'}, $traduction->{'fulgomorphotitle'}->{$xlang}), p({-style=>'text-indent: 20px'}),
+			$traduction->{'fulgomorpho'}->{$xlang}, br, br,
+			img({-src=>$docpath.'IMG_0301.jpg', -style=>"width: 143px; height: 200px; margin-right: 50px; "}),
+			img({-src=>$docpath.'IMG_0469.jpg', -style=>"width: 300px; height: 200px"}), br, br,
+			span({-class=>'paragrafTitleStyle'}, $traduction->{'fulgophylotitle'}->{$xlang}), p({-style=>'text-indent: 20px'}),
+			$traduction->{'fulgophylo'}->{$xlang}, br, br,
+			span({-class=>'paragrafTitleStyle'}, $traduction->{'refstitle'}->{$xlang}), p({-style=>'text-indent: 20px'}),
+			div({-style=>'position: relative; overflow: auto; height: 450px; width: 950px; margin-top: 20px; padding: 0; background: transparent;'},
+				$traduction->{'flow_refs_list'}->{$xlang}
+			)
+		);
+%]
+[%~ END; # BLOCK intro ~%]
+
+
+
+[%~ BLOCK map ~%]
+[%#
+		$content .= 	div({-class=>'contentContainer'},
+					"<div 	style='position: relative; overflow: auto; height: 450px; width: 940px; margin-top: 20px; padding: 0; background: transparent;'
+						id='map'>
+					</div>
+					<script src='http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAjpkAC9ePGem0lIq5XcMiuhR_wWLPFku8Ix9i2SXYRVK3e45q1BQUd_beF8dtzKET_EteAjPdGDwqpQ'></script>
+					<script type='text/javascript'>
+					// make map available for easy debugging
+					var map;
+
+					// increase reload attempts
+					OpenLayers.IMAGE_RELOAD_ATTEMPTS = 3;
+
+					function init(){
+						var options = {
+							projection: new OpenLayers.Projection('EPSG:900913'),
+							displayProjection: new OpenLayers.Projection('EPSG:4326'),
+							units: 'm',
+							numZoomLevels: 18,
+							maxResolution: 156543.0339,
+							maxExtent: new OpenLayers.Bounds(-20037508, -20037508, 20037508, 20037508.34)
+						};
+						map = new OpenLayers.Map('map', options);
+
+						var gsat = new OpenLayers.Layer.Google(
+						'Google Satellite',
+						{type: G_SATELLITE_MAP, 'sphericalMercator': true, numZoomLevels: 22}
+						);
+
+						map.addLayers([gsap]);
+						map.zoomToMaxExtent();
+					}
+					init();
+					</script>"
+				);
+%]
+                                        
+[%~ END; # BLOCK map ~%]
+
+
+[%~ BLOCK default_page ~%]
+    <div style="text-align: center;">
+      <br />
+      <table border="0">
+        <tr>
+          <td style="width: 300px; text-align: center;">
+            <a href="http://www.mnhn.fr/museum/foffice/transverse/transverse/accueil.xsp"
+               style="text-decoration: none;"
+               target="_blank">
+              <img src="/flowdocs/logo_mnhn.png" alt="MNHN" height="80px" style="border: 0;" />
+            </a>
+          </td>
+          <td rowspan="2" style="width: 400px; text-align: center; font-size: 66px;">FLOW</td>
+          <td style="width: 300px; text-align: center; vertical-align: bottom;">
+            <br />
+            <br />
+          </td>
+        </tr>
+        <tr>
+          <td style="width: 300px; text-align: center; vertical-align: top;">
+            <a href="https://www.sorbonne-universite.fr" style="text-decoration: none;" target="_blank">
+              <img src="/flowdocs/sorbone_university.png" alt="UPMC" height="60px"  style="border: 0;" />
+            </a>
+          </td>
+          <td style="width: 300px; text-align: center; vertical-align: top;">
+            Version:  <span style="font-size: 110%; font-weight: bold">8</span>
+            <br />
+            [% traduc('dmaj') %]: <span style="font-size: 110%; font-weight: bold">[% last_update %]</span>
+          </td>
+        </tr>
+      </table>
+      [% traduc('home_intro') %]
+      <br>
+      <p style="text-indent: 20px" />
+      [% PROCESS carrousel %]
+      <br>
+    </div>
+
+
+    [% IF loading %]
+
+    <div class="contentContainer">
+      <div id="loadDiv" style="position: relative; top: 146px; left: 46%; z-index=11;">
+        loading...<br><br>
+        <img src="/flowdocs/flowloading1.gif" style="width: 40px;" />
+      </div>
+      [% frame    = self_url.replace(';loading=1', ''); 
+         framecss = "overflow:hidden;overflow-x:hidden;overflow-y:hidden;height:100%;width:100%;position:absolute;top:0px;left:0px;right:0px;bottom:0px;border:none;z-index:10;";
+      %]
+      <iframe id="mainFrame" src="[% frame %]" style="[% framecss %]" height="100%" width="100%"
+              onload="'document.getElementById('loadDiv').style.display = 'none'">
+      </iframe>'
+
+    [% END; # IF loading %]
+
+[%~ END; # BLOCK default_page ~%]
+
+
+
+[%~ BLOCK carrousel ~%]
+  <script type='text/javascript'>
+    $(function(){
+      $("#carousel").infiniteCarousel({
+        transitionSpeed: 4000,
+        displayTime: 0,
+        displayProgressBar: false,
+        displayThumbnails: false,
+        displayThumbnailNumbers: false,
+        displayThumbnailBackground: false,
+        imagePath: "",
+        easeLeft: "linear",
+        easeRight: "linear",
+        inView: 5,
+        padding: "0px",
+        advance: 1,
+        showControls: false,
+        autoHideControls: false,
+        autoHideCaptions: false,
+        autoStart: true,
+        prevNextInternal: true
+      });
+      $("div.thumb").parent().css({"margin":"0 auto","width":"900px"});
+    });
+    function ImageMax(chemin) {
+      var html = '<html><body><img src="'+chemin+'" border=0 height="900"/></body></html>';
+      var popupImage = window.open('','_blank','toolbar=0, location=0, scrollbars=0, directories=0, status=0, resizable=1');
+      popupImage.document.open();
+      popupImage.document.write(html);
+      popupImage.document.close();
+    };
+  </script>
+  <div id='carousel' style='width: 900px'>
+    <ul>
+      [% FOREACH photo IN photos %]
+        <li><img alt="FLOW planthopper fulgoroidea fulgoromorpha insect"
+                 src="/flowfotos/carousel/thumbnails/[% photo %].png"
+                 height="150" width="200"
+                 onMouseOver="this.style.cursor='pointer'"
+                 onclick="ImageMax('/flowfotos/carousel/1280/[% photo %].jpg')">
+         </li>
+      [% END; # FOREACH %]
+    </ul>
+  </div>
+[%~ END; # BLOCK carrousel ~%]
+  
