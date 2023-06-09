@@ -10,15 +10,14 @@ use parent 'App::Flow::Controller';
 
 # TODO : handle param "reload" at app level
 
-sub call {
-  my ($self, $env) = @_;
+sub respond {
+  my ($self, $c) = @_;
 
   # requête HTTP
-  my $req   = Plack::Request->new($env);
-  my $xlang = $req->param('lang') || 'en';
+  my $xlang = $c->param('lang') || 'en';
 
   # génération de la réponse -- contenu valide pendant 30 min.
-  my $res = $req->new_response(200);
+  my $res = $c->req->new_response(200);
   $res->content_type('text/javascript; charset=UTF-8');
   $res->header(expire => time + 1800);
 

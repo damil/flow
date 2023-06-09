@@ -5,7 +5,7 @@
 
 <link rev="made"                              href="mailto:anta@mnhn.fr" />
 
-<base href="[% rooturl %]" target="_parent" />
+<base href="[% root_url %]" target="_parent" />
 
 <meta http-equiv="Content-Type"               content="text/html; charset=UTF-8" />
 <meta name="description"                      content="FLOW: a taxonomic and bibliographical database for planthoppers (Insecta Hemiptera Fulgoromorpha Fulgoroidea) their distribution and biological interactions" />
@@ -86,33 +86,28 @@
 
   // click handler pour les icônes de changement de langage
   function lang_click_handler(lang) {
-    document.searchform.action = '[% rooturl %]/flow?[% argus %]&lang='+lang;
+    document.searchform.action = '[% uri = c.new_uri;
+                                     uri.match('\?') ? uri _ '&' : uri _ '?' %]lang='+lang;
     document.getElementById('searchpop').value = '[% searchtable %]';
-    document.getElementsByName('searchid')[0].value = '[% searchid %]';
-    document.getElementById('[% searchtable %]').value = '[% search %]';
-    document.searchform.submit();"
+    document.getElementsByName('searchid')[0].value = '[% c.param('searchid') %]';
+    document.getElementById('[% searchtable %]').value = '[% c.param('search') %]';
+    document.searchform.submit();
   }
-
-
-  function onload_handler() {
-    clear_search_except('onload', 'noms_complets');
-    Autocomplete_Create('noms_complets', noms_complets, 'noms_completsids', authors, 10);
-    AutoComplete_Create('auteurs', auteurs, auteursids, '', 10);
-    AutoComplete_Create('pays', pays, paysids, '', 10);
-    if (isIE) {document.getElementById('searchpop').style.height = '20px';}
-  }
-
 </script>
 </head>
 
-<body onload="onload_handler()">
-
+<body onload="[%
+    "clear_search_except('onload', 'noms_complets');";
+    "Autocomplete_Create('noms_complets', noms_complets, 'noms_completsids', authors, 10);";
+    "AutoComplete_Create('auteurs', auteurs, auteursids, '', 10);";
+    "AutoComplete_Create('pays', pays, paysids, '', 10);";
+    "if (isIE) {document.getElementById('searchpop').style.height = '20px';}";  %]">
 
 <div id='main_container'>
   <table id='iconsSearchbar'>
     <tr>
       <td id="logoCell" rowspan=2>
-        <a href="[% rooturl %]/flow?db=flow&page=home&lang=en" style="text-decoration: none;">
+        <a href="[% c.new_uri(page => 'home') %]" style="text-decoration: none;">
           <img alt="FLOW" height="46px" src="/flowdocs/logoFLOW.png" style="border: 0;" />
         </a>
       </td>
@@ -138,10 +133,10 @@
         </table>
       </td>
       <td class='iconsCell'>
-        [% PROCESS display_icon FOREACH icon IN icons_descriptions; %]
+        [% PROCESS display_icon FOREACH icon IN icon_descriptions; %]
       </td>
       <td>
-        [% PROCESS display_icon FOREACH icon IN icons2_descriptions; %]
+        [% PROCESS display_icon FOREACH icon IN icon2_descriptions; %]
       </td>
       <td id='flagsCell'>
        	<div id="flagsDiv">
@@ -161,24 +156,24 @@
 	<table>
           <tr>
             <td id='searchPill'>
-
-
               <form name="searchform" method="post" enctype="multipart/form-data" class="searchForm"
-                    action="[% rooturl %]/flow?db=[% xbase %]&page=explorer&card=searching&lang=[% xlang %]"
-                    >
+                    action="[% c.new_uri(page => 'explorer', card => 'searching') %]">
                 <table cellpadding="0" cellspacing="0" id="searchTable">
                   <tr>
                     <td style="height: 24px; margin: 0; padding-left: 6px; vertical-align: middle;">
-                      <a href="[% rooturl %]/flow?[% argus %]&lang=[% xlang %]&reload=1" style="text-decoration: none;">
+                      <a href="[% c.new_uri(reload => 1) %]" style="text-decoration: none;">
                         <img src="/flowdocs/wheel/img/reload.png" alt="reload" border="0" width="20" />
                       </a>
                     </td>
                     <td style="height: 24px; padding-left: 4px; vertical-align: middle;"></td>
                     <td style="height: 24px; margin: 0; padding: 0; vertical-align: middle;">
-                      <select name="searchtable"  class="searchPopup" id="searchpop" onchange="clear_search_except('popup', this.value)">
+                      <select name="searchtable"  class="searchPopup" id="searchpop" 
+                              onchange="clear_search_except('popup', this.value)">
                         [% FOREACH st IN search_types %]
-                          <option class="searchOption" value="[% st.id %]"[% " selected" IF st.id == searchtable %]>[% st.name %]</option>
-                        [% END; # FOREACH st IN search_options %]
+                          <option class="searchOption" value="[% st.id %]"[% " selected" IF st.id == searchtable %]>
+                            [%~ st.name ~%]
+                          </option>
+                        [% END; # FOREACH st IN search_types %]
                       </select>
                     </td>
 
@@ -208,10 +203,10 @@
   <div class="contentContainer card">
     [% TRY;   PROCESS $xpage;
        CATCH; PROCESS default_page;
-       END: %]
+       END; %]
   </div>
 
-  [% IF xpage == 'explorer' & !url_param('loading' %]
+  [% IF xpage == 'explorer' and not url_param('loading') %]
      <div class='contentContainer'>
        Explorer content : NOT IMPLEMENTED YET (needs external call to explorer20.pl)
        [%# ============================================
@@ -240,63 +235,50 @@
 
 
   
-     <div class="card" style="background: #DDDDDD; margin-left: 10px;">
-       <table style="width: 100%; /*table-layout: fixed;*/ font-size: 12px; line-height: 10px;">
-         <tr>
-           <td>&nbsp;</td>
-         </tr>
-         <tr>
-           [% FOREACH col IN bottom_cols %]
-           <td style="vertical-align: top;">
-             <ul style="text-align: left[% "; margin-left: 15px" IF loop.first %]">
-               <li style="padding-bottom: 3px;"><b>[% col.title %]</b></li>
-               [% FOREACH link IN col.links %]
-               <li><a href="[% link.href %]" style="text-decoration: none"[% link.target %]>[% link.txt %]</a></li>
-               [% END; # FOREACH link IN col.links %]
-             </ul>
-           </td>
-           [% END; # FOREACH col IN bottom_cols %]
+  <div class="card" style="background: #DDDDDD; margin-left: 10px;">
+    <table style="width: 100%; /*table-layout: fixed;*/ font-size: 12px; line-height: 10px;">
+      <tr>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        [% FOREACH col IN bottom_cols %]
+        <td style="vertical-align: top;">
+          <ul style="text-align: left[% "; margin-left: 15px" IF loop.first %]">
+            <li style="padding-bottom: 3px;"><b>[% col.title %]</b></li>
+            [% FOREACH link IN col.links %]
+            <li><a href="[% link.href %]" style="text-decoration: none"[% link.target %]>[% link.txt.ucfirst %]</a></li>
+            [% END; # FOREACH link IN col.links %]
+          </ul>
+        </td>
+        [% END; # FOREACH col IN bottom_cols %]
+      </tr>
+      <tr><td>&nbsp;</td></tr>
+    </table>
+  </div>
 
-
-           <td style="vertical-align: top;">
-             <ul style="text-align: left;">
-               <li style="padding-bottom: 3px;"><b>Taxonomy</b></li> <li><a href="http://localhost:5438/flow?db=flow&amp;page=explorer&amp;card=families&amp;lang=en" style="text-decoration: none;">Families</a></li> <li><a href="http://localhost:5438/flow?db=flow&amp;page=explorer&amp;card=genera&amp;lang=en" style="text-decoration: none;">Genera</a></li> <li><a href="http://localhost:5438/flow?db=flow&amp;page=explorer&amp;card=speciess&amp;lang=en" style="text-decoration: none;">Species</a></li></ul></td> <td style="vertical-align: top;"><ul style="text-align: left;">
-
-               <li style="padding-bottom: 3px;"><b>Names</b></li> <li><a href="http://localhost:5438/flow?db=flow&amp;page=explorer&amp;card=names&amp;lang=en" style="text-decoration: none;">Names</a></li> <li><a href="http://localhost:5438/flow?db=flow&amp;page=explorer&amp;card=vernaculars&amp;lang=en" style="text-decoration: none;">Vernacular names</a></li></ul></td> <td style="vertical-align: top;"><ul style="text-align: left;">
-
-               <li style="padding-bottom: 3px;"><b>Classifications</b></li> <li><a href="http://localhost:5438/flow?db=flow&amp;page=explorer&amp;card=classification&amp;lang=en" style="text-decoration: none;">Linnean Classification</a></li> <li><a href="#" style="text-decoration: none;">Phylogeny</a></li></ul></td> <td style="vertical-align: top;"><ul style="text-align: left;">
-
-               <li style="padding-bottom: 3px;"><b>Associated data</b></li> <li><a href="http://localhost:5438/flow?db=flow&amp;page=explorer&amp;card=moleculardata&amp;lang=en" style="text-decoration: none;">Molecular data</a></li> <li><a href="http://localhost:5438/flow?db=flow&amp;page=explorer&amp;card=countries&amp;lang=en" style="text-decoration: none;">Distribution</a></li> <li><a href="http://localhost:5438/flow?db=flow&amp;page=explorer&amp;card=associates&amp;lang=en" style="text-decoration: none;">Biological interactions</a></li> <li><a href="http://localhost:5438/flow?db=flow&amp;page=explorer&amp;card=fossils&amp;lang=en" style="text-decoration: none;">Fossil taxa</a></li> <li><a href="http://localhost:5438/flow?db=flow&amp;page=explorer&amp;card=images&amp;lang=en" style="text-decoration: none;">Pictures</a></li> <li><a href="http://localhost:5438/flow?db=flow&amp;page=explorer&amp;card=repositories&amp;lang=en" style="text-decoration: none;">Repositories</a></li></ul></td> <td style="vertical-align: top;"><ul style="text-align: left;"><li style="padding-bottom: 3px;"><b>Bibliography</b></li> <li><a href="http://localhost:5438/flow?db=flow&amp;page=explorer&amp;card=publications&amp;lang=en" style="text-decoration: none;">Publications</a></li> <li><a href="http://localhost:5438/flow?db=flow&amp;page=explorer&amp;card=authors&amp;lang=en" style="text-decoration: none;">Authors</a></li></ul></td> <td style="vertical-align: top;"><ul style="text-align: left;"><li style="padding-bottom: 3px;"><b>General</b></li> <li><a href="http://localhost:5438/flow?db=flow&amp;page=project&amp;lang=en" style="text-decoration: none;">About FLOW</a></li> <li><a href="http://localhost:5438/flow?db=flow&amp;page=intro&amp;lang=en" style="text-decoration: none;">Fulgoromorpha</a></li> <li><a href="http://localhost:5438/flow?db=flow&amp;page=explorer&amp;lang=en&amp;card=board" style="text-decoration: none;">Synopsis</a></li> <li><a href="http://localhost:5438/flow?db=flow&amp;page=explorer&amp;lang=en&amp;card=updates" style="text-decoration: none;">Last updates</a></li></ul></td>
-           <td style="vertical-align: top;"><ul style="text-align: left;"><li style="padding-bottom: 3px;"><b>Follow FLOW</b></li> <li><a href="https://twitter.com/FLOWwebsite" target="_blank">Twitter</a></li> <li><a href="https://www.facebook.com/FLOWwebsite" target="_blank">Facebook</a></li> <li><a href="mailto:bourgoin@mnhn.fr?subject=FLOW improvement&amp;body=Thank you for using FLOW. You want to report a problem with this page or you want to complete the data: any complementary information/data and correction are very welcome, but only published ones can be considered. 
-So please provide the references of your sources. http://localhost:5438/flow" style="text-decoration: none;" target="_blank">Contact</a></li></ul></td></tr> <tr><td>&nbsp;</td></tr>
-       </table>
-</div></DIV>
-
-
-
-
+</div>
 </body>
 </html>
 
 
 
 
-[% BLOCK display_icon %]
-   traduc_entry = icon.traduc || icon.name;
-   txt_traduc   = (traduc(traduc_entry) || traduc_entry).ucfirst;  %]
+[%~ BLOCK display_icon;
+    traduc_entry = icon.traduc || icon.name;
+    txt_traduc   = traduc(traduc_entry) || traduc_entry  ~%]
 <div class="info" id="[% icon.name %]" style="position: absolute; z-index: 10; display: none;">
-  [%~ txt_traduc ~%]
+  [%~ txt_traduc.ucfirst ~%]
 </div>
 <a href="[% icon.href %]"
    onmouseout="document.getElementById('[% icon.name %]').style.display = 'none';"
    onmouseover="makeBulle(this, '[% icon.name %]');"
    style="text-decoration: none;">
-  <img alt="[% icon.alt %]" class="icon1" src="[% docpath %]/wheel/img/[% icon.img %]">
+  <img alt="[% icon.alt %]" class="icon1" src="/flowdocs/wheel/img/[% icon.img %]">
 </a>
-[% END; # BLOCK display_icon%]
+[%~ END; # BLOCK display_icon ~%]
 
 
-[% BLOCK display_lang %]
+[%~ BLOCK display_lang_flag ~%]
   <span class="reactiveFlags" id="[% lang.id %]" style="display: [% lang.display %]"
         onmouseover="this.style.cursor = 'pointer'; magicFlags('reactiveFlags', 'onMouseOver', '[% xlang %]');"
         onmouseout="magicFlags('reactiveFlags', 'onMouseOut', '[% xlang %]');"
@@ -304,19 +286,19 @@ So please provide the references of your sources. http://localhost:5438/flow" st
         >
      <img alt="[% lang.name %]" border="0" src="/flowdocs/[% lang.img %]" width="22" />
   </span>
-[% END; # BLOCK display_lang %]
+[%~ END; # BLOCK display_lang_flag ~%]
 
 
 
 
-
-
-[% BLOCK explorer %]
-[% END; # BLOCK explorer %]
+[%~ BLOCK explorer ~%]
+[%~ END; # BLOCK explorer ~%]
 
 
   
-[% BLOCK project %]
+[%~ BLOCK project ~%]
+[%#
+
 		$content = 	table(
 					Tr(
 					td({-style=>"padding-right: 20px; width: 700px;"},
@@ -383,10 +365,13 @@ So please provide the references of your sources. http://localhost:5438/flow" st
 				ul( "$traduction->{'fulgothanks'}->{$xlang}" );
 
 			$content = br.div({-class=>'contentContainer card', -style=>'width: 970px; padding: 15px;'}, $content);
-[% END; # BLOCK project %]
+%]
+
+[%~ END; # BLOCK project ~%]
 
 
-[% BLOCK intro %]
+[%~ BLOCK intro ~%]
+[%#
 		$content  = br.div({-class=>'contentContainer card', -style=>'width: 970px; margin-left: 0px; padding: 15px;'},
 			span({-class=>'paragrafTitleStyle'}, $traduction->{'fulgointrotitle'}->{$xlang}), p({-style=>'text-indent: 20px'}),
 			$traduction->{'fulgointro'}->{$xlang}, p({-style=>'text-indent: 20px'}),
@@ -413,11 +398,13 @@ So please provide the references of your sources. http://localhost:5438/flow" st
 				$traduction->{'flow_refs_list'}->{$xlang}
 			)
 		);
-[% END; # BLOCK intro %]
+%]
+[%~ END; # BLOCK intro ~%]
 
 
 
-[% BLOCK map %]
+[%~ BLOCK map ~%]
+[%#
 		$content .= 	div({-class=>'contentContainer'},
 					"<div 	style='position: relative; overflow: auto; height: 450px; width: 940px; margin-top: 20px; padding: 0; background: transparent;'
 						id='map'>
@@ -452,10 +439,12 @@ So please provide the references of your sources. http://localhost:5438/flow" st
 					init();
 					</script>"
 				);
-[% END; # BLOCK map %]
+%]
+                                        
+[%~ END; # BLOCK map ~%]
 
 
-[% BLOCK default_page %]
+[%~ BLOCK default_page ~%]
     <div style="text-align: center;">
       <br />
       <table border="0">
@@ -469,10 +458,6 @@ So please provide the references of your sources. http://localhost:5438/flow" st
           </td>
           <td rowspan="2" style="width: 400px; text-align: center; font-size: 66px;">FLOW</td>
           <td style="width: 300px; text-align: center; vertical-align: bottom;">
-            [%#  content from 'flowsite.pl' src but commented out -- probably obsolete
-                 <a href="http://infosyslab.mnhn.fr/dbtnt/" style='text-decoration: none;' target='_blank'>,
-	           <img src='/dbtnt/images/logo.png' alt="DBTNT" style='border: 0' height='40px'>
-                 </a> %]
             <br />
             <br />
           </td>
@@ -505,7 +490,7 @@ So please provide the references of your sources. http://localhost:5438/flow" st
         loading...<br><br>
         <img src="/flowdocs/flowloading1.gif" style="width: 40px;" />
       </div>
-      [% frame    = url(-path_info=>1,-query=>1).replace(';loading=1', ''); 
+      [% frame    = self_url.replace(';loading=1', ''); 
          framecss = "overflow:hidden;overflow-x:hidden;overflow-y:hidden;height:100%;width:100%;position:absolute;top:0px;left:0px;right:0px;bottom:0px;border:none;z-index:10;";
       %]
       <iframe id="mainFrame" src="[% frame %]" style="[% framecss %]" height="100%" width="100%"
@@ -514,7 +499,7 @@ So please provide the references of your sources. http://localhost:5438/flow" st
 
     [% END; # IF loading %]
 
-[%~ END; BLOCK default_page ~%]
+[%~ END; # BLOCK default_page ~%]
 
 
 
@@ -562,4 +547,5 @@ So please provide the references of your sources. http://localhost:5438/flow" st
       [% END; # FOREACH %]
     </ul>
   </div>
-[% END; # BLOCK carrousel %]
+[%~ END; # BLOCK carrousel ~%]
+  

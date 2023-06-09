@@ -2,9 +2,21 @@ package App::Flow::Controller;
 use utf8;
 use strict;
 use warnings;
+use App::Flow::Context;
+use DBI;
 use parent 'Plack::Component';
 
 use Plack::Util::Accessor qw(config);
+
+
+sub call { # entry point for Plack::Component
+  my ($self, $env) = @_;
+
+  my $req = Plack::Request->new($env);
+  my $c   = App::Flow::Context->new(req => $req, stash => {});
+
+  $self->respond($c);
+}
 
 
 sub dbh_for {
