@@ -4551,11 +4551,8 @@ sub taxon_card {
                         }
                         @phpcols = reverse @phpcols;
                         
-                        #$phpstr .= '&nbsp;&nbsp;&nbsp;&nbsp;'; #!!
-                        #$phpstr .= "array (<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'".join ("', <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'", @phpcols)."'<br>&nbsp;&nbsp;&nbsp;)"; #!! retirer les retours ligne
                         $phpstr .= 'array (\"'.join ('\",\"', @phpcols).'\")';
                         unless ($i == $#$leaves) { $phpstr .= ','; }
-                        #$phpstr .= '<br>'; #!!
                         $i++;
                 }
                 $phpstr .= ');';
@@ -4692,15 +4689,10 @@ sub taxon_card {
                                                 18=>1, 
                                                 20=>1
                                 );
-                                
-                                                                
+
                                 foreach my $syn ( @{$names_list} ){
-                                        
                                         if ($syn->[0]) { push(@names_index, $syn->[0]); }
-                                                                                
                                         if ( $syn->[3] eq 'synonym' or $syn->[3] eq 'junior synonym' ){
-                                                #my $ambiguous = synonymy( $syn->[6], $syn->[8], $syn->[10] );
-                                                #my $complete = completeness( $syn->[7], $syn->[9], $syn->[11] );
                                                 my @pub_den = publication($syn->[5], 0, 1, $dbc );
                                                 my $sl = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[0]"}, i($syn->[1]) . "&nbsp;$syn->[2]" );
                                                 $sl = $syn->[27] ? $sl . " $syn->[27]" : $sl;
@@ -8266,12 +8258,6 @@ sub country_card {
                                                 $areas .= '||';
                                                 $areas .= 'tdwg'.$tdwg_level.':a:'.$aires;
                                         }
-                                #}
-                                #else {
-                                #       $areas .= "tdwg4:b:".join(',',@{request_tab("SELECT tdwg FROM pays WHERE tdwg not in ('".$aires."') and tdwg_level = '4' AND parent IN (SELECT tdwg FROM pays WHERE tdwg_level = '3');", $dbc, 1)});
-                                #       $areas .= '||';
-                                #       $areas .= 'tdwg'.$tdwg_level.':a:'.$tdwg;
-                                #}
                         }
                 
                         $areas = "ad=$areas";
@@ -8525,9 +8511,6 @@ sub repository_card {
                 }
                 $sth2->finish();
 
-                #my $up = makeup('repositories', $trans->{'repositories'}->{$lang});
-                #$up .= prev_next_card( $card, $previous_id, $prev_name, $next_id, $next_name );
-
                 #fetch types present in this repository
                 my $req = "SELECT nxt.ref_nom, nc.orthographe, nc.autorite, nxt.quantite, tt.$lang, s.en, td.$lang, ec.$lang, txn.ref_taxon, r.en
                                 FROM noms_x_types AS nxt
@@ -8657,12 +8640,6 @@ sub era_card {
                         #$sp_tab = ul( li($trans->{"UNK"}->{$lang}));
                 }
 
-                #my $up = div(
-                #       $totop,
-                #       ' > ', 
-                #       makeup('eras', $trans->{'eras'}->{$lang})
-                #);
-
                 $fullhtml = div({-class=>'content'},    
                                         div({-class=>'titre'}, ucfirst($trans->{'era'}->{$lang})),
                                         div({-class=>'subject'}, $era->[1]),
@@ -8745,11 +8722,6 @@ sub region_card {
                 
                 if ($region->[1]) { $region->[0] .= " ($region->[1])" }
 
-                #my $up = div(
-                #               $totop,
-                #               ' > ',
-                #               makeup('regions', $trans->{'regions'}->{$lang})
-                #       );
 
                 $fullhtml =     div({-class=>'content'},
                                         div({-class=>'titre'}, ucfirst($trans->{'region'}->{$lang} )),
@@ -8798,9 +8770,6 @@ sub agent_card {
                         }
                 }
                 $sth2->finish();
-
-                #my $up = makeup('agents', $trans->{'A_list'}->{$lang});
-                #$up .= prev_next_card( $card, $previous_id, $prev_name, $next_id, $next_name );
 
                 #Fetch species transmiting this infectious agent  // p.$lang, tpai.ref_publication_ori, nc.$lang 
                 my $sp_list = request_tab("SELECT distinct tpai.ref_taxon, orthographe, autorite        
@@ -9041,11 +9010,6 @@ sub locality_card {
                 }
                 $sp_tab = ul($sp_tab);
                 
-                #my $up = div(
-                #               $totop,
-                #               ' > ',
-                #               makeup('localities', $trans->{'localities'}->{$lang})
-                #       );
 
                 $fullhtml =     div({-class=>'content'},
                                         div({-class=>'titre'}, ucfirst($trans->{'locality'}->{$lang})),
@@ -9091,9 +9055,6 @@ sub capture_card {
                 }
                 $sth2->finish();
 
-                #my $up = makeup('captures', $trans->{'CA_list'}->{$lang});
-                #$up .= prev_next_card( $card, $previous_id, $prev_name, $next_id, $next_name );
-                
                 #Fetch species captured by this mean
                 my $sp_list = request_tab("SELECT t.index, n.orthographe, n.autorite, p.$lang FROM taxons AS t LEFT JOIN taxons_x_pays_x_modes_capture AS tpmc ON t.index = tpmc.ref_taxon
                                 LEFT JOIN taxons_x_noms AS txn ON t.index = txn.ref_taxon
@@ -9109,12 +9070,6 @@ sub capture_card {
                         $sp_tab .= li(a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=species&id=$sp->[0]"}, i($sp->[1]) . " $sp->[2]" ) . " in $sp->[3]" );
                 }
                 $sp_tab = ul($sp_tab);
-                
-                #my $up = div(
-                #               $totop,
-                #               ' > ',
-                #               makeup('captures', $trans->{'captures'}->{$lang})
-                #       );
 
                 $fullhtml =     div({-class=>'content'},
                                         div({-class=>'titre'}, ucfirst($trans->{'capture'}->{$lang})),
