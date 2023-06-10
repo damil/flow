@@ -9194,14 +9194,14 @@ sub prev_next_topic { #TODO: make prev_next card optional
 sub alpha_build {
 
         my ($vletters) = @_;
-                
-        my @alpha = ( 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' );
+
+        my @alpha = ( 'A' .. 'Z' );
         $alph = $alph ? $alph : 'A';
-                
+
         my @params;
         foreach (keys(%labels)) { if ($_ ne 'alph' and $labels{$_}) { push(@params, $_)}}
         my $args = join('&', map { "$_=$labels{$_}"} @params );
-        
+
         my @links;
         foreach (my $i=0; $i<scalar(@alpha); $i++) { 
                 
@@ -9365,7 +9365,7 @@ sub publication {
         unless ( $id ){ return "" }
         my $publication;
         my $abrev;
-        my @alpha = ( 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' );
+        my @alpha = ( 'A' .. 'Z' );
         my $letter;
         # fetch publication data from db
         my $pre_pub = request_row("SELECT p.index, p.titre, p.annee, p.volume, p.fascicule, r.nom, e.nom, v.nom, p.page_debut, p.page_fin, t.en, p.nombre_auteurs
@@ -9374,21 +9374,13 @@ sub publication {
                                         LEFT JOIN editions AS e ON ( p.ref_edition = e.index )
                                         LEFT JOIN villes AS v ON ( e.ref_ville = v.index )
                                         WHERE p.index = $id;",$dbh);
-        
+
         # Build authors list
         my $pre_authors = request_tab("SELECT a.nom, a.prenom, a.index, axp.position
                                         FROM auteurs_x_publications AS axp 
                                         LEFT JOIN auteurs AS a ON axp.ref_auteur = a.index
                                         WHERE ref_publication = $id ORDER BY axp.position;",$dbh);
-        
-        #my $autcond;
-        #foreach (@{$pre_authors}) {
-        #       $autcond = " AND (axp.position = )"
-        #}
-        
-        #my $req = "SELECT DISTINCT index FROM publications AS p LEFT JOIN auteurs_x_publications AS axp ON p.index = axp.ref_publication WHERE p.annee = $pre_pub->[2] $autcond";
-        #my $sims = request_tab();
-        
+
         my $authors;
         my $author;
         if ( $pre_pub->[11] > 1 ){ # Test if there are several authors
@@ -9401,7 +9393,6 @@ sub publication {
                                         $authors .= "$pre_authors->[$i][0]&nbsp;&&nbsp;";
                                 }
                         }
-                        
                 }
                 else {
                         $authors = "$pre_authors->[0][0]&nbsp;" . i('et al.');
@@ -9437,9 +9428,6 @@ sub publication {
                 else {
                         $publication = "$authors ($pre_pub->[2]$letter) " . em({-class=>'publication'}, "$pre_pub->[1].") . " $pre_pub->[6], $pre_pub->[7]. $pre_pub->[8]--$pre_pub->[9].";
                 }
-#               else {
-#                       $publication = "unknown publication type : $pre_pub->[10]";
-#               }
         }
         else {
                 $pre_pub->[1] =~ s/^(.{1,20}).+$/$1/;
