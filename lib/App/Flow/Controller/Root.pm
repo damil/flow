@@ -4,7 +4,9 @@ use utf8;
 use strict;
 use warnings;
 use Template;
-use Encode qw/encode_utf8/;
+use Encode         qw/encode_utf8/;
+use Capture::Tiny  qw/capture_stdout/;
+use App::Flow::Controller::Explorer;
 
 use parent 'App::Flow::Controller';
 
@@ -48,6 +50,14 @@ sub respond {
     bottom_cols        => $self->compute_bottom_cols($c),
    );
 
+  # le contenu 'explorer' est déporté dans un module séparé
+  if ($c->stage->{xpage} eq 'explorer') {
+    my $sub_html = capture_stdout {
+      my $explorer = App::Flow::Controller::Explorer->new(controller => $self, req_context => $c);
+      $explorer->build_card(%TODO);
+    };
+    $c->add_into_stash(explorer_output => $sub_html);
+  }
 
 
   # génération du HTML à travers le template
@@ -59,12 +69,6 @@ sub respond {
   $res->body(encode_utf8($html));
   return $res->finalize;
 }
-
-
-
-
-
-
 
 
 
@@ -235,33 +239,6 @@ __END__
 
 
 
-my $url = url();
-
-
-
-Delete('searchid');
-
-
-
-# traductions
-my $config_file = "$ENV{FLOW_CONFDIR}/flow/flowexplorer.conf";
-
-my $config = get_connection_params($config_file);
-
-
-
-my $docfullpath = "$ENV{FLOW_SRCDIR}/html/Documents/flowdocs/";
-
-
-my $searchjs = $docfullpath.$config->{'SEARCHJS'};
-
-
-
-
-
-
-
-
 my $search_id  = ucfirst($traduction->{search}->{$xlang});
 
 
@@ -278,31 +255,6 @@ for (my $i = 1; $i < scalar(keys(%types)) + 1; $i++) {
 	my $schstr = param("search$i");
 	if (ucfirst($schstr) ne ucfirst($traduction->{search}->{$xlang})) { $search = $schstr; }
 }
-
-
-
-
-
-#======================================================================
-# Carrousel de photos
-#======================================================================
-
-
-
-## LE CONTENU ##################################
-my $card = url_param('card') || '';
-
-
-
-my @argus;
-foreach (url_param()) { if ($_ ne 'lang') { push(@argus, $_.'='.url_param($_)) } }
-
-my $logo = a({-href=>"$url?db=$xbase&page=home&lang=$xlang", -style=>'text-decoration: none;'}, img({-src=>$docpath.'logoFLOW.png', -alt=>"FLOW", -style=>'border: 0;', -height=>'46px'}));
-
-
-
-
-
 
 
 
