@@ -1805,7 +1805,7 @@ sub species_list {
                 else { $alph = '' }
                 
                 
-                my $bornes;
+                my $bornes = '';
                 if ($to) { $bornes .= "LIMIT $to"; }
                 if ($from) { $bornes .= "OFFSET $from"; }
 
@@ -9250,10 +9250,11 @@ sub read_lang { #TODO: put the params in a conf file
 ###################################################################################
 sub request_tab {
         my ($req,$dbh,$dim) = @_; # get query
+        $dim //= 0;
         my $tab_ref = [];
         if ( my $sth = $dbh->prepare($req) ){ # prepare
                 if ( $sth->execute() ){ # execute
-                        if ($dim eq 1) {
+                        if ($dim == 1) {
                                 while ( my @row = $sth->fetchrow_array ) {
                                         push(@{$tab_ref},$row[0]);
                                 }
