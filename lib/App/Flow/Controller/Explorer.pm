@@ -1676,20 +1676,21 @@ sub genera_list {
                 }
                 else {
                         foreach ( @{$gens} ) {
-                                
-                                ( $taxonid, $name, $autority, $parent_name, $parent_taxon, $parent_rank, $docid, $family ) = ( $_->[0], $_->[1], $_->[2], $_->[3], $_->[4], $_->[5], $_->[6], $_->[7] );
-                                                                
+
+                                ( $taxonid, $name, $autority, $parent_name, $parent_taxon, $parent_rank, $docid, $family ) = @_;
+                                $docid //= '';
+
                                 if ($docid) { 
                                         $test = 1;
                                         $docid = a({-style=>'margin-left: 5px;', -href=>$docid, -target=>'_blank'}, img({-src=>"/explorerdocs/icon-fiche.png", -style=>'border: 0; margin: 0 0 -2px 0;'}));
-                                }                                       
+                                }
                                 unless ($i < $seuil) { $i = 0; $j++; }
                                 $family = $family ? " ($family)" : undef;
                                 $genera{$i}{$j} = td({-class=>'cellAsLi', -style=>'padding-right: 10px;', -width=>int(1000/$nbcols)}, a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$rank&id=$taxonid"}, i("$name") . " $autority ") . $family . $docid );
                                 $i++;
                         }
                 }
-                                
+
                 foreach my $row (sort {$a <=> $b} keys(%genera)) {
                         my $columns;
                         foreach my $col (sort {$a <=> $b} keys(%{$genera{$row}})) {
@@ -1697,12 +1698,12 @@ sub genera_list {
                         }
                         $ge_list .= Tr($columns);
                 }
-                
+
                 $ge_list = table({-style=>'margin: 0; padding: 0;'}, $ge_list);
 
                 my $prevnext;
-                if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }           
-                
+                if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
+
                 $fullhtml =     div({-class=>'content'}, 
                                         $totop,
                                         $prevnext,
