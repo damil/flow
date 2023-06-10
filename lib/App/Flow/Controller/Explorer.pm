@@ -6379,13 +6379,6 @@ sub name_card {
                         taxon_card();
                 }
                 else {
-        
-                        #my $up;
-                        #if ($dbase ne 'cool' and $dbase ne 'flow' and $dbase ne 'flow2' and $dbase ne 'strepsiptera') {
-                        #       $up =   $totop;
-                        #       $up .=  makeup('names', $trans->{'names'}->{$lang}, lc(substr($name->[0], 0, 1)));
-                        #}
-        
                         # Fetch princeps publication of the name
                         my $ori_pub;
                         if ( $name->[2] ) {
@@ -8418,18 +8411,11 @@ sub vernacular_card {
                         ORDER BY nc.orthographe, nc.autorite, pb.annee;";
 
                 my $taxa = request_tab($req, $dbc, 2);
-                                
+
                 my ($nom, $langg, $pays, $ref_pays) = ($taxa->[0][0], $taxa->[0][1], $taxa->[0][2], $taxa->[0][8]);
 
-                #my $up;
-                #if ($dbase ne 'cool' and $dbase ne 'flow' and $dbase ne 'flow2' and $dbase ne 'strepsiptera') {
-                #       $up =   $totop;
-                #       $up .=  makeup('vernaculars', $trans->{'vernaculars'}->{$lang});
-                #}
-                
                 my $vdisplay;
                 if (scalar @{$taxa}) {
-                                
                         my %taxas;
                         my @order;
                         foreach (@{$taxa}) {
@@ -8437,29 +8423,25 @@ sub vernacular_card {
                                 if ($_->[7]) {
                                         @pub = publication($_->[7], 0, 1, $dbc);
                                 }                               
-                                
+
                                 unless (exists $taxas{$_->[3]}) { 
                                         push(@order, $_->[3]);
                                         $taxas{$_->[3]} = {};
                                         $taxas{$_->[3]}{'label'} = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=$_->[6]&id=$_->[3]"}, "$_->[4] $_->[5]" );
-                                        
                                         $taxas{$_->[3]}{'refs'} = ();
                                 }
-                                
                                 if (scalar @pub) {
                                         push(@{$taxas{$_->[3]}{'refs'}}, a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$_->[7]"}, "$pub[1]" ) . getPDF($_->[7]));
                                 }
                         }
-                                        
                         foreach (@order) {
                                 my $list = $taxas{$_}{'label'};
                                 if ($taxas{$_}{'refs'}) { $list .= ' according to ' . join (', ', @{$taxas{$_}{'refs'}}); }
                                 $vdisplay .= li($list);
                         }
-                        
                         $vdisplay = ul( $vdisplay) . p;
                 }
-                
+
                 my $xpays;
                 if ($pays) { $xpays = " in " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=country&id=".$ref_pays}, $pays); }
                 
@@ -8608,9 +8590,6 @@ sub era_card {
                         }
                 }
                 $sth2->finish();
-
-                #my $up = makeup('eras', $trans->{'eras'}->{$lang});
-                #$up .= prev_next_card( $card, $previous_id, $prev_name, $next_id, $next_name );
 
                 my $bornes;
                 if ($to) { $bornes .= "LIMIT $to"; }
@@ -8792,11 +8771,6 @@ sub agent_card {
 
                 if ($agent->[1]) { $agent->[1] = " ($agent->[1])"}
 
-                #my $up = div(
-                #               $totop,
-                #               ' > ',
-                #               makeup('agents', $trans->{'agents'}->{$lang})
-                #       );
 
                 $fullhtml =     div({-class=>'content'},
                                         div({-class=>'titre'}, ucfirst($trans->{'agent'}->{$lang})),
@@ -8849,9 +8823,6 @@ sub edition_card {
                 }
                 $sth2->finish();
 
-                #my $up = makeup('editions', $trans->{'ED_list'}->{$lang});
-                #$up .= prev_next_card( $card, $previous_id, $prev_name, $next_id, $next_name );
-
                 #Fetch references published by this edition
                 my $pub_list = request_tab("SELECT p.index FROM publications AS p
                                                         RIGHT JOIN editions AS e ON p.ref_edition = e.index
@@ -8864,12 +8835,6 @@ sub edition_card {
                         $pub_tab .= li(a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$pub_id->[0]"}, "$pub" ) . getPDF($pub_id->[0]) );
                 }
                 $pub_tab .= end_ul();
-
-                #my $up = div(
-                #               $totop,
-                #               ' > ',
-                #               makeup('editions', $trans->{'editions'}->{$lang})
-                #       );
 
                 $fullhtml =     div({-class=>'content'},
                                         div({-class=>'titre'}, ucfirst($trans->{'edition'}->{$lang})),
@@ -8915,8 +8880,6 @@ sub habitat_card {
                 }
                 $sth2->finish();
 
-                #my $up =  makeup('habitats', $trans->{'habitat(s)'}->{$lang});
-                #$up .= prev_next_card( $card, $previous_id, $prev_name, $next_id, $next_name );
 
                 #Fetch species living in this habitat
                 my $sp_list = request_tab("SELECT t.index, n.orthographe, n.autorite, p.$lang FROM taxons AS t LEFT JOIN taxons_x_pays_x_habitats AS txph ON t.index = txph.ref_taxon
@@ -8933,13 +8896,6 @@ sub habitat_card {
                         $sp_tab .= li(a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=species&id=$sp->[0]"}, i($sp->[1]) . " $sp->[2]" ) . " in $sp->[3]" );
                 }
                 $sp_tab = ul($sp_tab);
-
-                
-                #my $up = div(
-                #               $totop,
-                #               ' > ',
-                #               makeup('habitats', $trans->{'habitats'}->{$lang})
-                #       );
 
                 $fullhtml =     div({-class=>'content'},
                                         div({-class=>'titre'}, ucfirst($trans->{'habitat'}->{$lang})),
@@ -8990,9 +8946,6 @@ sub locality_card {
                         }
                 }
                 $sth2->finish();
-
-                #my $up = makeup('localities', $trans->{'LO_list'}->{$lang});
-                #$up .= prev_next_card( $card, $previous_id, $prev_name, $next_id, $next_name );
 
                 #Fetch species that were first observed at this locality
                 my $sp_list = request_tab("SELECT t.index, n.orthographe, n.autorite, tob.$lang FROM taxons AS t LEFT JOIN taxons_x_localites AS txl ON t.index = txl.ref_taxon
