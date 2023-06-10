@@ -869,7 +869,7 @@ sub build_card {
 sub getPDF {
         my ($index) = @_;
 
-        if (open(TEST, "/var/www/html/Documents/$pdfdir/$index.pdf") ) {
+        if (-f "/var/www/html/Documents/$pdfdir/$index.pdf") {
                 return ' ' . a({-href=>"/$pdfdir/$index.pdf", -target=>"_blank" }, img({-style=>'border: 0; height: 12px;', -src=>"/explorerdocs/pdflogo.jpg"}));
         }
         else {
