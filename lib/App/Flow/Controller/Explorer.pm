@@ -9169,10 +9169,6 @@ sub alpha_build {
         my @alpha = ( 'A' .. 'Z' );
         $alph ||= 'A'; # default letter
 
-        # my @params;
-        # foreach (keys(%labels)) { if ($_ ne 'alph' and $labels{$_}) { push(@params, $_)}}
-        # my $args = join('&', map { "$_=$labels{$_}"} @params );
-
         my @links;
         foreach (my $i=0; $i<scalar(@alpha); $i++) { 
                 
@@ -9180,11 +9176,9 @@ sub alpha_build {
                         push(@links, span({-class=>'alphaletter shadow_letter'}, $alpha[$i]));
                 }
                 elsif($alpha[$i] eq $alph) { 
-                  # push(@links, a({-class=>'xletter', -href=>"$scripts{$dbase}$args&alph=$alpha[$i]"}, $alpha[$i]));
                   push @links, a({-class=>'xletter', -href=>$glob_self->new_uri(alph => $alpha[$i])}, $alpha[$i]);
                 }
                 else {
-                  # push(@links, a({-class=>'alphaletter', -href=>"$scripts{$dbase}$args&alph=$alpha[$i]"}, $alpha[$i]));
                   push @links, a({-class=>'alphaletter', -href=>$glob_self->new_uri(alph => $alpha[$i])}, $alpha[$i]);
                 }
         }
@@ -9192,14 +9186,6 @@ sub alpha_build {
         return  "@links";
 }
 
-
-sub prev_next_page {
-        
-        my $html;
-        
-
-        return $html;
-}
 
 sub prev_next_card {
         my ( $card, $bridge, $prev_id, $label, $next_id, $jsidprev, $jsidnext, $margin ) = @_;
