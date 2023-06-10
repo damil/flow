@@ -99,16 +99,19 @@ my %states = (
       'morphcards'    => \&morphcards_list,
       'publist'       => \&publist,
       'updates'       => \&get_last_updates,
-      'family'        => \&family_card, # goes to family card
-      'subfamily'     => \&subfamily_card, # goes to subfamily card
-      'supertribe'    => \&supertribe_card, # goes to tribe card
-      'tribe'         => \&tribe_card, # goes to tribe card
-      'taxon'         => \&taxon_card, # goes to family card
-      'genus'         => \&genus_card, # goes to genus card
-      'subgenus'      => \&subgenus_card, # goes to genus card
-      'species'       => \&species_card, # goes to species card
-      'subspecies'    => \&subspecies_card, # goes to subspecies card
-      'variety'       => \&variety_card, # goes to variety card
+
+      'taxon'         => \&taxon_card,
+
+      'family'        => sub {$rank = 'family'     ; taxon_card();},
+      'subfamily'     => sub {$rank = 'subfamily'  ; taxon_card();},
+      'supertribe'    => sub {$rank = 'supertribe' ; taxon_card();},
+      'tribe'         => sub {$rank = 'tribe'      ; taxon_card();},
+      'genus'         => sub {$rank = 'genus'      ; taxon_card();},
+      'subgenus'      => sub {$rank = 'subgenus'   ; taxon_card();},
+      'species'       => sub {$rank = 'species'    ; taxon_card();},
+      'subspecies'    => sub {$rank = 'subspecies' ; taxon_card();},
+      'variety'       => sub {$rank = 'variety'    ; taxon_card();},
+
       'author'        => \&author_card, # goes to author card
       'publication'   => \&publication_card, # goes to publications card
       'name'          => \&name_card, # goes to name card
@@ -3382,7 +3385,6 @@ sub captures_list {
 # Abstract panel
 #################################################################
 sub makeboard {
-                
         my $dbh;
         if ($config_file eq $synop_conf) { 
                 my $config2 = get_connection_params($config_file);
@@ -3608,9 +3610,6 @@ sub board {
 
                         # LES LIGNES DU SYNOPSIS
                         foreach my $row (@{$rows}) {
-                                #unless ($row->[0] eq $ord) { $ord = $row->[0]; $content .= span({-class=>'synoord'}, $ord);}
-                                #unless ($row->[1] eq $subord) { $subord = $row->[1]; $content .= span({-class=>'synosubord'}, $subord);}
-                                #unless ($row->[2] eq $supfam) { $supfam = $row->[2]; $content .= span({-class=>'synosupfam'}, $supfam);}
                                 my $famlink = request_row("SELECT ref_taxon FROM taxons_x_noms WHERE ref_nom in (SELECT index FROM noms_complets WHERE orthographe = '$row->[3]') AND ref_statut = 1;",$dbc);
                                 $famlink = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=family&id=$famlink->[0]&loading=1"}, $row->[3]);
 
@@ -3723,45 +3722,7 @@ sub get_vernaculars {
         return $commons;
 }
 
-# Family card
-#################################################################
-sub family_card { $rank = 'family'; taxon_card(); }
 
-# Subfamily card
-#################################################################
-sub subfamily_card { $rank = 'subfamily'; taxon_card(); }
-
-# Super tribe card
-#################################################################
-sub supertribe_card { $rank = 'supertribe'; taxon_card(); }
-
-# Tribe card
-#################################################################
-sub tribe_card { $rank = 'tribe'; taxon_card(); }
-
-# Subtribe card
-#################################################################
-sub subtribe_card { $rank = 'subtribe'; taxon_card(); }
-
-# Genus card
-#################################################################
-sub genus_card { $rank = 'genus'; taxon_card(); }
-
-# Subgenus card
-#################################################################
-sub subgenus_card { $rank = 'subgenus'; taxon_card(); }
-
-# Species card
-#################################################################
-sub species_card { $rank = 'species'; taxon_card(); }
-
-# Subspecies card
-#################################################################
-sub subspecies_card { $rank = 'subspecies'; taxon_card(); }
-
-# variety card
-#################################################################
-sub variety_card { $rank = 'variety'; taxon_card(); }
 
 # Function making a retractable array (by clicking on arrow image or on title)
 #################################################################
@@ -4691,23 +4652,16 @@ sub taxon_card {
                         my $dms = ( ( !$max or ( $max and $nb_syns <= $max ) ) and $display_modes{synonymy}{display} ) ? 'table-cell' : 'none';
                         $max = $attributes2{max} || 0;
                         my $dmc =( ( !$max or ( $max and $nb_uses <= $max ) ) and $display_modes{chresonymy}{display} ) ? 'table-cell' : 'none';
-                        
                         my %chresonyms;
                         if ( scalar @{$names_list} ) {
-                                
                                 if ($mode =~ m/s/) {
-                                                
                                         foreach my $syn ( @{$names_list} ){
-                                                
                                                 unless (exists($names{$syn->[0]})) {
-                                                
                                                         $names{$syn->[0]}{'species'} = $syn->[18];
-                                                
                                                         my $val = $syn->[19];
                                                         my $found = 0;
                                                         while (!$found) {
                                                                 my ($father) = @{request_row("SELECT ref_nom_parent from noms where index = $val", $dbc)};
-                                                                
                                                                 unless ($father) { $found = 1; }
                                                                 else { $val = $father; }
                                                         }
@@ -4718,11 +4672,11 @@ sub taxon_card {
                                 my (@statuses, @uses, %graphDone);
 
                                 # si on exclut le valide et les deux tableaux suivantes on recupere les synonymies
-                                # relations entre deux noms qui developpent une trame de l'historique                           
+                                # relations entre deux noms qui developpent une trame de l'historique
                                 my %prevnext = (        4=>1,   # prev. comb.
                                                         11=>1,  # nom. praeocc.
                                                         15=>1,  # incorrect original spelling
-                                                        19=>1,  # nomen oblitum                                                 
+                                                        19=>1,  # nomen oblitum
                                                         22=>1,  # comb. rev.
                                                         23=>1   # prev. rank
                                 );
