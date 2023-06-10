@@ -3,27 +3,156 @@ use utf8;
 use strict;
 use warnings;
 use DBI;
+use CGI qw( -no_xhtml :standard start_ul); # make html 4.0 card
 use Getopt::Long;
+
+#======================================================================
+# Variables globales qui étaient dans l'ancien script explorer20.pl et utilisées dans les subroutines.
+# Dans la nouvelle archi persistente, ces variables sont remises à zéro lors de chaque requête.
+#======================================================================
+
+my ($dbase, $lang, $id, $card, $alph, $from, $to, $rank, $search, $searchtable, $searchid, $mode, $privacy, $limit);
+my ($config_file, $synop_conf, $pdfdir);
+
+my $fullhtml;
+my $maprest = "https://edit.africamuseum.be/edit_wp5/v1/areas.php";
+
+
+my %labels;
+my @topics;
+my $totop;
+my $cross_tables;
+my $sexes;
+my $conservation_status;
+my $observ_types;
+my $periods;
+my $frekens;
+my $typeTypes;
+my $depotTypes;
+my $agents;
+my $confirm;
+my $habitats;
+my $captures;
+my @msg;
+my $config;
+my $trans;
+
+#======================================================================
+# autres variables globales
+#======================================================================
+
+
+my %scripts = ( 
+      'dbtnt'         => '/cgi-bin/dbtntexplorer.pl?',
+      'flow'          => '?page=explorer&',
+      'cool'          => '/cool/database.php?',
+      'psylles'       => '/psyllist?',
+      'aradides'      => '/cgi-bin/aradidae.pl?',
+      'coleorrhyncha' => '/cgi-bin/coleorrhyncha.pl?',
+      'strepsiptera'  => '/cgi-bin/strepsiptera.pl?',
+      'cerambycidae'  => '/cgi-bin/cerambycidae.pl?',
+      'aleurodes'     => '/whiteflies?',
+      'tingides'      => '/cgi-bin/Tingidae/tingidae.pl?',
+      'tessaratomidae'=> '/cgi-bin/Tessaratomidae/tessaratomidae.pl?',
+      'lucanidae'     => '/cgi-bin/Lucanidae/lucanidae.pl?',
+      'brentidae'     => '/cgi-bin/Brentidae/brentidae.pl?',
+      'diptera'       => '/cgi-bin/diptera/diptera.pl?',
+      'cipa'          => '/cgi-bin/cipa/cipaexplorer.pl?',
+      'hefo'          => '/cgi-bin/hefo/hefo.pl?',
+      'test'          => '/cgi-bin/testexplorer.pl?'
+);
+
+my %states = (
+
+      # They are used to call the subroutine that builds the corresponding card
+      'top'           => \&topics_list, # goes to top list
+      'families'      => \&families_list, # goes to families list
+      'subfamilies'   => \&subfamilies_list, # goes to families list
+      'tribes'        => \&tribes_list, # goes to families list
+      'genera'        => \&genera_list, # goes to genera list
+      'subgenera'     => \&genera_list, # goes to subgenera list
+      'speciess'      => \&species_list, # goes to species list
+      'subspeciess'   => \&species_list, # goes to subspecies list
+      'fossils'       => \&fossils_list, # goes to species list
+      'authors'       => \&authors_list, # goes to authors list
+      'publications'  => \&publications_list, # goes to publications list
+      'names'         => \&names_list, # goes to names list
+      'repositories'  => \&repositories_list, # goes to repositories list
+      'eras'          => \&eras_list, #  goes to eras list
+      'countries'     => \&countries_list, # goes to countries list
+      'regions'       => \&regions_list, # goes to biogeographic regions list
+      'plants'        => \&associations, # goes to plants list
+      'associates'    => \&associations,
+      'bioInteract'   => \&associations,
+      'interactions'  => \&associations,
+      'vernaculars'   => \&vernaculars,
+      'makeboard'     => \&makeboard, # makes the board
+      'board'         => \&board, # goes to board
+      'agents'        => \&agents_list, # goes to agents list
+      'editions'      => \&editions_list, # goes to editions list
+      'habitats'      => \&habitats_list, # goes to habitats list
+      'localities'    => \&localities_list, # goes to localities list
+      'captures'      => \&captures_list, # goes to capture technics list
+      'images'        => \&images_list, 
+      'types'         => \&types_list,
+      'id_keys'       => \&keys_list,
+      'morphcards'    => \&morphcards_list,
+      'publist'       => \&publist,
+      'updates'       => \&get_last_updates,
+      'family'        => \&family_card, # goes to family card
+      'subfamily'     => \&subfamily_card, # goes to subfamily card
+      'supertribe'    => \&supertribe_card, # goes to tribe card
+      'tribe'         => \&tribe_card, # goes to tribe card
+      'taxon'         => \&taxon_card, # goes to family card
+      'genus'         => \&genus_card, # goes to genus card
+      'subgenus'      => \&subgenus_card, # goes to genus card
+      'species'       => \&species_card, # goes to species card
+      'subspecies'    => \&subspecies_card, # goes to subspecies card
+      'variety'       => \&variety_card, # goes to variety card
+      'author'        => \&author_card, # goes to author card
+      'publication'   => \&publication_card, # goes to publications card
+      'name'          => \&name_card, # goes to name card
+      'repository'    => \&repository_card, # goes to repository card
+      'era'           => \&era_card, # goes to era card
+      'country'       => \&country_card, # goes to country card
+      'image'         => \&image_card, # goes to country card
+      'region'        => \&region_card, # goes to region card
+      'plant'         => \&plant_card, # goes to plant card
+      'vernacular'    => \&vernacular_card, # goes to plant card
+      'associate'     => \&association,
+      'agent'         => \&agent_card, # goes to agent card
+      'edition'       => \&edition_card, # goes to edition card
+      'habitat'       => \&habitat_card, # goes to habitat card
+      'locality'      => \&locality_card, # goes to locality card
+      'capture'       => \&capture_card, # goes to capture technic card
+      'type'          => \&type_card,
+      'searching'     => \&search_results, # display search string matching results
+      'autotext'      => \&autotext, # display autogenerated texts for a taxon
+      'classification'=> \&classification # display autogenerated classification of all Fulgoromorpha
+);
+
+
 
 
 sub build_card {
-  my ($class, %labels) = @_;
+  my ($class, %args) = @_;
 
 
-  my $fullhtml;
-  my $maprest = "https://edit.africamuseum.be/edit_wp5/v1/areas.php";
+  $fullhtml = undef;
 
   # Gets parameters
   ################################################################
-  my           ($dbase, $lang, $id, $card, $alph, $from, $to, $rank, $search, $searchtable, $searchid, $mode, $privacy, $limit)
-    = @labels{qw/db      lang   id   card   alph   from   to   rank   search   searchtable   searchid   mode   privacy   limit/};
+  (            $dbase, $lang, $id, $card, $alph, $from, $to, $rank, $search, $searchtable, $searchid, $mode, $privacy, $limit)
+    = @args{qw/db      lang   id   card   alph   from   to   rank   search   searchtable   searchid   mode   privacy   limit/};
 
 
+  # copie dans variables globale afin que ce soit accessible aux autres subroutines
+  %labels = %args;
 
 
   # Gets config
   ################################################################
-  my                               ($config_file,                   $synop_conf,                  $pdfdir)
+  (                                 $config_file,                   $synop_conf,                  $pdfdir)
   #                                 ============                    ============                  =======
   = $dbase eq 'flow'          ? qw(/etc/flow/flowexplorer.conf      /etc/flow/floweditor.conf     flowpdf    )
   : $dbase eq 'cool'          ? qw(/etc/flow/coolexplorer.conf      /etc/flow/cooleditor.conf     coolpdf    )
@@ -43,121 +172,33 @@ sub build_card {
   : $dbase eq 'dbtnt'         ? qw(/etc/flow/dbtntexplorer.conf                                              )
   : ();
 
-  my %scripts = ( 
-        'dbtnt'         => '/cgi-bin/dbtntexplorer.pl?',
-        'flow'          => '?page=explorer&',
-        'cool'          => '/cool/database.php?',
-        'psylles'       => '/psyllist?',
-        'aradides'      => '/cgi-bin/aradidae.pl?',
-        'coleorrhyncha' => '/cgi-bin/coleorrhyncha.pl?',
-        'strepsiptera'  => '/cgi-bin/strepsiptera.pl?',
-        'cerambycidae'  => '/cgi-bin/cerambycidae.pl?',
-        'aleurodes'     => '/whiteflies?',
-        'tingides'      => '/cgi-bin/Tingidae/tingidae.pl?',
-        'tessaratomidae'=> '/cgi-bin/Tessaratomidae/tessaratomidae.pl?',
-        'lucanidae'     => '/cgi-bin/Lucanidae/lucanidae.pl?',
-        'brentidae'     => '/cgi-bin/Brentidae/brentidae.pl?',
-        'diptera'       => '/cgi-bin/diptera/diptera.pl?',
-        'cipa'          => '/cgi-bin/cipa/cipaexplorer.pl?',
-        'hefo'          => '/cgi-bin/hefo/hefo.pl?',
-        'test'          => '/cgi-bin/testexplorer.pl?'
-  );
-
-  my %states = (
-
-        # They are used to call the subroutine that builds the corresponding card
-        'top'           => \&topics_list, # goes to top list
-        'families'      => \&families_list, # goes to families list
-        'subfamilies'   => \&subfamilies_list, # goes to families list
-        'tribes'        => \&tribes_list, # goes to families list
-        'genera'        => \&genera_list, # goes to genera list
-        'subgenera'     => \&genera_list, # goes to subgenera list
-        'speciess'      => \&species_list, # goes to species list
-        'subspeciess'   => \&species_list, # goes to subspecies list
-        'fossils'       => \&fossils_list, # goes to species list
-        'authors'       => \&authors_list, # goes to authors list
-        'publications'  => \&publications_list, # goes to publications list
-        'names'         => \&names_list, # goes to names list
-        'repositories'  => \&repositories_list, # goes to repositories list
-        'eras'          => \&eras_list, #  goes to eras list
-        'countries'     => \&countries_list, # goes to countries list
-        'regions'       => \&regions_list, # goes to biogeographic regions list
-        'plants'        => \&associations, # goes to plants list
-        'associates'    => \&associations,
-        'bioInteract'   => \&associations,
-        'interactions'  => \&associations,
-        'vernaculars'   => \&vernaculars,
-        'makeboard'     => \&makeboard, # makes the board
-        'board'         => \&board, # goes to board
-        'agents'        => \&agents_list, # goes to agents list
-        'editions'      => \&editions_list, # goes to editions list
-        'habitats'      => \&habitats_list, # goes to habitats list
-        'localities'    => \&localities_list, # goes to localities list
-        'captures'      => \&captures_list, # goes to capture technics list
-        'images'        => \&images_list, 
-        'types'         => \&types_list,
-        'id_keys'       => \&keys_list,
-        'morphcards'    => \&morphcards_list,
-        'publist'       => \&publist,
-        'updates'       => \&get_last_updates,
-        'family'        => \&family_card, # goes to family card
-        'subfamily'     => \&subfamily_card, # goes to subfamily card
-        'supertribe'    => \&supertribe_card, # goes to tribe card
-        'tribe'         => \&tribe_card, # goes to tribe card
-        'taxon'         => \&taxon_card, # goes to family card
-        'genus'         => \&genus_card, # goes to genus card
-        'subgenus'      => \&subgenus_card, # goes to genus card
-        'species'       => \&species_card, # goes to species card
-        'subspecies'    => \&subspecies_card, # goes to subspecies card
-        'variety'       => \&variety_card, # goes to variety card
-        'author'        => \&author_card, # goes to author card
-        'publication'   => \&publication_card, # goes to publications card
-        'name'          => \&name_card, # goes to name card
-        'repository'    => \&repository_card, # goes to repository card
-        'era'           => \&era_card, # goes to era card
-        'country'       => \&country_card, # goes to country card
-        'image'         => \&image_card, # goes to country card
-        'region'        => \&region_card, # goes to region card
-        'plant'         => \&plant_card, # goes to plant card
-        'vernacular'    => \&vernacular_card, # goes to plant card
-        'associate'     => \&association,
-        'agent'         => \&agent_card, # goes to agent card
-        'edition'       => \&edition_card, # goes to edition card
-        'habitat'       => \&habitat_card, # goes to habitat card
-        'locality'      => \&locality_card, # goes to locality card
-        'capture'       => \&capture_card, # goes to capture technic card
-        'type'          => \&type_card,
-        'searching'     => \&search_results, # display search string matching results
-        'autotext'      => \&autotext, # display autogenerated texts for a taxon
-        'classification'=> \&classification # display autogenerated classification of all Fulgoromorpha
-  );
 
   # Loads topics list contained in the configuration file
-  my @topics;
+  @topics = ();
 
-  my $totop;
-  my $cross_tables = [];
-  my $sexes;
-  my $conservation_status;
-  my $observ_types;
-  my $periods;
-  my $frekens;
-  my $typeTypes;
-  my $depotTypes;
-  my $agents;
-  my $confirm;
-  my $habitats;
-  my $captures;
+  $totop = undef;
+  $cross_tables = [];
+  $sexes = undef;
+  $conservation_status = undef;
+  $observ_types = undef;
+  $periods = undef;
+  $frekens = undef;
+  $typeTypes = undef;
+  $depotTypes = undef;
+  $agents = undef;
+  $confirm = undef;
+  $habitats = undef;
+  $captures = undef;
 
   # Main
   ################################################################
-  my @msg;
+  @msg = ();
   unless ( exists $scripts{$dbase} ) { push(@msg, "db = $dbase"); die; }
   unless ( exists $states{$card} )   {  push(@msg, "card = $card"); }
 
   # Loads connection and language data
-  my $config = {};
-  my $trans;
+  $config = {};
+  $trans = undef;
   unless ( scalar @msg ) { 
         
         # read config file
@@ -182,14 +223,11 @@ sub build_card {
         
         unless ( $trans = read_lang($config) ) { error_msg( "lang = $lang" ); } 
         else { 
-                unless ($dbase eq 'cool' or $dbase eq 'flow' or $dbase eq 'flow2' or $dbase eq 'strepsiptera') {
-                        #$totop = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=top"}, $trans->{'topics'}->{$lang});
-                }
                 
                 if ($dbase eq 'cipa') {
-                        
+
                         my $dbc = db_connection($config);
-                        
+
                         make_hash ($dbc, "SELECT index, $lang FROM sexes;", \$sexes);
                         make_hash ($dbc, "SELECT index, $lang FROM etats_conservation;", \$conservation_status);
                         make_hash ($dbc, "SELECT index, $lang FROM types_observation;", \$observ_types);
@@ -817,7 +855,6 @@ sub build_card {
                 elsif($card eq 'subgenera') { $argus = 'subgenus' }
                 elsif($card eq 'subspeciess') { $argus = 'subspecies' }
                 $states{$card}->($argus);
-                exit;
         }
   }
   else { error_msg( join(br, @msg) );}
@@ -832,7 +869,6 @@ sub build_card {
 sub getPDF {
         my ($index) = @_;
 
-#       if (open(TEST, "/var/www/html/Documents/$pdfdir/$index.pdf") ) {
         if (open(TEST, "/var/www/html/Documents/$pdfdir/$index.pdf") ) {
                 return ' ' . a({-href=>"/$pdfdir/$index.pdf", -target=>"_blank" }, img({-style=>'border: 0; height: 12px;', -src=>"/explorerdocs/pdflogo.jpg"}));
         }
@@ -851,9 +887,7 @@ sub error_msg {
                                 div({-class=>'subject'}, $error),
                                 $msg
                         );
-                
         print $fullhtml;
-        exit;
 }
 
 sub make_hash {
@@ -1145,7 +1179,6 @@ sub topics_list {
                 else { $bg = 'transparent'; }
                 foreach (@topics) {
                         my $href = "$scripts{$dbase}db=$dbase&lang=$lang&card=$_";
-                        #if ($dbase =~ m/psylles/ and $wrap > 5) { $row++; $wrap = 0; }
                         push(@{$topics{$row}}, a({-href=>$href, -class=>'topicItem'},  ucfirst($trans->{$_}->{$lang})));
                         $wrap++;
                 }
@@ -2467,7 +2500,6 @@ sub publications_list {
                 }
 
                 my $sections = [];              
-                my $distrib;            
                 
                 my ($nbpubs) = @{ request_row('SELECT count(*) FROM publications WHERE index in (SELECT DISTINCT ref_publication FROM auteurs_x_publications);', $dbc)};
                 my $nbsecs =  $attributes{nbsections} || 10;
@@ -3466,8 +3498,8 @@ sub makeboard {
                                                 
                                                 my $img = request_row("SELECT count(distinct ref_image) FROM taxons_x_images WHERE ref_taxon IN $indexes;",$dbc);
                                                 $images += $img->[0];
-                                                my $img = request_row("SELECT count(distinct ref_image) FROM noms_x_images WHERE ref_nom IN (SELECT DISTINCT ref_nom FROM taxons_x_noms WHERE ref_taxon IN $indexes);",$dbc);
-                                                $images += $img->[0];
+                                                my $img2 = request_row("SELECT count(distinct ref_image) FROM noms_x_images WHERE ref_nom IN (SELECT DISTINCT ref_nom FROM taxons_x_noms WHERE ref_taxon IN $indexes);",$dbc);
+                                                $images += $img2->[0];
 
                                                 $totnames += $genames;
                                         }
@@ -3488,8 +3520,8 @@ sub makeboard {
  
                                                 my $img = request_row("SELECT count(distinct ref_image) FROM taxons_x_images WHERE ref_taxon IN $indexes;",$dbc);
                                                 $images += $img->[0];
-                                                my $img = request_row("SELECT count(distinct ref_image) FROM noms_x_images WHERE ref_nom IN (SELECT DISTINCT ref_nom FROM taxons_x_noms WHERE ref_taxon IN $indexes);",$dbc);
-                                                $images += $img->[0];
+                                                my $img2 = request_row("SELECT count(distinct ref_image) FROM noms_x_images WHERE ref_nom IN (SELECT DISTINCT ref_nom FROM taxons_x_noms WHERE ref_taxon IN $indexes);",$dbc);
+                                                $images += $img2->[0];
                                                 
                                                 $totnames += $spnames;
                                         }
@@ -4379,7 +4411,7 @@ sub taxon_card {
                                         #$test .= "$hierarchy{$key}{name} :: $hierarchy{$key}{firstParent} <br>";
                                         #$dsp = 'table-row'; # A SUPPRIMER !!!!!!
                                         
-                                        my $body = td({-colspan=>($max-$n), -class=>'sonsMagicCell', -style=>"vertical-align: top; padding-left: 3px; display: $dm;"}, $sign.$hierarchy{$key}{body});
+                                        $body = td({-colspan=>($max-$n), -class=>'sonsMagicCell', -style=>"vertical-align: top; padding-left: 3px; display: $dm;"}, $sign.$hierarchy{$key}{body});
                                         
                                         $descendants .= Tr({-class=>join(' ', @{$hierarchy{$key}{parents}}), -onClick=>"$oc", -style=>" display: $dsp;"}, $start, $body);
                                         $displayed{$hierarchy{$key}{name}} = 1;
@@ -7506,7 +7538,7 @@ sub get_last_updates {
                 if ($mode eq 'family') { $orderBy = "7, 4"; } else { $orderBy = "3 DESC, 4"; }
                         
                 
-                my $req = "SELECT       DISTINCT txn.ref_taxon, bd.ref_nom, bd.date_modification, nc.orthographe, nc.autorite, r.en, t.family
+                $req = "SELECT       DISTINCT txn.ref_taxon, bd.ref_nom, bd.date_modification, nc.orthographe, nc.autorite, r.en, t.family
                                         FROM    (
                                                 (SELECT ref_nom, date_modification FROM taxons_x_noms WHERE ref_statut != 20) 
                                                 UNION (SELECT ref_nom, date_modification FROM taxons_x_pays) 
@@ -7578,7 +7610,7 @@ sub plant_card {
                 my $fully_display = 0;
                 if($display_modes{associations}{display} or $mode eq 'full') { $fully_display = 1; }
                                 
-                my ($nom, $autorite, $parent, $rang, $vparent);
+                my ($nom, $autorite, $rang, $vparent);
                 my $parent = $id;
                 my (@highers, $navigation, $bulleinfo);
                 while ($parent) {                       
@@ -8324,7 +8356,7 @@ sub country_card {
                 my $fields = "index, $lang";
                 my $table = "pays";
                 my $where = "WHERE index IN (SELECT ref_pays FROM taxons_x_pays)";
-                my $order = "$lang";
+                $order   = "$lang";
                 my $sid = $id;
                 
                 $subject = trans_navigation($subject, $fields, $table, $where, $order, $sid, $dbc);
@@ -9188,11 +9220,6 @@ sub type_card {
                 }
                 $sp_tab = ul($sp_tab);
                 
-                #my $up = div(
-                #               $totop,
-                #               ' > ',
-                #               makeup('types', $trans->{'types'}->{$lang})
-                #       );
 
                 $fullhtml =     div({-class=>'content'},
                                         div({-class=>'titre'}, ucfirst($trans->{'type'}->{$lang})),
