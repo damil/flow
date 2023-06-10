@@ -1,5 +1,6 @@
 requires 'perl'  => '5.030';
 requires 'App::AutoCRUD';
+requires 'Capture::Tiny';
 requires 'CGI::Compile';
 requires 'CGI::Emulate::PSGI';
 requires 'DBD::Pg';

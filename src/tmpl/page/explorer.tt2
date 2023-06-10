@@ -1,1 +1,3 @@
-explorer NOT IMPLEMENTED YET
+<div class='contentContainer'>
+[% explorer_output %]
+</div>

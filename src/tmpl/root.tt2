@@ -206,35 +206,6 @@
       CATCH; PROCESS "page/default.tt2";
       END; ~%]
 
-
-  [% IF xpage == 'explorer' and not url_param('loading') %]
-     <div class='contentContainer'>
-       Explorer content : NOT IMPLEMENTED YET (needs external call to explorer20.pl)
-       [%# ============================================
-          my @script_args = ("-searchtable='$searchtable'", "-search='$search'");
-          push @script_args, "-searchid=$searchid" if $searchid;
-
-
-          for my $p (qw/db card id lang alph from to rank mode privacy limit/) {
-            my $val = url_param($p);
-            push @script_args, "-$p=$val" if $val;
-          }
-
-          $activepage = url_param('card') eq 'board' ? "Synopsis" : $traduction->{'flow_db'}->{$xlang};
-
-          my $id = url_param('id') || '';
-
-          my $alph = url_param('alph') || 'NULL';
-          $pagetitle = get_title($dbc, $xbase, $card, $id, $search, $xlang, 'NULL', $alph, $traduction);
-
-          $script = join " ", "/var/www/html/perl/explorer20.pl", @script_args;
-
-          system $script;
-       %]
-     </div>
-  [% END; # IF xpage == 'explorer' & !url_param('loading' %]
-
-
   
   <div class="card" style="background: #DDDDDD; margin-left: 10px;">
     <table style="width: 100%; /*table-layout: fixed;*/ font-size: 12px; line-height: 10px;">

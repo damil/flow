@@ -36,6 +36,7 @@ sub respond {
     xpage              => $c->param('page')        || 'home',
     searchtable        => $c->param('searchtable') || 'noms_complets',
     searchid           => $c->param('searchid'),
+    search             => $c->param('search'),
     photos             => $self->config->{photos_carrousel},
     traduc             => $traduc,
     last_update        => $last_update,
@@ -51,10 +52,12 @@ sub respond {
    );
 
   # le contenu 'explorer' est déporté dans un module séparé
-  if ($c->stage->{xpage} eq 'explorer') {
+  if ($c->stash->{xpage} eq 'explorer') {
     my $sub_html = capture_stdout {
       my $explorer = App::Flow::Controller::Explorer->new(controller => $self, req_context => $c);
-      $explorer->build_card(%TODO);
+      my %card_args = map {($_ => $c->param($_))} qw/db card id lang alph from to rank mode privacy limit/;
+      $card_args{alph} ||= 'NULL';
+      $explorer->build_card($c->stash->%*, %card_args);
     };
     $c->add_into_stash(explorer_output => $sub_html);
   }
@@ -239,6 +242,12 @@ __END__
 
 
 
+
+
+
+
+
+
 my $search_id  = ucfirst($traduction->{search}->{$xlang});
 
 
@@ -255,6 +264,32 @@ for (my $i = 1; $i < scalar(keys(%types)) + 1; $i++) {
 	my $schstr = param("search$i");
 	if (ucfirst($schstr) ne ucfirst($traduction->{search}->{$xlang})) { $search = $schstr; }
 }
+
+
+
+
+
+  [% IF xpage == 'explorer' and not url_param('loading') %]
+     <div class='contentContainer'>
+       Explorer content : NOT IMPLEMENTED YET (needs external call to explorer20.pl)
+       [%# ============================================
+
+
+
+          $activepage = url_param('card') eq 'board' ? "Synopsis" : $traduction->{'flow_db'}->{$xlang};
+
+
+          $pagetitle = get_title($dbc, $xbase, $card, $id, $search, $xlang, 'NULL', $alph, $traduction);
+
+          $script = join " ", "/var/www/html/perl/explorer20.pl", @script_args;
+
+          system $script;
+       %]
+     </div>
+  [% END; # IF xpage == 'explorer' & !url_param('loading' %]
+
+
+
 
 
 
