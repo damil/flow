@@ -202,8 +202,8 @@ sub build_card {
   unless ( scalar @msg ) { 
         
         # read config file
-        if ( open(CONFIG, $config_file) ) {
-                while (<CONFIG>) {
+        if ( open my $config_fh, "<", $config_file) {
+                while (<$config_fh>) {
                         chomp;                 # no newline
                         s/#.*//;               # no comments 
                         s/^\s+//;              # no leading white
@@ -212,7 +212,6 @@ sub build_card {
                         my ($option, $value) = split(/\s*=\s*/, $_, 2);
                         $config->{$option} = $value;
                 }
-                close(CONFIG);
         }
         else {
                 die "No configuration file could be found \n";
@@ -3391,13 +3390,12 @@ sub makeboard {
         }
         else {
                 my $config2 = {};
-                if ( open(CONFIG, $synop_conf) ) {
-                        while (<CONFIG>) { 
+                if ( open my $config_fh, "<", $synop_conf) {
+                        while (<$config_fh>) { 
                                 chomp; s/#.*//; s/^\s+//; s/\s+$//; next unless length;
                                 my ($option, $value) = split(/\s*=\s*/, $_, 2);
                                 $config2->{$option} = $value;
                         }
-                        close(CONFIG);
                 } else { die "No configuration file for synopsis edition could be found\n";}
         
                 $dbh = db_connection($config2) or die;
