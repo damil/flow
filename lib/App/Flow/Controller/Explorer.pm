@@ -6,8 +6,6 @@ use DBI;
 use CGI qw( -no_xhtml :standard start_ul); # make html 4.0 card
 use Getopt::Long;
 
-my $TMP_CONF_ROOT = "d:/Git/DAMI/flow";
-
 
 #======================================================================
 # Variables globales qui étaient dans l'ancien script explorer20.pl et utilisées dans les subroutines.
@@ -150,11 +148,16 @@ sub new {
 }
 
 
-# proxies to methods in Controller and Context classes
+# simple accessors or proxy methods
 sub dbh_for {shift->{controller}->dbh_for(@_)}
 sub new_uri {shift->{req_context}->new_uri(@_)}
 sub param   {shift->{req_context}->param(@_)}
+sub etc_dir {shift->{etc_dir}}
 
+
+#======================================================================
+# MAIN ENTRY POINT
+#======================================================================
 
 sub build_card {
   my ($self, %args) = @_;
@@ -225,7 +228,7 @@ sub build_card {
   unless ( scalar @msg ) { 
         
         # read config file
-        if ( open my $config_fh, "<", "$TMP_CONF_ROOT/$config_file") {
+        if ( open my $config_fh, "<", $self->etc_dir.$config_file) {
                 while (<$config_fh>) {
                         chomp;                 # no newline
                         s/#.*//;               # no comments 
@@ -3383,7 +3386,7 @@ sub makeboard {
         }
         else {
                 my $config2 = {};
-                if ( open my $config_fh, "<", "$TMP_CONF_ROOT/$synop_conf") {
+                if ( open my $config_fh, "<", $glob_self->etc_dir.$synop_conf) {
                         while (<$config_fh>) { 
                                 chomp; s/#.*//; s/^\s+//; s/\s+$//; next unless length;
                                 my ($option, $value) = split(/\s*=\s*/, $_, 2);
