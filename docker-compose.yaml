@@ -16,7 +16,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: local.Dockerfile
     ports:
       - "5000:5000"
     depends_on:

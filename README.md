@@ -79,14 +79,18 @@ Site can be found at
 
 http://localhost:5000/flow
 
-### Deploy dumps to supabase database
+### Deploy dumps to supabase databases (Flow and traduction_utf8)
 
 Example query (adapt url and port to your instance)
 
 ```shell
-PGPASSWORD=[YOUR-PASSWORD] psql -h db.xirkjyqwjyjlvghvlkhr.supabase.co -p 6543 -U postgres -d postgres -f ./dumps/flow.sql
+PGPASSWORD=[YOUR-PASSWORD] psql -h db.qykgrbswttjovptkiqtg.supabase.co -p 5432 -d postgres -U postgres -f ./dumps/flow.sql
 ```
 
-```shell
-PGPASSWORD=[YOUR-PASSWORD] psql -h db.qykgrbswttjovptkiqtg.supabase.co -p 5432 -d postgres -U postgres -f ./dumps/traduction_utf8.sql
-```
+### Deploy backend to fly.io
+
+At root add a file `deploy.flow_conf.yaml` with config of the production environment.
+
+Then `flyctl deploy` will deploy to fly.io using the Dockerfile.
+
+Fly documentation: https://fly.io/docs/languages-and-frameworks/dockerfile/
