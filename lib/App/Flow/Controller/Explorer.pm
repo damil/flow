@@ -1558,7 +1558,7 @@ sub genera_list {
                 $sth->bind_columns( \( $ge_numb ) );
                 $sth->fetch();
                 $sth->finish(); # finalize the request
-                
+
                 if ($ge_numb > 100) {
 
                         unless($alph) {
@@ -1570,16 +1570,16 @@ sub genera_list {
                                                 WHERE r.en = '$rank' AND s.en = 'valid'
                                                 ORDER by nc.orthographe
                                                 LIMIT 1;";
-                                                
+
                                 my $sth = $dbc->prepare($req) or die $req;
                                 $sth->execute() or die $req;
                                 $sth->bind_columns( \( $alph ) );
                                 $sth->fetch();
                                 $sth->finish();
-                                
+
                                 $alph = uc(substr($alph, 0, 1));
                         }
-                        
+
                         my $vlreq = "   SELECT upper(substring(orthographe,1,1)) AS letter, count(*) 
                                         FROM taxons AS t 
                                         LEFT JOIN taxons_x_noms AS txn ON t.index = txn.ref_taxon
@@ -9170,20 +9170,15 @@ sub alpha_build {
         $alph ||= 'A'; # default letter
 
         my @links;
-        foreach (my $i=0; $i<scalar(@alpha); $i++) { 
-                
-                unless(exists $vletters->{$alpha[$i]}) { 
-                        push(@links, span({-class=>'alphaletter shadow_letter'}, $alpha[$i]));
-                }
-                elsif($alpha[$i] eq $alph) { 
-                  push @links, a({-class=>'xletter', -href=>$glob_self->new_uri(alph => $alpha[$i])}, $alpha[$i]);
-                }
-                else {
-                  push @links, a({-class=>'alphaletter', -href=>$glob_self->new_uri(alph => $alpha[$i])}, $alpha[$i]);
-                }
+        foreach my $letter ('A' .. 'Z') {
+          my $href = $glob_self->new_uri(alph => $letter);
+          push @links,
+            ! exists $vletters->{$letter} ? qq{<span class="alphaletter shadow_letter">$letter</span>}
+          : $letter eq $alph              ? qq{<a class="xletter" href="$href">$letter</a>}
+          :                                 qq{<a class="alphaletter" href="$href">$letter</a>};
         }
 
-        return  "@links";
+        return  join "", @links;
 }
 
 

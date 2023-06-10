@@ -56,7 +56,6 @@ sub respond {
     my $sub_html = capture_stdout {
       my $explorer = App::Flow::Controller::Explorer->new(controller => $self, req_context => $c);
       my %card_args = map {($_ => $c->param($_))} qw/db card id lang alph from to rank mode privacy limit/;
-      $card_args{alph} ||= 'NULL';
       $explorer->build_card($c->stash->%*, %card_args);
     };
     utf8::decode($sub_html);
