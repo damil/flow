@@ -2963,7 +2963,7 @@ sub vernaculars {
                 $sth->fetch();
                 $sth->finish(); # finalize the request
                 
-                my $sep;
+                my $sep = '';
                 if ($dbase eq 'cool') { $sep = br; } 
 
                 my ($alphord, $paysord, $langord);
@@ -3019,7 +3019,7 @@ sub vernaculars {
                                         elsif ($langg ne $current) { $list .= li(br . div({-class=>'soustitre'}, $langg)); $current = $langg; }
                                 }
 
-                                my $xpays;
+                                my $xpays = '';
                                 if ($pays) { $xpays = " in " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=country&id=$ref_pays"}, $pays) }
                                 $list .= li(a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=vernacular&id=$id"}, "$name") . $xpays . " ($langg)" .
                                                                 $sep . " vernacular name of " . 
@@ -9336,7 +9336,8 @@ sub publication {
         my $publication;
         my $abrev;
         my @alpha = ( 'A' .. 'Z' );
-        my $letter;
+        my $letter = '';
+
         # fetch publication data from db
         my $pre_pub = request_row("SELECT p.index, p.titre, p.annee, p.volume, p.fascicule, r.nom, e.nom, v.nom, p.page_debut, p.page_fin, t.en, p.nombre_auteurs
                                         FROM publications AS p LEFT JOIN types_publication AS t ON ( p.ref_type_publication = t.index )
