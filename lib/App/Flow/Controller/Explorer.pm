@@ -1560,26 +1560,6 @@ sub genera_list {
                 $sth->finish(); # finalize the request
 
                 if ($ge_numb > 100) {
-
-                        unless($alph) {
-                                my $req = "     SELECT nc.orthographe
-                                                FROM taxons AS t LEFT JOIN taxons_x_noms AS txn ON t.index = txn.ref_taxon
-                                                LEFT JOIN noms_complets AS nc ON txn.ref_nom = nc.index
-                                                LEFT JOIN statuts AS s ON txn.ref_statut = s.index
-                                                LEFT JOIN rangs AS r ON t.ref_rang = r.index
-                                                WHERE r.en = '$rank' AND s.en = 'valid'
-                                                ORDER by nc.orthographe
-                                                LIMIT 1;";
-
-                                my $sth = $dbc->prepare($req) or die $req;
-                                $sth->execute() or die $req;
-                                $sth->bind_columns( \( $alph ) );
-                                $sth->fetch();
-                                $sth->finish();
-
-                                $alph = uc(substr($alph, 0, 1));
-                        }
-
                         my $vlreq = "   SELECT upper(substring(orthographe,1,1)) AS letter, count(*) 
                                         FROM taxons AS t 
                                         LEFT JOIN taxons_x_noms AS txn ON t.index = txn.ref_taxon
@@ -1592,19 +1572,8 @@ sub genera_list {
                                         ORDER BY lower(substring(orthographe,1,1));";
 
                         my $vletters = request_hash($vlreq, $dbc, 'letter');
-
-                        $sth = $dbc->prepare("SELECT count(*) FROM taxons AS t 
-                                                LEFT JOIN taxons_x_noms AS txn ON t.index = txn.ref_taxon
-                                                LEFT JOIN noms_complets AS n ON txn.ref_nom = n.index
-                                                LEFT JOIN statuts AS s ON txn.ref_statut = s.index
-                                                LEFT JOIN rangs AS r ON t.ref_rang = r.index
-                                                WHERE r.en = '$rank' AND s.en = 'valid'
-                                                AND n.orthographe ILIKE '$alph%';");            
-
-                        $sth->execute( );
-                        $sth->bind_columns( \( $ge_numb ) );
-                        $sth->fetch();
-                        $sth->finish(); # finalize the request
+                        $alph      ||= (sort keys %$vletters)[0];
+                        $ge_numb     = $vletters->{$alph}{count};
 
                         $alphabet = alpha_build($vletters);
                 }
