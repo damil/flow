@@ -151,14 +151,14 @@ sub new {
 
 
 sub dbh_for {shift->{controller}->dbh_for(@_)}
-
+sub new_uri {shift->{req_context}->new_uri(@_)}
 
 
 sub build_card {
   my ($self, %args) = @_;
 
   binmode *STDOUT, ':utf8';
-
+  
   $fullhtml = undef;
 
   # Gets parameters
@@ -869,11 +869,13 @@ sub build_card {
                         
                         $dbc->disconnect;
                 }
-                my $argus;
-                if($card eq 'associate' or $card eq 'associates') { $argus = 'associate' }
-                elsif($card eq 'subgenera') { $argus = 'subgenus' }
-                elsif($card eq 'subspeciess') { $argus = 'subspecies' }
-                $glob_self = $self;
+
+                # appel de la routine qui génère la carte. Les résultats sont envoyés sur STDOUT et récupérés par le module appelant.
+                my $argus = $card eq 'associate' || $card eq 'associates' ? 'associate'
+                          : $card eq 'subgenera'                          ? 'subgenus'
+                          : $card eq 'subspeciess'                        ? 'subspecies'
+                          :                                                 undef;
+                $glob_self = $self; # hack en attendant un refactoring de toutes les subroutines
                 $states{$card}->($argus);
         }
   }
@@ -8430,7 +8432,7 @@ sub vernacular_card {
 
                 my ($nom, $langg, $pays, $ref_pays) = ($taxa->[0][0], $taxa->[0][1], $taxa->[0][2], $taxa->[0][8]);
 
-                my $vdisplay;
+                my $vdisplay = '';
                 if (scalar @{$taxa}) {
                         my %taxas;
                         my @order;
@@ -8458,7 +8460,7 @@ sub vernacular_card {
                         $vdisplay = ul( $vdisplay) . p;
                 }
 
-                my $xpays;
+                my $xpays = '';
                 if ($pays) { $xpays = " in " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=country&id=".$ref_pays}, $pays); }
                 
                 my $fullhtml =  div({-class=>'content'},
@@ -9165,11 +9167,11 @@ sub alpha_build {
         my ($vletters) = @_;
 
         my @alpha = ( 'A' .. 'Z' );
-        $alph = $alph ? $alph : 'A';
+        $alph ||= 'A'; # default letter
 
-        my @params;
-        foreach (keys(%labels)) { if ($_ ne 'alph' and $labels{$_}) { push(@params, $_)}}
-        my $args = join('&', map { "$_=$labels{$_}"} @params );
+        # my @params;
+        # foreach (keys(%labels)) { if ($_ ne 'alph' and $labels{$_}) { push(@params, $_)}}
+        # my $args = join('&', map { "$_=$labels{$_}"} @params );
 
         my @links;
         foreach (my $i=0; $i<scalar(@alpha); $i++) { 
@@ -9178,10 +9180,12 @@ sub alpha_build {
                         push(@links, span({-class=>'alphaletter shadow_letter'}, $alpha[$i]));
                 }
                 elsif($alpha[$i] eq $alph) { 
-                        push(@links, a({-class=>'xletter', -href=>"$scripts{$dbase}$args&alph=$alpha[$i]"}, $alpha[$i]));
+                  # push(@links, a({-class=>'xletter', -href=>"$scripts{$dbase}$args&alph=$alpha[$i]"}, $alpha[$i]));
+                  push @links, a({-class=>'xletter', -href=>$glob_self->new_uri(alph => $alpha[$i])}, $alpha[$i]);
                 }
                 else {
-                        push(@links, a({-class=>'alphaletter', -href=>"$scripts{$dbase}$args&alph=$alpha[$i]"}, $alpha[$i]));
+                  # push(@links, a({-class=>'alphaletter', -href=>"$scripts{$dbase}$args&alph=$alpha[$i]"}, $alpha[$i]));
+                  push @links, a({-class=>'alphaletter', -href=>$glob_self->new_uri(alph => $alpha[$i])}, $alpha[$i]);
                 }
         }
 

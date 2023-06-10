@@ -59,6 +59,7 @@ sub respond {
       $card_args{alph} ||= 'NULL';
       $explorer->build_card($c->stash->%*, %card_args);
     };
+    utf8::decode($sub_html);
     $c->add_into_stash(explorer_output => $sub_html);
   }
 
