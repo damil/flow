@@ -1588,9 +1588,9 @@ sub genera_list {
                                         GROUP BY substring(orthographe,1,1) 
                                         HAVING count(*) > 0 
                                         ORDER BY lower(substring(orthographe,1,1));";
-                                        
+
                         my $vletters = request_hash($vlreq, $dbc, 'letter');
-                        
+
                         $sth = $dbc->prepare("SELECT count(*) FROM taxons AS t 
                                                 LEFT JOIN taxons_x_noms AS txn ON t.index = txn.ref_taxon
                                                 LEFT JOIN noms_complets AS n ON txn.ref_nom = n.index
@@ -1598,12 +1598,12 @@ sub genera_list {
                                                 LEFT JOIN rangs AS r ON t.ref_rang = r.index
                                                 WHERE r.en = '$rank' AND s.en = 'valid'
                                                 AND n.orthographe ILIKE '$alph%';");            
-                        
+
                         $sth->execute( );
                         $sth->bind_columns( \( $ge_numb ) );
                         $sth->fetch();
                         $sth->finish(); # finalize the request
-                        
+
                         $alphabet = alpha_build($vletters);
                 }
                 else { $alph = '' }
@@ -1640,12 +1640,12 @@ sub genera_list {
                         my ($key, $val) = split(':', $_);
                         $attributes{$key} = $val;
                 }
-                
+
                 $nbcols = scalar(@{$gens}) > 25 ? $attributes{nbcols} || 3 : 1;
-                
+
                 my $seuil = scalar(@{$gens}) / $nbcols;
                 $seuil = int($seuil) != $seuil ? int($seuil) + 1 : $seuil;
-                
+
                 my $ge_list;
                 my $i = 0;
                 my $j = 0;
@@ -1655,7 +1655,8 @@ sub genera_list {
                 my $test = 0;
                 if ($to and $ge_numb > $to) {
                         foreach ( @{$gens} ) {
-                                ( $taxonid, $name, $autority, $parent_name, $parent_taxon, $parent_rank, $docid, $family ) = ( $_->[0], $_->[1], $_->[2], $_->[3], $_->[4], $_->[5], $_->[6], $_->[7] );
+                          ( $taxonid, $name, $autority, $parent_name, $parent_taxon, $parent_rank, $docid, $family ) = @$_;
+
                                 if ($i % $to == 0 ) { $naval = substr($name, 0, 3)}
                                 elsif($i % $to == $to-1 or $i == $ge_numb-1) { 
                                         $naval .= " - " . substr($name, 0, 3);
@@ -1676,10 +1677,8 @@ sub genera_list {
                 }
                 else {
                         foreach ( @{$gens} ) {
-
-                                ( $taxonid, $name, $autority, $parent_name, $parent_taxon, $parent_rank, $docid, $family ) = @_;
-                                $docid //= '';
-
+                                ( $taxonid, $name, $autority, $parent_name, $parent_taxon, $parent_rank, $docid, $family ) = @$_;
+                                $_ //= '' for $docid, $taxonid;
                                 if ($docid) { 
                                         $test = 1;
                                         $docid = a({-style=>'margin-left: 5px;', -href=>$docid, -target=>'_blank'}, img({-src=>"/explorerdocs/icon-fiche.png", -style=>'border: 0; margin: 0 0 -2px 0;'}));
@@ -1844,8 +1843,8 @@ sub species_list {
                 
                 my $sp_list;
                 foreach ( @{$spes} ) {
-                        ( $taxonid, $name, $autority, $ref_taxon_parent, $family ) = ( $_->[0], $_->[1], $_->[2], $_->[3], $_->[4] );
-                        
+                        ( $taxonid, $name, $autority, $ref_taxon_parent, $family ) = @$_;
+
                         unless ($i < $seuil) { $i = 0; $j++; }
                         $family = $family ? " ($family)" : undef;
                         $spes{$i}{$j} = td({-class=>'cellAsLi', -style=>'padding-right: 10px;', -width=>int(1000/$nbcols)}, a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$rank&id=$taxonid"}, i("$name") . " $autority" ) . $family );
@@ -2018,7 +2017,7 @@ sub fossils_list {
                         my %spes;
                         
                         foreach ( @{$spes} ) {
-                                ( $taxonid, $name, $autority, $family ) = ( $_->[0], $_->[1], $_->[2], $_->[3] );
+                                ( $taxonid, $name, $autority, $family ) = @$_;
                                 $family = $family ? " ($family)" : undef;
                                 unless ($i < $seuil) { $i = 0; $j++; }
                                 $spes{$i}{$j} = td({-class=>'cellAsLi', -style=>'padding-right: 10px;', -width=>int(1000/$nbcols)}, a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$rank&id=$taxonid"}, i("$name") . " $autority") . $family );
