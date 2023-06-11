@@ -65,34 +65,34 @@ my %scripts = (
 my %states = (
 
       # They are used to call the subroutine that builds the corresponding card
-      'top'           => \&topics_list, # goes to top list
-      'families'      => \&families_list, # goes to families list
-      'subfamilies'   => \&subfamilies_list, # goes to families list
-      'tribes'        => \&tribes_list, # goes to families list
-      'genera'        => \&genera_list, # goes to genera list
-      'subgenera'     => \&genera_list, # goes to subgenera list
-      'speciess'      => \&species_list, # goes to species list
-      'subspeciess'   => \&species_list, # goes to subspecies list
-      'fossils'       => \&fossils_list, # goes to species list
-      'authors'       => \&authors_list, # goes to authors list
+      'top'           => \&topics_list,       # goes to top list
+      'families'      => \&families_list,     # goes to families list
+      'subfamilies'   => \&subfamilies_list,  # goes to families list
+      'tribes'        => \&tribes_list,       # goes to families list
+      'genera'        => \&genera_list,       # goes to genera list
+      'subgenera'     => \&genera_list,       # goes to subgenera list
+      'speciess'      => \&species_list,      # goes to species list
+      'subspeciess'   => \&species_list,      # goes to subspecies list
+      'fossils'       => \&fossils_list,      # goes to species list
+      'authors'       => \&authors_list,      # goes to authors list
       'publications'  => \&publications_list, # goes to publications list
-      'names'         => \&names_list, # goes to names list
+      'names'         => \&names_list,        # goes to names list
       'repositories'  => \&repositories_list, # goes to repositories list
-      'eras'          => \&eras_list, #  goes to eras list
-      'countries'     => \&countries_list, # goes to countries list
-      'regions'       => \&regions_list, # goes to biogeographic regions list
-      'plants'        => \&associations, # goes to plants list
+      'eras'          => \&eras_list,         # goes to eras list
+      'countries'     => \&countries_list,    # goes to countries list
+      'regions'       => \&regions_list,      # goes to biogeographic regions list
+      'plants'        => \&associations,      # goes to plants list
       'associates'    => \&associations,
       'bioInteract'   => \&associations,
       'interactions'  => \&associations,
       'vernaculars'   => \&vernaculars,
-      'makeboard'     => \&makeboard, # makes the board
-      'board'         => \&board, # goes to board
-      'agents'        => \&agents_list, # goes to agents list
-      'editions'      => \&editions_list, # goes to editions list
-      'habitats'      => \&habitats_list, # goes to habitats list
-      'localities'    => \&localities_list, # goes to localities list
-      'captures'      => \&captures_list, # goes to capture technics list
+      'makeboard'     => \&makeboard,         # makes the board
+      'board'         => \&board,             # goes to board
+      'agents'        => \&agents_list,       # goes to agents list
+      'editions'      => \&editions_list,     # goes to editions list
+      'habitats'      => \&habitats_list,     # goes to habitats list
+      'localities'    => \&localities_list,   # goes to localities list
+      'captures'      => \&captures_list,     # goes to capture technics list
       'images'        => \&images_list,
       'types'         => \&types_list,
       'id_keys'       => \&keys_list,
@@ -112,26 +112,26 @@ my %states = (
       'subspecies'    => sub {$rank = 'subspecies' ; taxon_card();},
       'variety'       => sub {$rank = 'variety'    ; taxon_card();},
 
-      'author'        => \&author_card, # goes to author card
+      'author'        => \&author_card,      # goes to author card
       'publication'   => \&publication_card, # goes to publications card
-      'name'          => \&name_card, # goes to name card
-      'repository'    => \&repository_card, # goes to repository card
-      'era'           => \&era_card, # goes to era card
-      'country'       => \&country_card, # goes to country card
-      'image'         => \&image_card, # goes to country card
-      'region'        => \&region_card, # goes to region card
-      'plant'         => \&plant_card, # goes to plant card
-      'vernacular'    => \&vernacular_card, # goes to plant card
+      'name'          => \&name_card,        # goes to name card
+      'repository'    => \&repository_card,  # goes to repository card
+      'era'           => \&era_card,         # goes to era card
+      'country'       => \&country_card,     # goes to country card
+      'image'         => \&image_card,       # goes to country card
+      'region'        => \&region_card,      # goes to region card
+      'plant'         => \&plant_card,       # goes to plant card
+      'vernacular'    => \&vernacular_card,  # goes to plant card
       'associate'     => \&association,
-      'agent'         => \&agent_card, # goes to agent card
-      'edition'       => \&edition_card, # goes to edition card
-      'habitat'       => \&habitat_card, # goes to habitat card
-      'locality'      => \&locality_card, # goes to locality card
-      'capture'       => \&capture_card, # goes to capture technic card
+      'agent'         => \&agent_card,       # goes to agent card
+      'edition'       => \&edition_card,     # goes to edition card
+      'habitat'       => \&habitat_card,     # goes to habitat card
+      'locality'      => \&locality_card,    # goes to locality card
+      'capture'       => \&capture_card,     # goes to capture technic card
       'type'          => \&type_card,
-      'searching'     => \&search_results, # display search string matching results
-      'autotext'      => \&autotext, # display autogenerated texts for a taxon
-      'classification'=> \&classification # display autogenerated classification of all Fulgoromorpha
+      'searching'     => \&search_results,   # display search string matching results
+      'autotext'      => \&autotext,         # display autogenerated texts for a taxon
+      'classification'=> \&classification    # display autogenerated classification of all Fulgoromorpha
 );
 
 
@@ -407,14 +407,13 @@ sub families_list {
                                         $bornes;");
                 $sth->execute( );
                 $sth->bind_columns( \( $taxonid, $name, $autority, $docid, $doclogo ) );
-                #my $fa_list = start_ul({});
-                my $fa_list;
+                my $fa_list = '';
                 while ( $sth->fetch() ){
                         if ($doclogo) { $doclogo = '&nbsp;' . img({-src=>$doclogo, -style=>'width: 14px; border: 0; margin: 0; padding: 0;'}); }
                         if ($docid) { $docid = a({-style=>'margin-left: 20px;', -href=>$docid, -target=>'_blank'}, $doclogo . " $trans->{'id_key'}->{$lang} "); }
                         $fa_list .= Tr(td({-class=>'cellAsLi'}, a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=family&id=$taxonid&loading=1"}, i("$name") . " $autority")), td({-class=>'cellAsLi'}, $docid));
                 }
-                #$fa_list .= end_ul();
+
                 $fa_list = table($fa_list);
 
                 $fullhtml =     div({-class=>'content'},
@@ -438,7 +437,7 @@ sub subfamilies_list {
                 $rank = 'subfamily';
                 # Get the number of subfamilies to build up the list
                 my $fa_numb = '';
-                my $bornes;
+                my $bornes = '';
                 if ($to) { $bornes .= "LIMIT $to"; }
                 if ($from) { $bornes .= "OFFSET $from"; }
                 my $sth = $dbc->prepare( "      SELECT count(*)
@@ -471,14 +470,12 @@ sub subfamilies_list {
                                         $bornes;");
                 $sth->execute( );
                 $sth->bind_columns( \( $taxonid, $name, $autority, $docid, $doclogo ) );
-                #my $fa_list = start_ul({});
-                my $fa_list;
+                my $fa_list = '';
                 while ( $sth->fetch() ){
                         if ($doclogo) { $doclogo = '&nbsp;' . img({-src=>$doclogo, -style=>'width: 14px; border: 0; margin: 0; padding: 0;'}); }
                         if ($docid) { $docid = a({-style=>'margin-left: 20px;', -href=>$docid, -target=>'_blank'}, $doclogo . " $trans->{'id_key'}->{$lang} "); }
                         $fa_list .= Tr(td({-class=>'cellAsLi'}, a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$rank&id=$taxonid"}, i("$name") . " $autority")), td({-class=>'cellAsLi'}, $docid));
                 }
-                #$fa_list .= end_ul();
                 $fa_list = table($fa_list);
 
                 $fullhtml =     div({-class=>'content'},
