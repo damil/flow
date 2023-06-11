@@ -363,3 +363,38 @@ sub classification {
 }
 
 
+__END__
+
+=encoding utf8
+
+=head1 NAME
+
+App::Flow::Controller::Root - main controller for the FLOW database
+
+=head1 SYNOPSIS
+
+  my $app = builder { # using Plack::Builder
+    mount "/flow" => App::Flow::Controller::Root->new(config => $flow_config, etc_dir => $Bin)->to_app;
+  }
+
+=head1 DESCRIPTION
+
+This controller is the main entry point for the "Fulgoromorpha Lists On the Web" (FLOW) application.
+It was refactored in 2023 from the previous CGI architecture dating back to more than 20 years ago.
+The controller is now encapsulated as a L<Plack::Component> class.
+
+Data is gathered from a Postgresql database and from the L<flow_conf.yaml> configuration file.
+This data is then passed to the L<Template Toolkit|Template> for generating the HTML page.
+
+The "explorer" pages of the application are delegated to the L<App::Flow::Controller::Explorer> module.
+
+=head1 AUTHOR
+
+Laurent Dami, E<lt>dami AT cpan DOT org<gt>, June 2023.
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright 2023 by Laurent Dami.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.

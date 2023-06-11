@@ -8,8 +8,6 @@ use JSON::XS;
 use parent 'App::Flow::Controller';
 
 
-# TODO : handle param "reload" at app level
-
 sub respond {
   my ($self, $c) = @_;
 
@@ -71,3 +69,59 @@ _EOSQL_
 
 
 1;
+
+
+__END__
+
+=encoding utf8
+
+=head1 NAME
+
+App::Flow::Controller::SearchJS - dynamic generation of 'search_flow.js' content
+
+=head1 SYNOPSIS
+
+  my $app = builder { # using Plack::Builder
+    mount "/flowdocs/search_flow.js" => App::Flow::Controller::SearchJs->new(config => $flow_config)->to_app;
+  }
+
+=head1 DESCRIPTION
+
+FLOW controller for dynamic generation of 'search_flow.js' content.
+
+This controller connects to the FLOW database and builds javascript content to be used by FLOW autocompleters.
+Algorithms were copied from the (very) old CGI scripts of the original FLOW implementation.
+
+The following javascript arrays are generated :
+
+
+=over
+
+=item noms_complets
+
+Taken from a join between tables 'noms_complets' and 'rangs'.
+
+=item authors
+
+Taken from a join between tables 'noms_complets' and 'rangs'.
+
+=item auteurs
+
+Taken from the 'auteurs' table.
+
+=item pays
+
+Taken from the 'pays' table.
+
+=back
+
+=head1 AUTHOR
+
+Laurent Dami, E<lt>dami AT cpan DOT org<gt>, June 2023.
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright 2023 by Laurent Dami.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.

@@ -9212,3 +9212,33 @@ sub search_results {
 
 1;
 
+__END__
+
+=encoding utf8
+
+=head1 NAME
+
+App::Flow::Controller::Explorer - "explorer" controller for the FLOW database
+
+=head1 DESCRIPTION
+
+This controller is called indirectly through L<App::Flow::Controller::Root>.
+It implements most of the dynamic pages for the "Fulgoromorpha Lists On the Web" (FLOW) application.
+
+This is a minimal refactoring from the original code written in L<CGI> architecture
+more than 20 years ago. A few changes were made for passing parameters through
+regular method calls instead of forking new processes; but otherwise the business
+logic and HTML generation code were not changed; so the refactoring is much lighter than
+in L<App::Flow::Controller::Root>.
+
+
+=head1 AUTHOR
+
+Laurent Dami, E<lt>dami AT cpan DOT org<gt>, June 2023.
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright 2023 by Laurent Dami.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
