@@ -19,7 +19,6 @@ my $fullhtml;
 my $maprest = "https://edit.africamuseum.be/edit_wp5/v1/areas.php";
 
 
-my %labels;
 my @topics;
 my $totop;
 my $cross_tables;
@@ -170,9 +169,7 @@ sub build_card {
   (            $dbase, $lang, $id, $card, $alph, $from, $to, $rank, $search, $searchtable, $searchid, $mode, $privacy, $limit)
     = @args{qw/ xbase   xlang  id   card   alph   from   to   rank   search   searchtable   searchid   mode   privacy   limit/};
 
-
-  # copie dans variables globale afin que ce soit accessible aux autres subroutines
-  %labels = %args;
+  $mode //= '';
 
 
   # Gets config
@@ -327,7 +324,8 @@ sub topics_list {
                 my $wrap = 0;
                 my $row = 0;
                 my %topics;
-                my ($bg, $txtsize);
+                my $bg = '';
+                my $txtsize = '';
                 if ($dbase =~ m/psylles/) { $bg = 'black'; $txtsize = ' font-size: 13px;'}
                 else { $bg = 'transparent'; }
                 foreach (@topics) {
