@@ -4500,12 +4500,9 @@ sub taxon_card {
                 my $leaves = request_tab($req, $dbc, 2);
                 
                 my $phpstr = 'array (';
-                #$phpstr .= '<br>'; #!!
-                #$leaves = [$leaves->[324]];
                 my $i=0;
                 foreach (@{$leaves}) {
                         my @phpcols;
-                        #http://flow.hemiptera.infosyslab.fr
                         push(@phpcols, "$_->[3] ++ $_->[4] ++ /flow/?page=explorer&db=flow&lang=en&card=taxon&rank=$_->[1]&id=$_->[0]");
                         my $parent = $_->[2];
                         my $rank_pos = 1;
@@ -5061,7 +5058,7 @@ sub taxon_card {
                                 # Make a graphic representation of taxon synonymy and chresonymy
                                 if (( !$display_modes{graphic}{skip} or $mode eq 'full') and !$toomuch) {
                                         
-                                        my $legend;
+                                        my $legend = '';
                                         $legend .= Tr( td({-colspan=>1, -class=>'legMagicCell magicCell', -style=>"display: none;"}, 
                                                                         "<NOBR>
                                                                         <fieldset class='sc_Legend leg_boxes' STYLE='float: left;'>
