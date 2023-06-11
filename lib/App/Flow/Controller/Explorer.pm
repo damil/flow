@@ -151,7 +151,6 @@ sub new {
 # simple accessors or proxy methods
 sub dbh_for {shift->{controller}->dbh_for(@_)}
 sub new_uri {shift->{req_context}->new_uri(@_)}
-sub param   {shift->{req_context}->param(@_)}
 sub etc_dir {shift->{etc_dir}}
 
 
@@ -4484,7 +4483,7 @@ sub taxon_card {
                                                 #}
 
                                                 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                                                if (($glob_self->param('test') // '') eq 'taxhis' and $dbase eq 'flow') {
+                                                if (($glob_self->{req_context}->param('test') // '') eq 'taxhis' and $dbase eq 'flow') {
                                                         my %parentForms;
                                                         my @parentIds;
                                                         my @current = ($valid_name->[0], $valid_name->[1], $valid_name->[2], $valid_name->[20]);
