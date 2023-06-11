@@ -5,7 +5,7 @@
 
 <link rev="made"                              href="mailto:anta@mnhn.fr" />
 
-<base href="[% root_url %]" target="_parent" />
+<base href="[% c.new_uri.replace('\?.*', '') %]" target="_parent" />
 
 <meta http-equiv="Content-Type"               content="text/html; charset=UTF-8" />
 <meta name="description"                      content="FLOW: a taxonomic and bibliographical database for planthoppers (Insecta Hemiptera Fulgoromorpha Fulgoroidea) their distribution and biological interactions" />
