@@ -163,7 +163,7 @@ sub build_card {
   my ($self, %args) = @_;
 
   binmode *STDOUT, ':utf8';
-  
+
   $fullhtml = undef;
 
   # Gets parameters
@@ -197,7 +197,7 @@ sub build_card {
   : $dbase eq 'cipa'          ? qw(/etc/flow/cipaexplorer.conf                                               )
   : $dbase eq 'dbtnt'         ? qw(/etc/flow/dbtntexplorer.conf                                              )
   : ();
- 
+
 
   # Loads topics list contained in the configuration file
   @topics = ();
@@ -226,7 +226,7 @@ sub build_card {
   $config = {};
   $trans = undef;
   unless ( scalar @msg ) { 
-        
+
         # read config file
         if ( open my $config_fh, "<", $self->etc_dir.$config_file) {
                 while (<$config_fh>) {
@@ -242,13 +242,13 @@ sub build_card {
         else {
           die "Configuration file $config_file could be found \n";
         }
-        
+
         @topics = split(' ', $config->{DEFAULT_TOPICS});
         unless(scalar(@topics)) { @topics = split(' ', $config->{EXPLORER_TOPICS}); }
-        
+
         unless ( $trans = read_lang($config) ) { error_msg( "lang = $lang" ); } 
         else { 
-                
+
                 if ($dbase eq 'cipa') {
 
                         my $dbc = $self->dbh_for($config->{DEFAULT_DB});
@@ -263,7 +263,7 @@ sub build_card {
                         make_hash ($dbc, "SELECT index, $lang FROM niveaux_confirmation;", \$confirm);
                         make_hash ($dbc, "SELECT index, $lang FROM habitats;", \$habitats);
                         make_hash ($dbc, "SELECT index, $lang FROM modes_capture;", \$captures);
-                                
+
                         $cross_tables = {       
                                                 'taxons_x_regions' => { 
                                                                         'title' => 'Taxon x region',
@@ -361,7 +361,7 @@ sub build_card {
                                                                         'foreign_joins' => 'LEFT JOIN regions AS r ON r.index = tx.ref_region',
                                                                         'order' => 'ORDER BY r.nom'
                                                 },
-                                                
+
                                                 'taxons_x_regions_x_agents_infectieux' => {
                                                                         'title' => 'Taxon x region x infectious agent',
                                                                         'ordre' => 2,
@@ -403,7 +403,7 @@ sub build_card {
                                                                         'foreign_joins' => 'LEFT JOIN regions AS r ON r.index = tx.ref_region LEFT JOIN agents_infectieux AS a ON a.index = tx.ref_agent_infectieux ',
                                                                         'order' => "ORDER BY r.nom, a.$lang"
                                                 },
-                                                
+
                                                 'taxons_x_regions_x_habitats' => {
                                                                         'title' => 'Taxon x region x habitat',
                                                                         'ordre' => 3,
@@ -438,7 +438,7 @@ sub build_card {
                                                                         'foreign_joins' => 'LEFT JOIN regions AS r ON r.index = tx.ref_region LEFT JOIN habitats AS h ON h.index = tx.ref_habitat ',
                                                                         'order' => "ORDER BY r.nom, h.$lang"
                                                 },
-                                                
+
                                                 'taxons_x_regions_x_modes_capture' => {
                                                                         'title' => 'Taxon x region x capture mode',
                                                                         'ordre' => 4,
@@ -473,7 +473,7 @@ sub build_card {
                                                                         'foreign_joins' => 'LEFT JOIN regions AS r ON r.index = tx.ref_region LEFT JOIN modes_capture AS c ON c.index = tx.ref_mode_capture ',
                                                                         'order' => "ORDER BY r.nom, c.$lang"
                                                 },
-                                                
+
                                                 'taxons_x_pays' => {    
                                                                                 'title' => 'Taxon x country',
                                                                                 'ordre' => 5,
@@ -569,7 +569,7 @@ sub build_card {
                                                                         'foreign_joins' => 'LEFT JOIN pays AS p ON p.index = tx.ref_pays',
                                                                         'order' => "ORDER BY p.$lang"
                                                 },
-                                                
+
                                                 'taxons_x_pays_x_agents_infectieux' => {
                                                                         'title' => 'Taxon x country x infectious agent',
                                                                         'ordre' => 6,
@@ -611,7 +611,7 @@ sub build_card {
                                                                         'foreign_joins' => 'LEFT JOIN pays AS p ON p.index = tx.ref_pays LEFT JOIN agents_infectieux AS a ON a.index = tx.ref_agent_infectieux ',
                                                                         'order' => "ORDER BY p.$lang, a.$lang"
                                                 },
-                                                
+
                                                 'taxons_x_pays_x_habitats' => {
                                                                         'title' => 'Taxon x country x habitat',
                                                                         'ordre' => 7,
@@ -646,7 +646,7 @@ sub build_card {
                                                                         'foreign_joins' => 'LEFT JOIN pays AS p ON p.index = tx.ref_pays LEFT JOIN habitats AS h ON h.index = tx.ref_habitat ',
                                                                         'order' => "ORDER BY p.$lang, h.$lang"
                                                 },
-                                                
+
                                                 'taxons_x_pays_x_modes_capture' => {
                                                                         'title' => 'Taxon x country x capture mode',
                                                                         'ordre' => 8,
@@ -681,7 +681,7 @@ sub build_card {
                                                                         'foreign_joins' => 'LEFT JOIN pays AS p ON p.index = tx.ref_pays LEFT JOIN modes_capture AS c ON c.index = tx.ref_mode_capture ',
                                                                         'order' => "ORDER BY p.$lang, c.$lang"
                                                 },
-                                                
+
                                                 'taxons_x_localites' => {       
                                                                         'title' => 'Taxon x locality',
                                                                         'ordre' => 9,
@@ -715,7 +715,7 @@ sub build_card {
                                                                         'foreign_joins' => 'LEFT JOIN localites AS l ON l.index = tx.ref_localite',
                                                                         'order' => 'ORDER BY l.nom'
                                                 },
-                                                                                                
+
                                                 'taxons_x_periodes' => {        
                                                                         'title' => 'Taxon x geological period',
                                                                         'ordre' => 10,
@@ -742,7 +742,7 @@ sub build_card {
                                                                         'foreign_joins' => 'LEFT JOIN periodes AS p ON p.index = tx.ref_periode',
                                                                         'order' => "ORDER BY p.$lang"
                                                 },
-                                                
+
                                                 'noms_x_types' => {
                                                                         'title' => 'Name x type',
                                                                         'ordre' => 11,
@@ -794,7 +794,7 @@ sub build_card {
                                                                         'foreign_joins' => 'LEFT JOIN lieux_depot AS ld ON ld.index = tx.ref_lieux_depot LEFT JOIN types_type AS tt ON tt.index = tx.ref_type',
                                                                         'order' => "ld.nom, tt.$lang"
                                                 },
-                                                
+
                                                 'taxons_x_lieux_depot' => {
                                                                         'title' => 'Taxon x repository',
                                                                         'ordre' => 12,
@@ -871,7 +871,7 @@ sub build_card {
                                                                         'order' => 'ORDER BY nom, transliteration'
                                                 }       
                         };
-                        
+
                         $dbc->disconnect;
                 }
 
@@ -902,7 +902,7 @@ sub getPDF {
         else {
                 return '';
         }
-        
+
 }
 
 # Error message
@@ -930,58 +930,58 @@ sub make_hash {
 }
 
 sub display_cross_tables {
-        
+
         my ($xid, $dbc) = @_;
         my $retro_hash;
         my $txlist;
-                        
+
         foreach my $cross (sort {$cross_tables->{$a}{'ordre'} <=> $cross_tables->{$b}{'ordre'}} keys(%{$cross_tables})) {
-                
+
                 my $tables2;
                 @{$tables2} = split(/_x_/, $cross);
                 my $table1 = shift(@{$tables2});
                 my $field1;
                 if ($table1 eq 'taxons') { $field1 = 'ref_taxon' }
                 elsif ($table1 eq 'noms') { $field1 = 'ref_nom' }
-                
+
                 my $foreign_fields = [];
                 my ($foreign_joins, $order);
                 if ( $cross eq 'taxons_x_pays' ) {
-                                                                        
+
                         make_thesaurus("SELECT index, $lang, tdwg_level FROM pays ORDER BY tdwg_level DESC, $lang;", 'pays', '$intitule = $row->[1];', \$retro_hash, $dbc);
                         make_thesaurus('SELECT index, orthographe, autorite FROM noms_complets ORDER BY orthographe, autorite;', 'noms', '$intitule = $row->[1]." ".$row->[2];', \$retro_hash, $dbc);
-                                                        
+
                         # elements needed to sort relations in case of update action
                         $foreign_fields = $cross_tables->{$cross}->{'foreign_fields'};
                         $foreign_joins = $cross_tables->{$cross}->{'foreign_joins'};
                         $order = $cross_tables->{$cross}->{'order'};    
                 }
                 elsif ( $cross eq 'taxons_x_pays_x_agents_infectieux' or $cross eq 'taxons_x_pays_x_habitats' or $cross eq 'taxons_x_pays_x_modes_capture' ) {
-                                                                        
+
                         make_thesaurus("SELECT index, $lang, tdwg_level FROM pays ORDER BY tdwg_level DESC, $lang;", 'pays', '$intitule = $row->[1];', \$retro_hash, $dbc);
-                                                        
+
                         # elements needed to sort relations in case of update action
                         $foreign_fields = $cross_tables->{$cross}->{'foreign_fields'};
                         $foreign_joins = $cross_tables->{$cross}->{'foreign_joins'};
                         $order = $cross_tables->{$cross}->{'order'};    
                 }       
                 elsif ( $cross eq 'taxons_x_plantes' ) {
-                        
-                                                
+
+
                         make_thesaurus("SELECT index, get_host_plant_name(index) AS fullname FROM plantes ORDER BY fullname;", 'plantes', '$intitule = $row->[1];', \$retro_hash, $dbc);
-                        
+
                         # elements needed to sort relations in case of update action
                         $foreign_fields = $cross_tables->{$cross}->{'foreign_fields'};
                         $foreign_joins = $cross_tables->{$cross}->{'foreign_joins'};
                         $order = $cross_tables->{$cross}->{'order'};    
                 }
                 elsif ( $cross eq 'taxons_x_images' or $cross eq 'noms_x_images' ) {
-                                                                        
+
                         make_thesaurus("SELECT index, substring(url from \'[^/]+\$\') FROM images ORDER BY url;", 'images', '$intitule = $row->[1];', \$retro_hash, $dbc);
                 }
                 elsif ( $cross eq 'taxons_x_vernaculaires' ) {
-                                        
-                                                
+
+
                         make_thesaurus("SELECT nv.index, nv.nom, nv.transliteration, l.langage, p.$lang 
                                         FROM noms_vernaculaires AS nv
                                         LEFT JOIN pays AS p ON p.index = nv.ref_pays
@@ -991,14 +991,14 @@ sub display_cross_tables {
                                         "\$intitule .= \$row->[1]; if(\$row->[2]) { \$intitule .= ' ('.\$row->[2].')'; } if(\$row->[4]) { \$intitule .= ' in '.\$row->[4]; } if(\$row->[3]) { \$intitule .= ' ('.\$row->[3].')'; }",
                                         \$retro_hash, 
                                         $dbc);
-                                
+
                         # elements needed to sort relations in case of update action
                         $foreign_fields = $cross_tables->{$cross}->{'foreign_fields'};
                         $foreign_joins = $cross_tables->{$cross}->{'foreign_joins'};
                         $order = $cross_tables->{$cross}->{'order'};    
                 }
                 elsif ( $cross eq 'taxons_x_localites' ) {
-                                                                        
+
                         # thesauri definition for foreign keys
                         make_thesaurus(
                                 "SELECT l.index, l.nom, r.nom, p.$lang 
@@ -1011,15 +1011,15 @@ sub display_cross_tables {
                                  \$retro_hash,
                                  $dbc
                         );
-                        
+
                         # elements needed to sort relations in case of update action
                         $foreign_fields = $cross_tables->{$cross}->{'foreign_fields'};
                         $foreign_joins = $cross_tables->{$cross}->{'foreign_joins'};
                         $order = $cross_tables->{$cross}->{'order'};    
                 }
                 elsif ( $cross eq 'taxons_x_lieux_depot' or $cross eq 'noms_x_types' ) {
-                        
-                                                
+
+
                         # thesauri definition for foreign keys
                         make_thesaurus(
                                 "SELECT l.index, nom, $lang 
@@ -1032,22 +1032,22 @@ sub display_cross_tables {
                                  $dbc
                         );
                         make_thesaurus('SELECT index, orthographe, autorite FROM noms_complets ORDER BY orthographe, autorite;', 'noms', '$intitule = $row->[1]." ".$row->[2];', \$retro_hash, $dbc);
-                        
-                        
+
+
                         # elements needed to sort relations in case of update action
                         $foreign_fields = $cross_tables->{$cross}->{'foreign_fields'};
                         $foreign_joins = $cross_tables->{$cross}->{'foreign_joins'};
                         $order = $cross_tables->{$cross}->{'order'};    
                 }
                 elsif ( $cross eq 'taxons_x_periodes' ) {
-                        
+
                         # elements needed to sort relations in case of update action
                         $foreign_fields = $cross_tables->{$cross}->{'foreign_fields'};
                         $foreign_joins = $cross_tables->{$cross}->{'foreign_joins'};
                         $order = $cross_tables->{$cross}->{'order'};    
                 }
                 elsif ( $cross eq 'taxons_x_regions' ) {
-                                                
+
                         # thesauri definition for foreign keys
                         make_thesaurus(
                                 "SELECT r.index, nom, $lang
@@ -1060,14 +1060,14 @@ sub display_cross_tables {
                                  $dbc
                         );
                         make_thesaurus('SELECT index, orthographe, autorite FROM noms_complets ORDER BY orthographe, autorite;', 'noms', '$intitule = $row->[1]." ".$row->[2];', \$retro_hash, $dbc);
-                        
+
                         # elements needed to sort relations in case of update action
                         $foreign_fields = $cross_tables->{$cross}->{'foreign_fields'};
                         $foreign_joins = $cross_tables->{$cross}->{'foreign_joins'};
                         $order = $cross_tables->{$cross}->{'order'};    
                 }
                 elsif ( $cross eq 'taxons_x_regions_x_agents_infectieux' or $cross eq 'taxons_x_regions_x_habitats' or $cross eq 'taxons_x_regions_x_modes_capture' ) {
-                                                                        
+
                         # thesauri definition for foreign keys
                         make_thesaurus(
                                 "SELECT r.index, nom, $lang 
@@ -1079,29 +1079,29 @@ sub display_cross_tables {
                                  \$retro_hash, 
                                  $dbc
                         );
-                        
+
                         # elements needed to sort relations in case of update action
                         $foreign_fields = $cross_tables->{$cross}->{'foreign_fields'};
                         $foreign_joins = $cross_tables->{$cross}->{'foreign_joins'};
                         $order = $cross_tables->{$cross}->{'order'};    
                 }
-                                
+
                 # page title
                 my $ptitle = $cross_tables->{$cross}->{'title'};
                 # fields definitions
                 my $table_definition = $cross_tables->{$cross}->{'definition'};
                 # obligatory fields
                 my $obligatory = $cross_tables->{$cross}->{'obligatory'};
-                
+
                 my $table_fields;
                 foreach (@{$table_definition}) {
                         if ($_->{'type'} eq 'foreign') { push(@{$table_fields}, $_->{'ref'}); }
                         else { push(@{$table_fields}, $_->{'id'}); }
                 }       
-                
+
                 my $virgule;
                 if (scalar(@{$foreign_fields})) { $virgule = ','; }
-                
+
                 my $req;
                 if ($field1 eq 'ref_nom') {
                         $order = join(', ', ('nc.orthographe, nc.autorite', $order));
@@ -1116,13 +1116,13 @@ sub display_cross_tables {
                 else {
                         $req = "SELECT tx." . join(', tx.', @{$table_fields}) . $virgule . join(', ', @{$foreign_fields}) . " FROM $cross AS tx $foreign_joins WHERE $field1 = $xid $order;";
                 }
-                
+
                 my $preexist = request_tab($req, $dbc, 2);
-                
+
                 if (scalar(@{$preexist})) {
                         $txlist .= div({-class=>'titre'}, ucfirst($ptitle));
                         $txlist .= start_ul({});
-                
+
                         foreach my $row (@{$preexist}) {
                                 my $element;
                                 my $i = 0;
@@ -1167,7 +1167,7 @@ sub display_cross_tables {
                                 }
                                 $txlist .= li(substr($element, 0, -2));
                         }
-                        
+
                         $txlist .= end_ul();
                 }
         }
@@ -1179,9 +1179,9 @@ sub make_thesaurus {
 
         my ($req, $hash, $format, $retro_hash, $dbc) = @_;
         my ($res, $hashlabels);
-                
+
         $res = request_tab($req, $dbc, 2);
-        
+
         foreach my $row (@{$res}) {
                 my $intitule;
                 eval($format);
@@ -1192,7 +1192,7 @@ sub make_thesaurus {
 # Top list
 #################################################################
 sub topics_list {
-        
+
         my @basesH = ('flow', 'psylles', 'aleurodes', 'tingides', 'tessaratomidae', 'lucanidae', 'brentidae', 'dbtnt', 'test', 'hefo', 'diptera');
 
 
@@ -1226,10 +1226,10 @@ sub topics_list {
                         $topics_list .= li({-class=>'exploli'}, a({-class=>'exploa', -href=>$href}, ucfirst($trans->{$label}->{$lang}) ) );
                 }
                 $topics_list .= end_ul();
-                
+
                 my $toptitle;
                 if ($dbase ne 'cool') { $toptitle = h2({-class=>'exploh2'},  $trans->{"topics"}->{$lang}); }
-                
+
                 $fullhtml = div({-class=>'explocontent', -id=>'topiclist'},
                                         div({-class=>'carddiv'},
                                                 $toptitle,
@@ -1237,7 +1237,7 @@ sub topics_list {
                                         )
                                 );
         }
-        
+
         print $fullhtml;
 }
 
@@ -1291,19 +1291,19 @@ sub families_list {
                 }
                 #$fa_list .= end_ul();
                 $fa_list = table($fa_list);
-                
+
                 my $prevnext;
                 if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-                
+
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
                                         $prevnext,
                                         div({-class=>'titre'}, ucfirst($trans->{"familys"}->{$lang})), p,
                                         $fa_list
                                 );
-                                
+
                 print $fullhtml;
-                
+
                 $dbc->disconnect; # disconnection
         }
         else {} # Connection failed
@@ -1359,19 +1359,19 @@ sub subfamilies_list {
                 }
                 #$fa_list .= end_ul();
                 $fa_list = table($fa_list);
-                
+
                 my $prevnext;
                 if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-                
+
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
                                         $prevnext,
                                         div({-class=>'titre'}, ucfirst($trans->{"subfamilys"}->{$lang})), p,
                                         $fa_list
                                 );
-                                
+
                 print $fullhtml;
-                
+
                 $dbc->disconnect; # disconnection
         }
         else {} # Connection failed
@@ -1427,19 +1427,19 @@ sub tribes_list {
                 }
                 #$fa_list .= end_ul();
                 $fa_list = table($fa_list);
-                
+
                 my $prevnext;
                 if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-                
+
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
                                         $prevnext,
                                         div({-class=>'titre'}, ucfirst($trans->{"subfamilys"}->{$lang})), p,
                                         $fa_list
                                 );
-                                
+
                 print $fullhtml;
-                
+
                 $dbc->disconnect; # disconnection
         }
         else {} # Connection failed
@@ -1463,7 +1463,7 @@ sub keys_list {
                                         WHERE s.en = 'valid'
                                         AND d.type = 'key'
                                         ORDER BY n.orthographe;");
-                
+
                 $sth->execute( );
                 $sth->bind_columns( \( $taxonid, $name, $autority, $url, $logo ) );
 
@@ -1474,20 +1474,20 @@ sub keys_list {
                         $key_list .= Tr(td($url));
                 }
                 $key_list = table($key_list);
-                
+
                 my $prevnext;
-                
+
                 if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-                
+
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
                                         $prevnext,
                                         div({-class=>'titre'}, ucfirst($trans->{'id_keys'}->{$lang})),
                                         $key_list
                                 );
-                                
+
                 print $fullhtml;
-                
+
                 $dbc->disconnect; # disconnection
         }
         else {} # Connection failed
@@ -1498,7 +1498,7 @@ sub keys_list {
 sub morphcards_list {
         if ( my $dbc = $glob_self->dbh_for($config->{DEFAULT_DB}) ) { 
                 $dbc->{RaiseError} = 1;
-                
+
                 # Fetch keys
                 my ( $taxonid, $name, $autority, $url, $logo );
                 my $sth = $dbc->prepare( "      SELECT t.index, n.orthographe, n.autorite, d.url, d.logo_url 
@@ -1511,7 +1511,7 @@ sub morphcards_list {
                                         WHERE s.en = 'valid'
                                         AND d.type = 'card'
                                         ORDER BY n.orthographe;");
-                
+
                 $sth->execute( );
                 $sth->bind_columns( \( $taxonid, $name, $autority, $url, $logo ) );
 
@@ -1522,19 +1522,19 @@ sub morphcards_list {
                         $key_list .= Tr(td($url));
                 }
                 $key_list = table($key_list);
-                
+
                 my $prevnext;
                 if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-                
+
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
                                         $prevnext,
                                         div({-class=>'titre'}, ucfirst($trans->{'morphcards'}->{$lang})),
                                         $key_list
                                 );
-                                
+
                 print $fullhtml;
-                
+
                 $dbc->disconnect; # disconnection
         }
         else {} # Connection failed
@@ -1543,22 +1543,22 @@ sub morphcards_list {
 # Genera list
 #################################################################
 sub genera_list {
-        
+
         my $title;
         ($rank) = @_;
         unless ($rank) { $rank = 'genus'; $title = 'genera'; }
         else { $title = 'subgenera'; }
-        
+
         if ( my $dbc = $glob_self->dbh_for($config->{DEFAULT_DB}) ) { 
                 $dbc->{RaiseError} = 1; #TODO: enhance error message...
                 # Get the number of genera to build up the list
                 my $ge_numb = '';
                 my $alphabet;
-                
+
                 my $sth = $dbc->prepare("SELECT count(*) FROM taxons AS t 
                                         LEFT JOIN rangs AS r ON t.ref_rang = r.index
                                         WHERE r.en = '$rank';");
-                
+
                 $sth->execute( );
                 $sth->bind_columns( \( $ge_numb ) );
                 $sth->fetch();
@@ -1606,9 +1606,9 @@ sub genera_list {
                                 AND (d.type = 'card' OR d.type IS NULL)
                                 AND n.orthographe ILIKE '$alph%'
                                 ORDER BY n.orthographe;";
-        
+
                 my $gens = request_tab($req, $dbc, 2);
-                
+
                 my $nbcols;
                 my %display_modes = %{request_hash("SELECT * FROM display_modes WHERE card = 'genera';", $dbc, 'element')};
                 my %attributes;
@@ -1692,7 +1692,7 @@ sub genera_list {
                                         div({-class=>'titre'}, ''),
                                         $ge_list
                                 );
-                
+
                 print $fullhtml;
 
                 $dbc->disconnect;
@@ -1720,16 +1720,16 @@ sub species_list {
                                 LEFT JOIN statuts AS s ON txn.ref_statut = s.index
                                 LEFT JOIN rangs AS r ON t.ref_rang = r.index
                                 WHERE r.en = '$rank' AND s.en = 'valid';";
-                
+
                 my $sth = $dbc->prepare($req) or die $req;
-                
+
                 $sth->execute() or die $req;
                 $sth->bind_columns( \( $sp_numb ) );
                 $sth->fetch();
                 $sth->finish();
-                                
+
                 if ($sp_numb > 100) {
-                        
+
                         unless($alph) {
                                 my $req = "     SELECT nc.orthographe
                                                 FROM taxons AS t LEFT JOIN taxons_x_noms AS txn ON t.index = txn.ref_taxon
@@ -1739,16 +1739,16 @@ sub species_list {
                                                 WHERE r.en = '$rank' AND s.en = 'valid'
                                                 ORDER by nc.orthographe
                                                 LIMIT 1;";
-                                                
+
                                 my $sth = $dbc->prepare($req) or die $req;
                                 $sth->execute() or die $req;
                                 $sth->bind_columns( \( $alph ) );
                                 $sth->fetch();
                                 $sth->finish();
-                                
+
                                 $alph = uc(substr($alph, 0, 1));
                         }
-                        
+
                         my $vlreq = "   SELECT upper(substring(orthographe,1,1)) AS letter, count(*) 
                                         FROM taxons AS t 
                                         LEFT JOIN taxons_x_noms AS txn ON t.index = txn.ref_taxon
@@ -1759,9 +1759,9 @@ sub species_list {
                                         GROUP BY substring(orthographe,1,1) 
                                         HAVING count(*) > 0 
                                         ORDER BY lower(substring(orthographe,1,1));";
-                                        
+
                         my $vletters = request_hash($vlreq, $dbc, 'letter');
-                        
+
                         $req = "        SELECT count(*) 
                                         FROM taxons AS t LEFT JOIN taxons_x_noms AS txn ON t.index = txn.ref_taxon
                                         LEFT JOIN noms_complets AS nc ON txn.ref_nom = nc.index
@@ -1769,19 +1769,19 @@ sub species_list {
                                         LEFT JOIN rangs AS r ON t.ref_rang = r.index
                                         WHERE r.en = '$rank' AND s.en = 'valid'
                                         AND nc.orthographe ILIKE '$alph%';";
-                        
+
                         $sth = $dbc->prepare($req) or die $req;
-                        
+
                         $sth->execute() or die $req;
                         $sth->bind_columns( \( $sp_numb ) );
                         $sth->fetch();
                         $sth->finish();
-                        
+
                         $alphabet = alpha_build($vletters);
                 }
                 else { $alph = '' }
-                
-                
+
+
                 my $bornes = '';
                 if ($to) { $bornes .= "LIMIT $to"; }
                 if ($from) { $bornes .= "OFFSET $from"; }
@@ -1795,12 +1795,12 @@ sub species_list {
                         AND nc.orthographe ILIKE '$alph%'
                         ORDER BY nc.orthographe
                         $bornes;";
-                
+
                 # Fetch species from DB
                 my ( $taxonid, $name, $autority, $ref_taxon_parent, $family );
 
                 my $spes = request_tab($req, $dbc, 2);
-                
+
                 my $nbcols;
                 my %display_modes = %{request_hash("SELECT * FROM display_modes WHERE card = '$title';", $dbc, 'element')};
                 my %attributes;
@@ -1809,15 +1809,15 @@ sub species_list {
                         my ($key, $val) = split(':', $_);
                         $attributes{$key} = $val;
                 }
-                
+
                 $nbcols = scalar(@{$spes}) > 25 ? $attributes{nbcols} || 2 : 1;
-                
+
                 my $seuil = scalar(@{$spes}) / $nbcols;
                 $seuil = int($seuil) != $seuil ? int($seuil) + 1 : $seuil;
                 my $i = 0;
                 my $j = 0;
                 my %spes;
-                
+
                 my $sp_list;
                 foreach ( @{$spes} ) {
                         ( $taxonid, $name, $autority, $ref_taxon_parent, $family ) = @$_;
@@ -1835,12 +1835,12 @@ sub species_list {
                         }
                         $sp_list .= Tr($columns);
                 }
-                
+
                 $sp_list = table({-style=>'margin: 0; padding: 0;'}, $sp_list);
-                
+
                 my $prevnext;
                 if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-                
+
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
                                         $prevnext,
@@ -1853,7 +1853,7 @@ sub species_list {
                                         div({-class=>'titre'}, ''),
                                         $sp_list
                                 );
-                
+
                 print $fullhtml;
 
                 $dbc->disconnect; 
@@ -1867,13 +1867,13 @@ sub fossils_list {
         if ( my $dbc = $glob_self->dbh_for($config->{DEFAULT_DB}) ) { 
                 $dbc->{RaiseError} = 1;
                 $rank = 'species';
-                
+
                 my ($alphabet, $alphabetic, $time, $sp_list);
-                
+
                 if ($mode eq 'alpha' or !$mode) {
                         $time = a({-class=>'section', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=fossils&mode=time"},  ucfirst($trans->{'geoltime'}->{$lang}));
                         $alphabetic = span({-class=>'xsection'},  ucfirst($trans->{'alphabetic'}->{$lang}));
-                        
+
                         # Get the number of species to build up the list
                         my $sp_numb;
                         my $req = "     SELECT count(*) 
@@ -1884,14 +1884,14 @@ sub fossils_list {
                                         WHERE r.en = 'species'
                                         AND s.en = 'valid'
                                         AND n.fossil = true;";
-                        
+
                         my $sth = $dbc->prepare($req) or die $req;
-                
+
                         $sth->execute() or die $req;
                         $sth->bind_columns( \( $sp_numb ) );
                         $sth->fetch();
                         $sth->finish();
-                        
+
                         if ($sp_numb > 1000) {  
                                 unless($alph) {
                                         my $req = "     SELECT nc.orthographe
@@ -1905,16 +1905,16 @@ sub fossils_list {
                                                         AND n.fossil = true
                                                         ORDER by nc.orthographe
                                                         LIMIT 1;";
-                                                        
+
                                         my $sth = $dbc->prepare($req) or die $req;
                                         $sth->execute() or die $req;
                                         $sth->bind_columns( \( $alph ) );
                                         $sth->fetch();
                                         $sth->finish();
-                                        
+
                                         $alph = uc(substr($alph, 0, 1));
                                 }
-                                
+
                                 my $vlreq = "   SELECT upper(substring(nc.orthographe,1,1)) AS letter, count(*) 
                                                 FROM taxons AS t 
                                                 LEFT JOIN taxons_x_noms AS txn ON t.index = txn.ref_taxon
@@ -1928,9 +1928,9 @@ sub fossils_list {
                                                 GROUP BY substring(nc.orthographe,1,1) 
                                                 HAVING count(*) > 0 
                                                 ORDER BY lower(substring(nc.orthographe,1,1));";
-                                                
+
                                 my $vletters = request_hash($vlreq, $dbc, 'letter');
-                                
+
                                 $req = "        SELECT count(*) 
                                                 FROM taxons AS t LEFT JOIN taxons_x_noms AS txn ON t.index = txn.ref_taxon
                                                 LEFT JOIN noms_complets AS nc ON txn.ref_nom = nc.index
@@ -1941,23 +1941,23 @@ sub fossils_list {
                                                 AND s.en = 'valid'
                                                 AND n.fossil = true
                                                 AND nc.orthographe ILIKE '$alph%';";
-                                
+
                                 $sth = $dbc->prepare($req) or die $req;
-                                
+
                                 $sth->execute() or die $req;
                                 $sth->bind_columns( \( $sp_numb ) );
                                 $sth->fetch();
                                 $sth->finish();
-                                
+
                                 $alphabet = alpha_build($vletters);
                         }
                         else { $alph = '' }
-                        
-                        
+
+
                         my $bornes;
                         if ($to) { $bornes .= "LIMIT $to"; }
                         if ($from) { $bornes .= "OFFSET $from"; }
-        
+
                         $req = "SELECT t.index, nc.orthographe, nc.autorite, t.family
                                 FROM taxons AS t LEFT JOIN taxons_x_noms AS txn ON t.index = txn.ref_taxon
                                 LEFT JOIN noms_complets AS nc ON txn.ref_nom = nc.index
@@ -1970,12 +1970,12 @@ sub fossils_list {
                                 AND nc.orthographe ILIKE '$alph%'
                                 ORDER BY nc.orthographe
                                 $bornes;";
-                        
+
                         my $spes = request_tab($req, $dbc, 2);
-                        
+
                         # Fetch species from DB
                         my ( $taxonid, $name, $autority, $ref_taxon_parent, $family );
-                        
+
                         my $nbcols;
                         my %display_modes = %{request_hash("SELECT * FROM display_modes WHERE card = 'fossils';", $dbc, 'element')};
                         my %attributes;
@@ -1984,15 +1984,15 @@ sub fossils_list {
                                 my ($key, $val) = split(':', $_);
                                 $attributes{$key} = $val;
                         }
-                        
+
                         $nbcols = scalar(@{$spes}) > 25 ? $attributes{nbcols} || 2 : 1;
-                        
+
                         my $seuil = scalar(@{$spes}) / $nbcols;
                         $seuil = int($seuil) != $seuil ? int($seuil) + 1 : $seuil;
                         my $i = 0;
                         my $j = 0;
                         my %spes;
-                        
+
                         foreach ( @{$spes} ) {
                                 ( $taxonid, $name, $autority, $family ) = @$_;
                                 $family = $family ? " ($family)" : undef;
@@ -2000,7 +2000,7 @@ sub fossils_list {
                                 $spes{$i}{$j} = td({-class=>'cellAsLi', -style=>'padding-right: 10px;', -width=>int(1000/$nbcols)}, a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$rank&id=$taxonid"}, i("$name") . " $autority") . $family );
                                 $i++;
                         }
-        
+
                         foreach my $row (sort {$a <=> $b} keys(%spes)) {
                                 my $columns;
                                 foreach my $col (sort {$a <=> $b} keys(%{$spes{$row}})) {
@@ -2008,13 +2008,13 @@ sub fossils_list {
                                 }
                                 $sp_list .= Tr($columns);
                         }
-                        
+
                         $sp_list = table({-style=>'margin: 0; padding: 0;'}, $sp_list);
                 }
                 else {
                         $alphabetic = a({-class=>'section', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=fossils&mode=alpha"}, ucfirst($trans->{'alphabetic'}->{$lang}));
                         $time = span({-class=>'xsection'},  ucfirst($trans->{'geoltime'}->{$lang}));
-                        
+
                         my $req = "     SELECT DISTINCT t.index, nc.orthographe, nc.autorite, p.$lang, p.debut, p.fin, p.parent, p.niveau, substring(nc.orthographe from 1 for char_length(nc.orthographe)-1), t.family
                                         FROM taxons AS t 
                                         LEFT JOIN taxons_x_noms AS txn ON t.index = txn.ref_taxon
@@ -2028,13 +2028,13 @@ sub fossils_list {
                                         AND r.en = 'species'
                                         AND n.fossil = true
                                         ORDER BY substring(nc.orthographe from 1 for char_length(nc.orthographe)-1);";
-                        
+
                         my $txp = request_tab($req, $dbc, 2);
-                        
+
                         my %fossils;
-                        
+
                         if (url_param('test')) { die "$req"; }
-                        
+
                         foreach my $relation (@{$txp}) {
                                 my ($taxonid, $name, $authority, $period, $start, $end, $parent, $level, $family) = ($relation->[0], $relation->[1], $relation->[2], $relation->[3], $relation->[4], $relation->[5], $relation->[6], $relation->[7], $relation->[9]);
                                 if ($period) {
@@ -2064,12 +2064,12 @@ sub fossils_list {
                                         push(@{$fossils{'not_dated'}{elements}}, a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$rank&id=$taxonid"}, i("$name") . " $authority" ) . $family);
                                 } 
                         }
-                        
+
                         my %done;
                         my $factor = 20;
                         my $test;
                         foreach my $key (sort {$fossils{$a}{start} <=> $fossils{$b}{start}} keys(%fossils)) {
-                                                                
+
                                 my $indent = 0;
                                 foreach my $ascend (@{$fossils{$key}{hierarchie}}) {
                                         unless ($done{$ascend}) {
@@ -2084,10 +2084,10 @@ sub fossils_list {
                                 }
                         }
                 }
-                                
+
                 my $prevnext;
                 if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-                
+
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
                                         $prevnext,
@@ -2101,7 +2101,7 @@ sub fossils_list {
                                         div({-class=>'titre'}, ''),
                                         $sp_list
                                 );
-                
+
                 print $fullhtml;
 
                 $dbc->disconnect; 
@@ -2112,34 +2112,34 @@ sub fossils_list {
 # Names list
 #################################################################
 sub names_list {
-                
+
         my $alphab = '';
         my ($ordstr, $famstr, $genstr, $spestr) = ($trans->{'ord_key'}->{$lang}, $trans->{'familys'}->{$lang}, $trans->{'genuss'}->{$lang}, $trans->{'speciess'}->{$lang});
-        
+
         unless($rank) { $rank = 'species' }
-        
+
         #if ($rank eq 'order') { $ordstr = span({-class=>'xsection'}, $ordstr) }
         if ($rank eq 'family') { $famstr = span({-class=>'xsection'},  ucfirst($famstr)) } else  { $famstr = span({-class=>'section'},  ucfirst($famstr)) }
         if ($rank eq 'genus') { $genstr = span({-class=>'xsection'},  ucfirst($genstr)) } else  { $genstr = span({-class=>'section'},  ucfirst($genstr)) }
         if ($rank eq 'species') { $spestr = span({-class=>'xsection'},  ucfirst($spestr)) } else  { $spestr = span({-class=>'section'},  ucfirst($spestr)) }
-        
+
         my @rankselect = (      
                                 #a({-class=>'section', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=names&rank=order"}, $ordstr),
                                 a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=names&rank=family&loading=1"}, $famstr),
                                 a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=names&rank=genus"}, $genstr),
                                 a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=names&rank=species"}, $spestr) );
-        
+
         unless ($alph) { $alph = 'A'; }
-        
+
         if ( my $dbc = $glob_self->dbh_for($config->{DEFAULT_DB}) and $rank ) {
-                
+
                 my $nanreq = "SELECT count(*) FROM noms_complets AS n LEFT JOIN rangs AS r ON n.ref_rang = r.index WHERE r.en = '$rank' AND n.index in (SELECT distinct ref_nom from taxons_x_noms);";
-                
+
                 my $na_numb = request_row($nanreq, $dbc);
                 my $alphatest = '';
-                                
+
                 if ($na_numb->[0] > 100) {
-                
+
                         if($rank eq 'genus' or $rank eq 'species') {
                                 unless($alph) {
                                         my $req = "     SELECT nc.orthographe
@@ -2149,16 +2149,16 @@ sub names_list {
                                                         WHERE r.en = 'genus'
                                                         ORDER by nc.orthographe
                                                         LIMIT 1;";
-                                                        
+
                                         my $sth = $dbc->prepare($req) or die $req;
                                         $sth->execute() or die $req;
                                         $sth->bind_columns( \( $alph ) );
                                         $sth->fetch();
                                         $sth->finish();
-                                        
+
                                         $alph = uc(substr($alph, 0, 1));
                                 }
-                                
+
                                 my $vlreq = "   SELECT upper(substring(orthographe,1,1)) AS letter, count(*) 
                                                 FROM taxons_x_noms AS txn
                                                 LEFT JOIN noms_complets AS n ON txn.ref_nom = n.index
@@ -2169,24 +2169,24 @@ sub names_list {
                                                 GROUP BY substring(orthographe,1,1) 
                                                 HAVING count(*) > 0 
                                                 ORDER BY lower(substring(orthographe,1,1));";
-                                                
+
                                 my $vletters = request_hash($vlreq, $dbc, 'letter');
-                                
+
                                 $alphatest = "AND orthographe ilike '$alph%'";
                                 $alphab = alpha_build($vletters);
                         }
                         $nanreq = "SELECT count(*) FROM noms_complets AS n LEFT JOIN rangs AS r ON n.ref_rang = r.index WHERE r.en = '$rank' $alphatest AND n.index in (SELECT distinct ref_nom from taxons_x_noms);";
-                        
+
                         $na_numb = request_row($nanreq, $dbc);
                 }
                 else { $alph = '' }
-                                
+
                 # Fetch names and their status
                 my ( %ord, %fam, %gen, %spec );
                 my $bornes = '';
                 if ($to) { $bornes .= "LIMIT $to"; }
                 if ($from) { $bornes .= "OFFSET $from"; }
-                
+
                 my $req = "     SELECT n.index, orthographe, autorite, s.en, s.$lang, r.en, txn.ref_taxon FROM taxons_x_noms AS txn
                                 LEFT JOIN noms_complets AS n ON txn.ref_nom = n.index
                                 LEFT JOIN statuts AS s ON txn.ref_statut = s.index
@@ -2196,9 +2196,9 @@ sub names_list {
                                 AND s.en not in ( 'correct use' )
                                 ORDER BY LOWER ( orthographe )
                                 $bornes;";
-                
+
                 my $names =  request_tab($req,$dbc);
-                
+
                 my $nbcols;
                 my %display_modes = %{request_hash("SELECT * FROM display_modes WHERE card = 'names';", $dbc, 'element')};
                 my %attributes;
@@ -2207,12 +2207,12 @@ sub names_list {
                         my ($key, $val) = split(':', $_);
                         $attributes{$key} = $val;
                 }
-                
+
                 $nbcols = scalar(@{$names}) > 25 ? $attributes{nbcols} || 3 : 1;
-                
+
                 my $seuil = scalar(@{$names}) / $nbcols;
                 $seuil = int($seuil) != $seuil ? int($seuil) + 1 : $seuil;
-                
+
                 my $i = 0;
                 my $j = 0;
                 if ( $rank eq 'order' or $rank eq 'suborder' ){
@@ -2263,14 +2263,14 @@ sub names_list {
                                 $i++;
                         }
                 }
-                                
+
                 # conditionaly builds names lists
                 my $list;
                 my $html;
                 my $style;
                 if ($alphab) { $style = 'width: 100%;' }
                 else { $style = 'width: 28%;' }
-                
+
                 if ($dbase ne 'cool') {
                         $html .=        table({-style=>$style},
                                                         Tr(
@@ -2291,7 +2291,7 @@ sub names_list {
                                                         )
                                                 ). p;
                 }
-                                
+
                 if ( scalar(keys(%ord)) ){
                         foreach my $row (sort {$a <=> $b} keys(%ord)) {
                                 my $columns;
@@ -2332,13 +2332,13 @@ sub names_list {
 
                 my $prevnext;
                 if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-                
+
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
                                         $prevnext,
                                         $html
                                 );
-                                
+
                 print $fullhtml;
 
                 $dbc->disconnect; 
@@ -2346,7 +2346,7 @@ sub names_list {
         else {
                 my $prevnext;
                 if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-                
+
                 my $style;
                 if ($alphab) { $style = 'width: 100%;' }
                 else { $style = 'width: 28%;' }
@@ -2362,7 +2362,7 @@ sub names_list {
                                         ), 
                                         $alphab, br,
                                 );
-                                
+
                 print $fullhtml;
         }
 }
@@ -2370,12 +2370,12 @@ sub names_list {
 #################################################################
 sub authors_list {
         if ( my $dbc = $glob_self->dbh_for($config->{DEFAULT_DB}) ) {
-                
+
                 my $au_numb = request_row("SELECT count(*) FROM auteurs;",$dbc);
                 my $alphabet;
-                
+
                 if ($au_numb->[0] > 100) {
-                        
+
                         unless($alph) {
                                 my $req = "     SELECT nom
                                                 FROM auteurs
@@ -2383,18 +2383,18 @@ sub authors_list {
                                                 OR index in (select distinct ref_auteur from auteurs_x_publications)
                                                 ORDER by desaccentue
                                                 LIMIT 1;";
-                                                
+
                                 my $sth = $dbc->prepare($req) or die $req;
                                 $sth->execute() or die $req;
                                 $sth->bind_columns( \( $alph ) );
                                 $sth->fetch();
                                 $sth->finish();
-                                
+
                                 $alph = uc(substr($alph, 0, 1));
                         }
-                        
+
                         $au_numb = request_row("SELECT count(*) FROM auteurs WHERE desaccentue ILIKE '$alph%';",$dbc);
-                        
+
                         my $vlreq = "   SELECT upper(substring(desaccentue,1,1)) AS letter, count(*) 
                                         FROM auteurs AS a ".
                                         #WHERE ((SELECT count(*) FROM noms_x_auteurs AS nxa LEFT JOIN taxons_x_noms AS txn ON txn.ref_nom = nxa.ref_nom WHERE nxa.ref_auteur = a.index AND txn.ref_statut != (SELECT index FROM statuts WHERE en = 'wrong spelling')) > 0
@@ -2403,17 +2403,17 @@ sub authors_list {
                                         ".
                                         #HAVING cont(*) > 0
                                         "ORDER BY lower(substring(desaccentue,1,1));";
-                                        
+
                         my $vletters = request_hash($vlreq, $dbc, 'letter');
-                                                
+
                         $alphabet = alpha_build($vletters);
                 }
                 else { $alph = '' }
-                
+
                 my $bornes;
                 if ($to) { $bornes .= "LIMIT $to"; }
                 if ($from) { $bornes .= "OFFSET $from"; }
-                
+
                 my $authors = request_tab("SELECT index, nom, prenom FROM auteurs AS a
                                                 WHERE a.desaccentue ILIKE '$alph%'
                                                 AND ((  SELECT count(*) 
@@ -2424,7 +2424,7 @@ sub authors_list {
                                                 OR (SELECT count(*) FROM auteurs_x_publications WHERE ref_auteur = a.index) > 0)
                                                 ORDER BY a.desaccentue, prenom
                                                 $bornes;",$dbc);
-                                                
+
                 my %auteurs;
                 my $list;
                 my $nbcols;
@@ -2437,9 +2437,9 @@ sub authors_list {
                         my ($key, $val) = split(':', $_);
                         $attributes{$key} = $val;
                 }
-                
+
                 $nbcols = scalar(@{$authors}) > 25 ? $attributes{nbcols} || 3 : 1;
-                
+
                 my $seuil = scalar(@{$authors}) / $nbcols;
                 $seuil = int($seuil) != $seuil ? int($seuil) + 1 : $seuil;
 
@@ -2448,7 +2448,7 @@ sub authors_list {
                         $auteurs{$i}{$j} = td({-class=>'cellAsLi', -style=>'padding-right: 10px;', -width=>int(1000/$nbcols)}, a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=author&id=$author->[0]"}, "$author->[1] $author->[2]" ) );
                         $i++;
                 }
-                
+
                 foreach my $row (sort {$a <=> $b} keys(%auteurs)) {
                         my $columns;
                         foreach my $col (sort {$a <=> $b} keys(%{$auteurs{$row}})) {
@@ -2456,12 +2456,12 @@ sub authors_list {
                         }
                         $list .= Tr($columns);
                 }
-                
+
                 my $authors_list = table({-style=>'margin: 0; padding: 0;'},  $list);
-                                                                
+
                 my $prevnext;
                 if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-                
+
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
                                         $prevnext,
@@ -2474,9 +2474,9 @@ sub authors_list {
                                         div({-class=>'titre'}, ''),
                                         $authors_list
                                 );
-                        
+
                 print $fullhtml;                        
-                
+
                 $dbc->disconnect;
         }
         else {}
@@ -2486,7 +2486,7 @@ sub authors_list {
 #################################################################
 sub publications_list {
         if ( my $dbc = $glob_self->dbh_for($config->{DEFAULT_DB}) ) {
-                
+
                 my %display_modes = %{request_hash("SELECT * FROM display_modes WHERE card = 'publications';", $dbc, 'element')};
                 my %attributes;
                 my @attribs = split('#', $display_modes{list}{attributes});
@@ -2496,27 +2496,27 @@ sub publications_list {
                 }
 
                 my $sections = [];              
-                
+
                 my ($nbpubs) = @{ request_row('SELECT count(*) FROM publications WHERE index in (SELECT DISTINCT ref_publication FROM auteurs_x_publications);', $dbc)};
                 my $nbsecs =  $attributes{nbsections} || 10;
                 my $default = $nbpubs > 30 ? int($nbpubs/$nbsecs) : $nbpubs;
-                                
+
                 my $pubids;
                 my $publist = start_ul();
-                
+
                 my $dreq = 'SELECT desaccentue, count(*), substr(desaccentue, 0, 5) FROM auteurs_x_publications LEFT JOIN auteurs ON ref_auteur = index WHERE position = 1 GROUP BY desaccentue ORDER BY upper(desaccentue);';
-                                
+
                 my $distrib = request_tab($dreq, $dbc);
-                
+
                 my $offset = 0;
                 my $limit = 0;
                 my $cut;
                 my $total;
-                
+
                 if ($nbpubs > $default) {
-        
+
                         foreach my $author ( @{$distrib} ){
-                                
+
                                 my $substr = $author->[2];
                                 unless ($limit) { $cut = $substr }
                                 $limit += $author->[1];
@@ -2531,7 +2531,7 @@ sub publications_list {
                                                                         WHERE axp.position = 1
                                                                         ORDER BY upper(a.desaccentue), upper(a.prenom), annee, titre
                                                                         OFFSET $offset LIMIT $limit;", $dbc);
-                                                
+
                                                 foreach my $id (@{$pubids}) {
                                                         my $pub = pub_formating($id->[0], $dbc );
                                                         $publist .= li(a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$id->[0]"}, $pub ) . getPDF($id->[0]) );
@@ -2541,32 +2541,32 @@ sub publications_list {
                                                 $cut = span({-class=>'section', -style=>"font-size: 12px;"}, $cut);
                                         }
                                         my $link = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=$card&from=$offset&to=$limit"}, $cut);
-                                        
+
                                         push (@{$sections}, $link);
-                                                
+
                                         $offset += $limit;
                                         $limit = 0;
                                 }
                         }
                 }
                 else {
-                        
+
                         $pubids = request_tab(" SELECT p.index FROM publications AS p 
                                                 LEFT JOIN auteurs_x_publications AS axp ON p.index = axp.ref_publication
                                                 LEFT JOIN auteurs AS a ON axp.ref_auteur = a.index WHERE axp.position = 1
                                                 ORDER BY upper(a.desaccentue), upper(a.prenom), annee, titre;", $dbc);
-                        
+
                         foreach my $id (@{$pubids}) {
                                 my $pub = pub_formating($id->[0], $dbc );
                                 $publist .= li(a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$id->[0]"}, $pub ) . getPDF($id->[0]) );
                         }
                 }
-                                
+
                 $publist .= end_ul();
 
                 my $prevnext;
                 if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-                
+
                 my $table;
                 if ($dbase ne 'cool') {
                         $table = Tr(
@@ -2582,7 +2582,7 @@ sub publications_list {
                                         td({-style=>'text-align: left;'}, join('&nbsp;',@{$sections}) )
                                 );
                 }
-                                
+
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
                                         $prevnext,
@@ -2591,7 +2591,7 @@ sub publications_list {
                                         ), br,
                                         $publist
                                 );
-                                
+
                 print $fullhtml;
 
                 $dbc->disconnect;
@@ -2602,51 +2602,51 @@ sub publications_list {
 # Plants list
 #################################################################
 sub associations {
-        
+
         if ( my $dbc = $glob_self->dbh_for($config->{DEFAULT_DB}) ) {
-                
+
                 my $associations;
                 my $req;
-                
+
                 my $types = request_tab("SELECT index, $lang FROM types_association", $dbc, 2);
-                                                
+
                 my $title;
                 my $values;
                 my $card;
-                                
+
                 foreach my $assocType (sort {$a->[1] cmp $b->[1]} @{$types}) {
                         my $typeA = $assocType->[0];
                         $req = "SELECT DISTINCT t.index, (get_taxon_associe(t.index)).*, t.ref_parent
                                 FROM taxons_associes AS t
                                 WHERE t.index";
-                        
+
                         $values = "(SELECT DISTINCT ref_taxon_associe FROM taxons_x_taxons_associes WHERE ref_type_association = ".$typeA.")";  
-                        
+
                         $card = 'associate';
 
                         $title = ucfirst($assocType->[1]);
                         my $txt = request_tab("$req IN $values AND t.nom NOT ILIKE 'unknown';", $dbc, 2);
-                        
+
                         if(scalar(@{$txt})) {
-                        
+
                                 my %assocs = undef;
                                 foreach my $relation (@{$txt}) {
                                         my      ($tassid, $name, $authority, $family, $order, $rang, $validname, $parent) = 
                                                 ($relation->[0], $relation->[1], $relation->[2], $relation->[3], $relation->[4], $relation->[5], $relation->[6], $relation->[7]);
-                                                
+
                                         my $xid = $tassid;
                                         my $xname =  i("$name") . " $authority";
                                         $xname .= $validname ? ' = '.$validname : '';
-                                        
+
                                         $assocs{$xid}{hierarchie} = "$order$family$name";
                                         $assocs{$xid}{label} = "$xname";
                                         $assocs{$xid}{rang} = $rang;
-                                        
+
                                         $assocs{$xid}{element} = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=$card&id=$xid"}, $xname);
-                                        
+
                                         while ($parent and !exists($assocs{$parent})) {
                                                 my $data = request_tab("$req = $parent AND t.nom NOT ILIKE 'unknown';", $dbc, 2);
-                                                                                        
+
                                                 if (scalar(@{$data})) { 
                                                         $assocs{$parent}{hierarchie} = "$data->[0][4]$data->[0][3]$data->[0][1]";
                                                         $assocs{$parent}{label} = i($data->[0][1])." $data->[0][2]";
@@ -2661,25 +2661,25 @@ sub associations {
                                                 else { $parent = undef; }
                                         }
                                 }
-                                                        
+
                                 my $factor = 30;
                                 my ($alphaord, $hierarkord);
                                 my ($max, $dm) = (0, 'none');
                                 if (!$mode and 0) {
-                                        
+
                                         $alphaord = span({-class=>'xsection'},  ucfirst($trans->{'alphabetic'}->{$lang}));
                                         $hierarkord = a({-class=>'section', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=$card"."s&mode=taxonomic"},  ucfirst($trans->{'taxonomic'}->{$lang}));
-                                        
+
                                         $associations .= br;
                                         foreach my $key (sort {$assocs{$a}{label} cmp $assocs{$b}{label}} keys(%assocs)) {                              
                                                 $associations .= div({-class=>'cellAsLi'}, $assocs{$key}{element});
                                         }
                                 }
                                 elsif ($mode eq 'taxonomic' or 1) {
-                                        
+
                                         $hierarkord = span({-class=>'xsection'},  ucfirst($trans->{'taxonomic'}->{$lang}));
                                         $alphaord = a({-class=>'section', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=$card"."s"},  ucfirst($trans->{'alphabetic'}->{$lang}));
-                                        
+
                                         my $liste;
                                         my $ordkey;
                                         foreach my $key (sort {$assocs{$a}{hierarchie} cmp $assocs{$b}{hierarchie}} keys(%assocs)) {
@@ -2702,10 +2702,10 @@ sub associations {
                                                         if ($assocs{$key}{rang} eq 'species') { $indent = 3; }
                                                         elsif ($assocs{$key}{rang} eq 'genus') { $indent = 2; }
                                                         elsif ($assocs{$key}{rang} eq 'family') { $indent = 1; }
-                                                        
+
                                                         $liste .= Tr( td({-colspan=>2, -class=>"MagicCell$ordkey"."_$typeA MagicCell", -style=>"display: $dm;"}, div({-class=>'cellAsLi', -style=>"margin-left: ".($indent*$factor)."px;"}, $assocs{$key}{element})) );
                                                 }
-                                                
+
                                                 #$associations .= );
                                         }
                                         if($mode eq 'full') {
@@ -2715,15 +2715,15 @@ sub associations {
                                                 $associations .= makeRetractableArray ("Title$ordkey"."_$typeA", "MagicCell$ordkey"."_$typeA MagicCell", $assocs{$ordkey}{label}, $liste, 'arrowRight', 'arrowDown', $max, $dm, 'true', 'smallTitle');
                                         }
                                 }       
-                                
+
                                 my $xa = $assocType->[0];
                                 $fullhtml .= makeRetractableArray ('assoc'.$xa.'Title', 'assoc'.$xa.'MagicCell magicCell', ucfirst($title), Tr( td({-colspan=>2, -class=>'assoc'.$xa.'MagicCell magicCell', -style=>'display: none;'}, $associations) ), 'arrowRight', 'arrowDown', 1, 'none', 'true', undef, 'none');
                                 $associations = undef;
                         }
                 } # END OF LOOP
-        
+
                 $dbc->disconnect;
-                                        
+
                 print div({-class=>'content'}, div({-class=>'titre'}, ucfirst($trans->{'bioInteract'}->{$lang})) . $fullhtml);          
         }
         else {}
@@ -2733,7 +2733,7 @@ sub associations {
 #################################################################
 sub countries_list {
         if ( my $dbc = $glob_self->dbh_for($config->{DEFAULT_DB}) ) {
-                
+
                 my $alphabet;
                 my $bornes;
                 if ($to) { $bornes .= "LIMIT $to"; }
@@ -2741,29 +2741,29 @@ sub countries_list {
 
                 my $cn_numb = request_row( "SELECT count(*) FROM pays
                                                 WHERE index in (SELECT distinct ref_pays from taxons_x_pays);", $dbc);
-                
+
                 if ($cn_numb->[0] > 100) { 
-                
+
                         unless($alph) { $alph = 'A' }
-                        
+
                         $cn_numb = request_row( "SELECT count(*) FROM pays
                                                         WHERE $lang ILIKE '$alph%'
                                                         AND index in (SELECT distinct ref_pays from taxons_x_pays)
                                                         $bornes;", $dbc);
-                        
+
                         my $vlreq = "   SELECT upper(substring($lang,1,1)) AS letter, count(*) 
                                         FROM pays
                                         WHERE index in (SELECT distinct ref_pays from taxons_x_pays)
                                         GROUP BY substring($lang,1,1) 
                                         HAVING count(*) > 0 
                                         ORDER BY lower(substring($lang,1,1));";
-                                        
+
                         my $vletters = request_hash($vlreq, $dbc, 'letter');
 
                         $alphabet = alpha_build($vletters);
                 }
                 else { $alph = '' }
-                
+
                 my $countries = request_tab("SELECT index, $lang FROM pays
                                                 WHERE $lang ILIKE '$alph%'
                                                 AND index in (SELECT distinct ref_pays from taxons_x_pays)
@@ -2777,7 +2777,7 @@ sub countries_list {
 
                 my $prevnext;
                 if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-                
+
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
                                         $prevnext,
@@ -2790,9 +2790,9 @@ sub countries_list {
                                         div({-class=>'titre'}, ''),
                                         $countries_list
                                 );
-                                
+
                 print $fullhtml;
-                
+
                 $dbc->disconnect;
         }
         else {}
@@ -2801,11 +2801,11 @@ sub countries_list {
 # Images list
 #################################################################
 sub images_list {
-                
+
                 if ( my $dbc = $glob_self->dbh_for($config->{DEFAULT_DB}) ) {
-                        
+
                         my $html = br.br;
-                        
+
                         my $req = "SELECT DISTINCT i.index, i.icone_url, txn.ref_taxon, nc.index, nc.orthographe, nc.autorite, i.url, r.en, i.groupe, i.tri
                                 FROM noms_x_images AS nxi
                                 LEFT JOIN images as i ON nxi.ref_image = i.index
@@ -2813,11 +2813,11 @@ sub images_list {
                                 LEFT JOIN taxons_x_noms AS txn ON txn.ref_nom = nxi.ref_nom
                                 LEFT JOIN rangs AS r ON r.index = nc.ref_rang 
                                 ORDER BY nc.orthographe, i.groupe, i.tri, i.index";
-                        
+
                         my $images = request_tab($req,$dbc);                    
-                        
+
                         if (scalar(@{$images})) {
-                                
+
                                 my $imgs = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=$images->[0][7]&id=$images->[0][2]"}, i("$images->[0][4]") .  " $images->[0][5]") . p;
                                 my $current = $images->[0][3];
                                 foreach my $row ( @{$images} ){
@@ -2825,7 +2825,7 @@ sub images_list {
                                                         $imgs .= div({-style=>'clear: both;'}) . br . p . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=$images->[0][7]&id=$row->[2]"}, i("$row->[4]") .  " $row->[5]") . p;
                                                         $current = $row->[3];
                                                 }
-                                                
+
                                                 if ($dbase eq 'cool') {
                                                         $imgs .= div({-style=>'float: left; margin: 0 8px 8px 0;'}, a({-onMouseOver=>"this.style.cursor='pointer';", -onClick=>"window.open('$row->[6]', '', 'toolbar=0, location=0, scrollbars=1, directories=0, status=0, resizable=1, width=1100, height=800');"}, img({-src=>"$row->[1]", -style=>'border: 0; margin: 0;'})));
                                                 }
@@ -2837,11 +2837,11 @@ sub images_list {
                                                 }
                                 }
                                 $imgs .= div({-style=>'clear: both;'}) . br;
-                                
+
                                 $imgs = Tr( td({-colspan=>2, -class=>'imgTypeMagicCell magicCell', -style=>"display: none;"}, $imgs ) );
                                 $html .= makeRetractableArray ('imgsTitle', 'imgTypeMagicCell magicCell', ucfirst($trans->{"type_img(s)"}->{$lang}), $imgs, 'arrowRight', 'arrowDown', 1, 'none', 'true');
                         }
-                                                
+
                         $req = "SELECT i.index, i.icone_url, txi.ref_taxon, nc.index, nc.orthographe, nc.autorite, i.url, r.en
                                 FROM taxons_x_images AS txi
                                 LEFT JOIN images as i ON txi.ref_image = i.index
@@ -2851,13 +2851,13 @@ sub images_list {
                                 WHERE txn.ref_statut = 1
                                 AND txi.type ilike 'collection'
                                 ORDER BY nc.orthographe, i.groupe, i.tri, i.index";
-                        
+
                         $images = request_tab($req,$dbc);
-                        
+
                         if (scalar(@{$images})) {
-                                
+
                                 if ($html) { $html .= br; }
-                                
+
                                 my $imgs = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=$images->[0][7]&id=$images->[0][2]"}, i("$images->[0][4]") .  " $images->[0][5]") . p;
                                 my $current = $images->[0][3];
                                 foreach my $row ( @{$images} ){
@@ -2876,11 +2876,11 @@ sub images_list {
                                                 }
                                 }
                                 $imgs .= div({-style=>'clear: both;'}) . br;
-                                
+
                                 $imgs = Tr( td({-colspan=>2, -class=>'imgColMagicCell magicCell', -style=>"display: none;"}, $imgs ) );
                                 $html .= makeRetractableArray ('imgsTitle', 'imgColMagicCell magicCell', ucfirst($trans->{"specincol"}->{$lang}), $imgs, 'arrowRight', 'arrowDown', 1, 'none', 'true');
                         }
-                        
+
                         $req = "SELECT i.index, i.icone_url, txi.ref_taxon, nc.index, nc.orthographe, nc.autorite, i.url, r.en
                                 FROM taxons_x_images AS txi
                                 LEFT JOIN images as i ON txi.ref_image = i.index
@@ -2890,13 +2890,13 @@ sub images_list {
                                 WHERE txn.ref_statut = 1
                                 AND txi.type ilike 'nature'
                                 ORDER BY nc.orthographe, i.groupe, i.tri, i.index";
-                        
+
                         $images = request_tab($req,$dbc);
-                        
+
                         if (scalar(@{$images})) {
-                                
+
                                 if ($html) { $html .= br; }
-                                
+
                                 my $imgs = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=$images->[0][7]&id=$images->[0][2]"}, i("$images->[0][4]") .  " $images->[0][5]") . p;
                                 my $current = $images->[0][3];
                                 foreach my $row ( @{$images} ){
@@ -2915,13 +2915,13 @@ sub images_list {
                                                 }
                                 }
                                 $imgs .= div({-style=>'clear: both;'}) . br;
-                                
+
                                 $imgs = Tr( td({-colspan=>2, -class=>'imgNatMagicCell magicCell', -style=>"display: none;"}, $imgs ) );
                                 $html .= makeRetractableArray ('imgsTitle', 'imgNatMagicCell magicCell', ucfirst($trans->{"specinnatura"}->{$lang}), $imgs, 'arrowRight', 'arrowDown', 1, 'none', 'true');
                         }
 
                         my $fullhtml =  div({-class=>'content'}, $html);
-                                                        
+
                         print $fullhtml;
                 }
 }
@@ -2931,7 +2931,7 @@ sub images_list {
 sub vernaculars {
         if ( my $dbc = $glob_self->dbh_for($config->{DEFAULT_DB}) ) {
                 $dbc->{RaiseError} = 1;
-                
+
                 # Get the number of families to build up the list
                 my $numb = '';
                 my $sth = $dbc->prepare( "SELECT count(*) FROM noms_vernaculaires;" );
@@ -2939,17 +2939,17 @@ sub vernaculars {
                 $sth->bind_columns( \( $numb ) );
                 $sth->fetch();
                 $sth->finish(); # finalize the request
-                
+
                 my $sep = '';
                 if ($dbase eq 'cool') { $sep = br; } 
 
                 my ($alphord, $paysord, $langord);
-                
+
                 my ( $id, $name, $langg, $pays, $taxid, $tax, $aut, $rk, $ref_pays, $reencode );
                 my $list = start_ul({});
-                                
+
                 if ($mode eq 'country' or $mode eq 'language') {
-                        
+
                         my $order;
                         my $mode2;
                         if ($mode eq 'country') {
@@ -2966,7 +2966,7 @@ sub vernaculars {
                                 $order = 'l.langage, reencodage(v.nom), p.en';
                                 $mode2 = 0;
                         }
-                        
+
                         $sth = $dbc->prepare( "SELECT distinct v.index, v.nom, l.langage, p.en, txn.ref_taxon, nc.orthographe, nc.autorite, r.en, v.ref_pays, reencodage(v.nom)
                                                 FROM noms_vernaculaires AS v
                                                 LEFT JOIN taxons_x_vernaculaires AS txv ON v.index = txv.ref_vernaculaire
@@ -3016,7 +3016,7 @@ sub vernaculars {
                                                 ORDER BY reencodage(v.nom);");
                         $sth->execute( );
                         $sth->bind_columns( \( $id, $name, $langg, $pays, $taxid, $tax, $aut, $rk, $ref_pays, $reencode ) );
-                        
+
                         while ( $sth->fetch() ){        
                                 my $xpays;
                                 if ($pays) { $xpays = " in " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=country&id=$ref_pays"}, $pays) }
@@ -3030,10 +3030,10 @@ sub vernaculars {
                         $alphord = span({-class=>'xsection'},  ucfirst($trans->{'alphabetic'}->{$lang}));                       
                 }
                 $list .= end_ul();
-                
+
                 my $prevnext;
                 if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-                
+
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
                                         $prevnext,
@@ -3045,9 +3045,9 @@ sub vernaculars {
                                         ), p,
                                         $list
                                 );
-                                
+
                 print $fullhtml;
-                
+
                 $dbc->disconnect; # disconnection
         }
         else {} # Connection failed
@@ -3057,7 +3057,7 @@ sub vernaculars {
 #################################################################
 sub types_list {
         if ( my $dbc = $glob_self->dbh_for($config->{DEFAULT_DB}) ) {
-                
+
                 # Counting the number of type categories 
                 my $tc_numb = request_row( "SELECT count(*) FROM types_type;", $dbc );;
 
@@ -3072,15 +3072,15 @@ sub types_list {
 
                 my $prevnext;
                 if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-                
+
                 $fullhtml =     div({-class=>'content'},
                                         div({-class=>'titre'}, ucfirst($trans->{"TY_list"}->{$lang})),
                                         div({-class=>'titre'}, "$tc_numb->[0] $trans->{'type_cat'}->{$lang}"),
                                         $types_tab
                                 );
-                
+
                 print $fullhtml;                        
-                
+
                 $dbc->disconnect;
         }
         else {}
@@ -3090,14 +3090,14 @@ sub types_list {
 #################################################################
 sub repositories_list {
         if ( my $dbc = $glob_self->dbh_for($config->{DEFAULT_DB}) ) {
-                
+
                 # Counting the number of repositories
                 my $de_numb = request_row("SELECT count(*) FROM lieux_depot;",$dbc);
-                
+
                 my $bornes;
                 if ($to) { $bornes .= "LIMIT $to"; }
                 if ($from) { $bornes .= "OFFSET $from"; }
-                
+
                 # Fetch the repositories
                 my $repositories = request_tab("SELECT l.index, l.nom, $lang FROM lieux_depot AS l LEFT JOIN pays as p ON (l.ref_pays = p.index)
                                                                                         WHERE l.index in (SELECT DISTINCT ref_lieux_depot FROM noms_x_types)
@@ -3112,14 +3112,14 @@ sub repositories_list {
 
                 my $prevnext;
                 if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-                
+
                 $fullhtml =     div({-class=>'content'},
                                         div({-class=>'titre'}, ucfirst($trans->{"repositories"}->{$lang})),
                                         $de_tab
                                 );
-                
+
                 print $fullhtml;
-                
+
                 $dbc->disconnect;
         }
         else {}
@@ -3129,10 +3129,10 @@ sub repositories_list {
 #################################################################
 sub eras_list {
         if ( my $dbc = $glob_self->dbh_for($config->{DEFAULT_DB}) ) {
-                
+
                 # Counting the number of eras
                 my $er_numb = request_row( "SELECT count(*) FROM periodes WHERE index in (SELECT DISTINCT ref_periode FROM taxons_x_periodes);", $dbc);
-                
+
                 my $bornes;
                 if ($to) { $bornes .= "LIMIT $to"; }
                 if ($from) { $bornes .= "OFFSET $from"; }
@@ -3148,14 +3148,14 @@ sub eras_list {
 
                 my $prevnext;
                 if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-                
+
                 $fullhtml =     div({-class=>'content'},
                                         div({-class=>'titre'}, ucfirst($trans->{"eras"}->{$lang})),
                                         $eras_list
                                 );
-                
+
                 print $fullhtml;
-                
+
                 $dbc->disconnect;
         }
         else {}
@@ -3167,7 +3167,7 @@ sub regions_list {
         if ( my $dbc = $glob_self->dbh_for($config->{DEFAULT_DB}) ) {
 
                 my $re_numb = request_row("SELECT count(*) FROM regions;",$dbc);
-                                
+
                 my $regions = request_tab("SELECT r.index, r.nom, p.$lang
                                                 FROM regions AS r
                                                 LEFT JOIN pays AS p ON p.index = r.ref_pays
@@ -3183,15 +3183,15 @@ sub regions_list {
 
                 my $prevnext;
                 if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-                
+
                 $fullhtml =     div({-class=>'content'},
                                         div({-class=>'titre'}, ucfirst($trans->{"regions"}->{$lang})),
                                         div({-class=>'titre'}, "$re_numb->[0] $trans->{'regions'}->{$lang}"),
                                         $re_tab
                                 );
-                
+
                 print $fullhtml;
-                
+
                 $dbc->disconnect;
         }
         else {}
@@ -3203,11 +3203,11 @@ sub agents_list {
         if ( my $dbc = $glob_self->dbh_for($config->{DEFAULT_DB}) ) {
 
                 my $a_numb = request_row("SELECT count(*) FROM agents_infectieux;",$dbc);
-                
+
                 my $bornes;
                 if ($to) { $bornes .= "LIMIT $to"; }
                 if ($from) { $bornes .= "OFFSET $from"; }
-                
+
                 my $a_list = request_tab("      SELECT ai.index, ai.$lang, tai.$lang FROM agents_infectieux AS ai LEFT JOIN types_agent_infectieux AS tai
                                                 ON ai.ref_type_agent_infectieux = tai.index
                                                 ORDER BY tai.$lang, ai.$lang
@@ -3221,15 +3221,15 @@ sub agents_list {
 
                 my $prevnext;
                 if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-                
+
                 $fullhtml =     div({-class=>'content'},
                                         div({-class=>'titre'}, ucfirst($trans->{"A_list"}->{$lang})),
                                         div({-class=>'titre'}, "$a_numb->[0] $trans->{'agents'}->{$lang}"),
                                         $a_tab
                                 );
-                
+
                 print $fullhtml;
-                
+
                 $dbc->disconnect;
         }
         else {}
@@ -3241,7 +3241,7 @@ sub editions_list {
         if ( my $dbc = $glob_self->dbh_for($config->{DEFAULT_DB}) ) {
                 my $ed_tab;
                 my $ed_numb = request_row("SELECT count(*) FROM editions;;",$dbc);
-                
+
                 my $ed_list = request_tab("     SELECT e.index, e.nom, v.nom, p.$lang FROM editions AS e
                                                 LEFT JOIN villes AS v ON e.ref_ville = v.index
                                                 LEFT JOIN pays AS p ON v.ref_pays = p.index
@@ -3255,15 +3255,15 @@ sub editions_list {
 
                 my $prevnext;
                 if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-                
+
                 $fullhtml =     div({-class=>'content'},
                                         div({-class=>'titre'}, ucfirst($trans->{"ED_list"}->{$lang})),
                                         div({-class=>'titre'}, "$ed_numb->[0] $trans->{'editions'}->{$lang}"),
                                         $ed_tab
                                 );
-                                
+
                 print $fullhtml;
-                        
+
                 $dbc->disconnect;
         }
         else {}
@@ -3275,7 +3275,7 @@ sub habitats_list {
         if ( my $dbc = $glob_self->dbh_for($config->{DEFAULT_DB}) ) {
                 my $ha_tab;
                 my $ha_numb = request_row("SELECT count(*) FROM habitats;",$dbc);
-                
+
                 my $bornes;
                 if ($to) { $bornes .= "LIMIT $to"; }
                 if ($from) { $bornes .= "OFFSET $from"; }
@@ -3290,15 +3290,15 @@ sub habitats_list {
 
                 my $prevnext;
                 if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-                
+
                 $fullhtml =     div({-class=>'content'},
                                         div({-class=>'titre'}, ucfirst($trans->{"habitat(s)"}->{$lang})),
                                         div({-class=>'titre'}, "$ha_numb->[0] $trans->{'habitats'}->{$lang}"),
                                         $ha_tab
                                 );
-                
+
                 print $fullhtml;
-                
+
                 $dbc->disconnect;
         }
         else {}
@@ -3328,15 +3328,15 @@ sub localities_list {
 
                 my $prevnext;
                 if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-                
+
                 $fullhtml =     div({-class=>'content'},
                                         div({-class=>'titre'}, ucfirst($trans->{"LO_list"}->{$lang})),
                                         div({-class=>'titre'}, "$lo_numb->[0] $trans->{'localities'}->{$lang}"),
                                         $lo_tab
                                 );
-                                
+
                 print $fullhtml;
-                        
+
                 $dbc->disconnect;
         }
         else {}
@@ -3347,7 +3347,7 @@ sub localities_list {
 sub captures_list {
         if ( my $dbc = $glob_self->dbh_for($config->{DEFAULT_DB}) ) {
                 my $ca_numb = request_row("SELECT count(*) FROM modes_capture;",$dbc);
-                
+
                 my $bornes;
                 if ($to) { $bornes .= "LIMIT $to"; }
                 if ($from) { $bornes .= "OFFSET $from"; }
@@ -3362,15 +3362,15 @@ sub captures_list {
 
                 my $prevnext;
                 if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-                
+
                 $fullhtml =     div({-class=>'content'},
                                         div({-class=>'titre'}, ucfirst($trans->{"CA_list"}->{$lang})),
                                         div({-class=>'titre'}, "$ca_numb->[0] $trans->{'captures'}->{$lang}"),
                                         $ca_tab
                                 );
-                                
+
                 print $fullhtml;
-                        
+
                 $dbc->disconnect;
         }
         else {}
@@ -3393,45 +3393,45 @@ sub makeboard {
                                 $config2->{$option} = $value;
                         }
                 } else { die "Configuration file $synop_conf for synopsis edition could be found\n";}
-        
+
                 $dbh = $glob_self->dbh2_for($config->{DEFAULT_DB});
         }
-        
+
         my ($nbfam) = @{request_row("SELECT count(*) FROM taxons WHERE ref_rang = (SELECT index FROM rangs where en = 'family');",$dbh)};
         my ($nbsubfam) = @{request_row("SELECT count(*) FROM taxons WHERE ref_rang = (SELECT index FROM rangs where en = 'subfamily');",$dbh)};
-        
+
         my $sth = $dbh->prepare( 'DELETE FROM synopsis;' ) or die $dbh->errstr;
         $sth->execute() or  die $dbh->errstr;
         my $ranks_ids = get_rank_ids( $dbh );
 
         my $temp;
-        
+
         if ( my $dbc = $glob_self->dbh_for($config->{DEFAULT_DB}) ) {
-                
+
                 my $orders =  request_tab("SELECT taxons.index, n.orthographe FROM taxons LEFT JOIN rangs ON taxons.ref_rang = rangs.index
                         LEFT JOIN taxons_x_noms AS txn ON taxons.index = txn.ref_taxon
                         LEFT JOIN noms_complets AS n ON txn.ref_nom = n.index
                         WHERE en = 'order' AND n.orthographe NOT LIKE '%ncertae sedis%' AND txn.ref_statut = 1;",$dbc);
-                
+
                 unless (scalar(@{$orders})) { @{$orders} = ['']; }
                 foreach my $order ( @{$orders} ){
-                
+
                 my $condition = $order->[0] ? "AND taxons.ref_taxon_parent = $order->[0]" : "AND taxons.ref_taxon_parent IS NULL";
-                
+
                 my $req = "     SELECT taxons.index, n.orthographe FROM taxons LEFT JOIN rangs ON taxons.ref_rang = rangs.index
                                 LEFT JOIN taxons_x_noms AS txn ON taxons.index = txn.ref_taxon
                                 LEFT JOIN noms_complets AS n ON txn.ref_nom = n.index
                                 WHERE en = 'suborder' AND n.orthographe NOT LIKE '%ncertae sedis%' AND txn.ref_statut = 1 
                                 $condition
                                 ORDER BY n.orthographe;";
-                                                
+
                 my $suborders =  request_tab($req,$dbc);
-                
+
                 unless (scalar(@{$suborders})) { @{$suborders} = ['']; }
                 foreach my $suborder ( @{$suborders} ){
-                
+
                         my $condition = $suborder->[0] ? "AND taxons.ref_taxon_parent = $suborder->[0]" : "AND taxons.ref_taxon_parent IS NULL";
-                        
+
                         my $superfamilies =  request_tab("SELECT taxons.index, n.orthographe FROM taxons LEFT JOIN rangs ON taxons.ref_rang = rangs.index
                                                                                 LEFT JOIN taxons_x_noms AS txn ON taxons.index = txn.ref_taxon
                                                                                 LEFT JOIN noms_complets AS n ON txn.ref_nom = n.index
@@ -3442,20 +3442,20 @@ sub makeboard {
                                 $temp .= "      superfamily: #$superfamily->[0]\n";
                                 my $families;
                                 if ($nbfam == 1 and $nbsubfam > 1) { 
-                                                                                                                        
+
                                         my $req = "SELECT taxons.index, n.orthographe FROM taxons 
                                                                 LEFT JOIN rangs ON taxons.ref_rang = rangs.index
                                                                 LEFT JOIN taxons_x_noms AS txn ON taxons.index = txn.ref_taxon
                                                                 LEFT JOIN noms_complets AS n ON txn.ref_nom = n.index
                                                                 WHERE en in ('subfamily') AND txn.ref_statut = 1 AND n.orthographe NOT LIKE '%ncertae sedis%'
                                                                 ORDER BY n.orthographe;";
-                                                                                                        
+
                                         $families = request_tab($req, $dbc);
-                                        
+
                                 } else {
-                                        
+
                                         my $condition = $superfamily->[0] ? "AND taxons.ref_taxon_parent = $superfamily->[0]" : "AND taxons.ref_taxon_parent IS NULL";
-                                        
+
                                         my $req = "SELECT taxons.index, n.orthographe FROM taxons 
                                                                 LEFT JOIN rangs ON taxons.ref_rang = rangs.index
                                                                 LEFT JOIN taxons_x_noms AS txn ON taxons.index = txn.ref_taxon
@@ -3463,10 +3463,10 @@ sub makeboard {
                                                                 WHERE en in ('family') AND txn.ref_statut = 1 AND n.orthographe NOT LIKE '%ncertae sedis%'
                                                                 $condition
                                                                 ORDER BY n.orthographe;";
-                                                                
+
                                         $families = request_tab($req, $dbc);
                                 }
-                                
+
                                 my $totnames;
                                 foreach my $family ( @{$families} ){
                                         $temp .= "              family: #$family->[0]\n";                               
@@ -3474,22 +3474,22 @@ sub makeboard {
                                         my $ssp_sons = son_taxa($family->[0],  $ranks_ids->{"subspecies"}->{"index"}, $dbc);
                                         my $sp_sons = son_taxa($family->[0],  $ranks_ids->{"species"}->{"index"}, $dbc);
                                         my $ge_sons = son_taxa($family->[0],  $ranks_ids->{"genus"}->{"index"}, $dbc);
-                                        
+
                                         my $getaxa = scalar  @{$ge_sons};
                                         my $genames;
                                         my $plants = 0;
                                         my $pays = 0;
                                         my $images = 0;
                                         if ( $getaxa ) {                                        
-                                                
+
                                                 my $indexes = "(".join(',',@{$ge_sons}).")";
-                                                                                                
+
                                                 $genames = request_row("SELECT count(distinct ref_nom) FROM taxons_x_noms WHERE ref_taxon IN $indexes;",$dbc);
                                                 $genames = $genames->[0];
-                                                
+
                                                 my $pys = request_row("SELECT count(distinct ref_pays) FROM taxons_x_pays WHERE ref_taxon IN $indexes;",$dbc);
                                                 $pays += $pys->[0];
-                                                
+
                                                 my $img = request_row("SELECT count(distinct ref_image) FROM taxons_x_images WHERE ref_taxon IN $indexes;",$dbc);
                                                 $images += $img->[0];
                                                 my $img2 = request_row("SELECT count(distinct ref_image) FROM noms_x_images WHERE ref_nom IN (SELECT DISTINCT ref_nom FROM taxons_x_noms WHERE ref_taxon IN $indexes);",$dbc);
@@ -3502,34 +3502,34 @@ sub makeboard {
                                         my $spnames = 0;
                                         if ( $sptaxa ){
                                                 my $indexes = "(".join(',',@{$sp_sons}).")";
-                                                
+
                                                 $spnames = request_row("SELECT count(ref_nom) FROM taxons_x_noms WHERE ref_taxon IN $indexes;",$dbc);    
                                                 $spnames = $spnames->[0];
 
                                                 my $pys = request_row("SELECT count(distinct ref_pays) FROM taxons_x_pays WHERE ref_taxon IN $indexes;",$dbc);
                                                 $pays += $pys->[0];
-                                                
+
                                                 my $pls = request_row("SELECT count(distinct ref_taxon_associe) FROM taxons_x_taxons_associes WHERE ref_taxon IN $indexes;",$dbc);
                                                 $plants += $pls->[0];
- 
+
                                                 my $img = request_row("SELECT count(distinct ref_image) FROM taxons_x_images WHERE ref_taxon IN $indexes;",$dbc);
                                                 $images += $img->[0];
                                                 my $img2 = request_row("SELECT count(distinct ref_image) FROM noms_x_images WHERE ref_nom IN (SELECT DISTINCT ref_nom FROM taxons_x_noms WHERE ref_taxon IN $indexes);",$dbc);
                                                 $images += $img2->[0];
-                                                
+
                                                 $totnames += $spnames;
                                         }
-                                        
+
                                         my $ssptaxa = scalar  @{$ssp_sons};
                                         my $sspnames = 0;
                                         if ( $ssptaxa ){
                                                 my $indexes = "(".join(',',@{$ssp_sons}).")";
-                                                
+
                                                 $sspnames = request_row("SELECT count(ref_nom) FROM taxons_x_noms WHERE ref_taxon IN $indexes;",$dbc);    
                                                 $sspnames = $sspnames->[0];
                                                 $totnames += $sspnames;
                                         }
-                                
+
                                         my $flist = 'ordre, sous_ordre, super_famille, famille, genres, especes, noms, publications, plantes, pays, images';
                                         my $vlist = "'$order->[1]', '$suborder->[1]', '$superfamily->[1]', '$family->[1]', $getaxa, $sptaxa, $totnames, Null, $plants, $pays, $images";
                                         my $req = "INSERT INTO synopsis ($flist) VALUES ($vlist);";
@@ -3567,13 +3567,13 @@ sub board {
                         else {
                                 $sup = 'familys'
                         }
-                        
+
                         my ($ptit, $prow, $ptot, $imglbl, $imgtot);
                         $ptit = td({-style=>'width: 100px;'}, b(ucfirst($trans->{'associated_taxa'}->{$lang})));
                         $ptot = $counts->[3] ? td({-style=>'width: 100px;'}, b(ucfirst($counts->[3]))) : td({-style=>'width: 100px;'}, b('-'));
                         $imglbl = td({-style=>'width: 100px;'}, b(ucfirst($trans->{'images'}->{$lang})));       
                         $imgtot = $counts->[5] ? td({-style=>'width: 100px;'}, b(ucfirst($counts->[5]))) : td({-style=>'width: 100px;'}, b('-'));
-                        
+
                         $content .=     Tr({-class=>'synodiv'},
                                                 td({-style=>'width: 150px; padding-bottom: 5px;'}, b(ucfirst($trans->{"$sup"}->{$lang}))),
                                                 td({-style=>'width: 100px; padding-bottom: 5px;'}, b(ucfirst($trans->{'genera'}->{$lang}))),
@@ -3645,7 +3645,7 @@ sub board {
                                 $maj
                         );
 
-                
+
                 $fullhtml =     br.div({-class=>'content card'},
                                         $totop,
                                         $prevnext,
@@ -3666,9 +3666,9 @@ sub board {
 ##################################################################################################################################
 
 sub get_vernaculars {
-        
+
         my ($dbc, $field, $indexes, $display) = @_;
-        
+
         # fetching vernacular names
         my $req = "SELECT nv.index, nom, l.langage, p.en, txv.ref_pub, nv.ref_pays, txv.page FROM taxons_x_vernaculaires AS txv 
                         LEFT JOIN noms_vernaculaires AS nv ON nv.index = txv.ref_vernaculaire 
@@ -3722,18 +3722,18 @@ sub get_vernaculars {
 #################################################################
 sub makeRetractableArray {
         my ($iconeID, $rowsClass, $titre, $rows, $icon0, $icon1, $colspan, $default, $sep, $titleClass, $brk) = @_;
-        
+
         my ($icon) = $default eq 'none' ? $icon0 : $icon1;
-        
+
         $colspan++;
         $sep = $sep eq 'false' ? 'none' : 'table-cell';
         my $brkclass;
         unless ($brk) { $brk = $default; $brkclass = $rowsClass; }
-        
+
         $titleClass = $titleClass ? $titleClass : 'titreReactif';
         my $topMargin = 0.3;
         if($titre eq 'legTitle') { $topMargin = 0; }
-        
+
         my $reactiv = table({-cellpadding=>0, -cellspacing=>0, -style=>'border: 0px solid #666666;'},
                                                 Tr( td({-colspan=>$colspan, -style=>"height: $topMargin"."em; line-height: $topMargin"."em; display: $sep; border: 0px solid black;"}, '') ),
                                                 Tr( 
@@ -3758,14 +3758,14 @@ sub makeRetractableArray {
 #################################################################
 sub makeRetractableGraph {
         my ($iconeID, $rowsClass, $titre, $rows, $icon0, $icon1, $colspan, $default, $sep, $titleClass) = @_;
-        
+
         my ($icon) = $default eq 'none' ? $icon0 : $icon1;
-        
+
         $colspan++;
         $sep = $sep eq 'false' ? 'none' : 'table-cell';
-        
+
         $titleClass = $titleClass ? $titleClass : 'titreReactif';
-        
+
         my $reactiv = table({-id=>'graphTable', -cellpadding=>0, -cellspacing=>0, -style=>'border: 0px solid #666666; display: none;'},
                                                 Tr( td({-colspan=>$colspan, -style=>"height: 0.3em; line-height: 0.3em; display: $sep; border: 0px solid black;"}, '') ),
                                                 Tr( 
@@ -3790,14 +3790,14 @@ sub makeRetractableGraph {
 #################################################################
 sub makeRetractableArraySemiClickable {
         my ($iconeID, $rowsClass, $titre, $rows, $icon0, $icon1, $colspan, $default, $sep, $titleClass, $href) = @_;
-        
+
         my ($icon) = $default eq 'none' ? $icon0 : $icon1;
-        
+
         $colspan++;
         $sep = $sep eq 'false' ? 'none' : 'table-cell';
-        
+
         $titleClass = $titleClass ? $titleClass : 'titreReactif';
-                
+
         my $reactiv = table({-cellpadding=>0, -cellspacing=>0, -style=>'border: 0px solid #666666;'},
                                                 Tr( td({-colspan=>$colspan, -style=>"height: 0.3em; line-height: 0.3em; display: $sep; border: 0px solid black;"}) ).
                                                 Tr( 
@@ -3823,12 +3823,12 @@ sub makeRetractableArraySemiClickable {
 #################################################################
 sub makeRetractableArray2 {
         my ($iconeID, $rowsClass, $titre, $rows, $icon0, $icon1, $colspan, $default, $sep) = @_;
-        
+
         my ($icon) = $default eq 'none' ? $icon0 : $icon1;
-        
+
         $colspan++;
         $sep = $sep eq 'false' ? 'none' : 'table-cell';
-                
+
         my $reactiv = table({-cellpadding=>0, -cellspacing=>0, -style=>'border: 0px solid #666666;'},
                                                 Tr( td({-colspan=>$colspan, -style=>"height: 0.3em; line-height: 0.3em; display: $sep; border: 0px solid black;"}) ).
                                                 Tr( 
@@ -3852,7 +3852,7 @@ sub makeRetractableArray2 {
 # Taxon card
 #################################################################
 sub taxon_card {
-                
+
         my $test;
         if ( my $dbc = $glob_self->dbh_for($config->{DEFAULT_DB}) ) {
                 my ($rktest, $rkorder) = @{request_row("SELECT index, ordre FROM rangs WHERE en = '$rank';",$dbc)};
@@ -3940,7 +3940,7 @@ sub taxon_card {
                                                 a({-href=>$scripts{$dbase}."db=$dbase&lang=$lang&card=publication&id=$valid_name->[3]"}, "$pub") . getPDF($valid_name->[3])
                                         ) ) );
                 }
-                                
+
                 # Get parent taxa including family
                 my $req = "SELECT       h.index_taxon_parent,
                                         h.index_rang_parent,
@@ -3956,7 +3956,7 @@ sub taxon_card {
                                         AND txn.ref_statut = 1
                                         AND r.ordre > 2
                                         ORDER BY r.ordre DESC;";
-                                        
+
                 my $highers = request_tab($req,$dbc,'index_taxon_parent',2);
 
                 my $ancesters;
@@ -4001,9 +4001,9 @@ sub taxon_card {
                                                 AND txn.ref_taxon IN (SELECT DISTINCT index_taxon_parent FROM hierarchie WHERE nom_rang_parent = '$xtaxon->[2]')
                                                 ORDER BY nc.orthographe, nc.autorite;";
                         }
-                        
+
                         $center = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=$xcard&id=$xtaxon->[0]"}, i($xtaxon->[4])." ".$xtaxon->[5]);
-                                
+
                         # Get previous and next taxon with the same rank and the same parent taxon
                         my $taxa = request_tab($req, $dbc,2);
                         if (scalar(@{$taxa}) > 1) {
@@ -4019,11 +4019,11 @@ sub taxon_card {
                                                 if ( $current_id == $xtaxon->[0] ) { $found = 1; }
                                                 else { ( $previous_id, $prev_name, $prev_autority ) = ( $current_id, $current_name, $current_authority ); }
                                         # }
-                                        
+
                                 }
                                 unless($previous_id) { ( $previous_id, $prev_name, $prev_autority ) = ( $last_id, $last_name, $last_autority ); }
                                 unless($next_id) { ( $next_id, $next_name, $next_autority ) = ( $first_id, $first_name, $first_autority ); }
-                                
+
                                 $navigation //= '';
                                 $navigation = prev_next_card($xcard, $bridge, $previous_id, div({-class=>'hierarch'}, $center), $next_id, "prev$xtaxon->[2]", "next$xtaxon->[2]", "0 0 0 ".$margin."px") . $navigation;
                                 $bulleinfo .=   div({-class=>'info', -id=>"prev$xtaxon->[2]", -style=>'position: absolute; display: none;'}, i($prev_name) . " $prev_autority").
@@ -4036,27 +4036,27 @@ sub taxon_card {
                                                         td({-style=>'vertical-align: middle; border: 0px solid black;'}, div({-class=>'hierarch'}, $center))
                                                 )) . $navigation;
                         }
-                        
+
                         if ($xtaxon->[2] eq 'genus') { $names{$valid_name->[0]}{'genus'} = $xtaxon->[4]; }
                 }
                 $bulleinfo = div({-style=>'border: 0px solid black;'}, $bulleinfo);
-                                
+
                 # Get display attributes for all card elements
                 my %display_modes = %{request_hash("SELECT * FROM display_modes WHERE card = '$rank';", $dbc, 'element')};
-                
+
                 my $childs;
                 my $descendants;
                 my @sons_ids;
                 my %sons_ranks;
                 my %orderedElements;
                 my $parentsIDs = $id;
-                                                
+
                 # Get children taxa
                 unless ($display_modes{descent}{skip} and $mode ne 'full') {
-                
+
                         my $dm = $display_modes{descent}{display} ? 'table-cell' : 'none';
                         $dm = $limit ? 'table-cell' : $dm;
-                        
+
                         my %attributes;
                         my @attribs = split('#', $display_modes{descent}{attributes});
                         foreach (@attribs) {
@@ -4066,22 +4066,22 @@ sub taxon_card {
                         my $decalage = $attributes{indentation} || 22;
                         $decalage += $attributes{marge} || 6;
                         $decalage = $decalage / 2;
-                        
+
                         my ($ranks, %ordres, $limitOrder);              
                         my $g = 2;
-                                                
+
                         my ($ranks_req, $desc_req, $total);
-                                        
+
                         $req = "SELECT ordre, en, count(*) FROM hierarchie LEFT JOIN rangs ON index_rang_fils = index WHERE index_taxon_parent IN ($parentsIDs) GROUP BY ordre, en ORDER BY ordre;";
                         my $compteur = request_tab($req, $dbc, 2);
-                        
+
                         my $default_limit = 0;
                         unless($limit) {
                                 $limit = $attributes{default} || 'none';
                                 if (scalar(@{$compteur}) == 1) { $limit = $compteur->[0][1] }
                                 $default_limit = 1;
                         }
-                                
+
                         my %nbtaxa;
                         foreach (@{$compteur}) { 
                                 $sons_ranks{$_->[0]}{nom} = $_->[1];
@@ -4091,11 +4091,11 @@ sub taxon_card {
                                 $total += $_->[2];
                         }
                         my $nbtaxastr = join(', ', map { $nbtaxa{$_}." ".$trans->{$_.'s'}->{$lang} } keys(%nbtaxa) );
-                                        
+
                         if ($limit eq 'none') {
-                                
+
                                 $ranks_req = "SELECT DISTINCT r.ordre, r.en FROM hierarchie AS h LEFT JOIN rangs AS r ON r.index = h.index_rang_fils WHERE index_taxon_parent IN ($parentsIDs) ORDER BY r.ordre";
-                                
+
                                 $desc_req = "SELECT     h.index_taxon_fils,
                                                 h.index_rang_fils,
                                                 h.nom_rang_fils,
@@ -4117,19 +4117,19 @@ sub taxon_card {
                                                 ORDER BY r.ordre DESC, nc.orthographe, nc.autorite;";
                         }
                         elsif ($limit ne 'none') {
-                                
+
                                 #$ranks_req = "SELECT DISTINCT r.ordre, r.en FROM hierarchie AS h LEFT JOIN rangs AS r ON r.index = h.index_rang_fils 
                                 #               WHERE index_taxon_parent = $id
                                 #               AND (index_taxon_fils IN ( SELECT index_taxon_fils FROM hierarchie WHERE index_taxon_parent = $id and nom_rang_fils = '$limit' )
                                 #               OR index_taxon_fils IN ( SELECT index_taxon_parent FROM hierarchie WHERE index_taxon_fils IN 
                                 #               ( SELECT index_taxon_fils FROM hierarchie WHERE index_taxon_parent = $id and nom_rang_fils = '$limit' ) ) )
                                 #               ORDER BY r.ordre";
-                                
+
                                 $ranks_req = "SELECT DISTINCT r.ordre, r.en FROM hierarchie AS h LEFT JOIN rangs AS r ON r.index = h.index_rang_fils 
                                                 WHERE index_taxon_parent IN ($parentsIDs)
                                                 AND index_taxon_fils IN ( SELECT index_taxon_fils FROM hierarchie WHERE index_taxon_parent IN ($parentsIDs) and nom_rang_fils = '$limit' )
                                                 ORDER BY r.ordre";
-                                                
+
                                 $desc_req = "SELECT DISTINCT
                                                 h.index_taxon_fils,
                                                 h.index_rang_fils,
@@ -4157,13 +4157,13 @@ sub taxon_card {
                         foreach (@{$ranks}) { 
                                 $ordres{$_->[0]} = $g; $g++;
                         }
-                                                
+
                         my $lowers = request_tab($desc_req,$dbc,2);
-                                                                        
+
                         if (my $maxi = $attributes{max} and $default_limit) {
                                 if (scalar(@{$lowers}) > $maxi) { $dm = 'none' }
                         }
-                                                
+
                         my %hierarchy;
                         my $sons_title;
                         my $max =  scalar(@{$ranks});
@@ -4171,7 +4171,7 @@ sub taxon_card {
                         my %rejetons;
                         my %pater;
                         my %displayed;
-                        
+
                         if ($n > 1) {
                                 my $curord;
                                 for (my $i=0; $i<$#{$lowers}+1; $i++) {
@@ -4187,9 +4187,9 @@ sub taxon_card {
                                         my $xauthority = $lowers->[$i][7];
                                         my $xtype = $lowers->[$i][8];
                                         my $rken = $lowers->[$i][9];
-                                                                                                
+
                                         push(@sons_ids, $xid);
-                                        
+
                                         # Counting number of sons group by rank
                                         if (!$curord or $curord != $ordre) { $n--; $curord = $ordre; }
 
@@ -4226,7 +4226,7 @@ sub taxon_card {
                                                 }
                                                 if ($prev == $parent) { last; }
                                         }
-                                        
+
                                         my $marge;
                                         # If not direct child of the taxa                               
                                         if ($last) { 
@@ -4245,25 +4245,25 @@ sub taxon_card {
                                         $hierarchy{$superkey}{firstParent} = $first;
                                         $hierarchy{$superkey}{order} = $ordre;
                                         $hierarchy{$superkey}{rank} = $rken;
-                                        
+
                                         my $typestr;
                                         if ($xtype) { $typestr = span({-class=>'typeSpecies'}, "&nbsp;  ".$trans->{"type$rken"}->{$lang}) }
                                         $hierarchy{$superkey}{name} = $fname;
                                         $typestr //= '';
                                         $hierarchy{$superkey}{body} = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$xrank&id=$xid"}, i($xname) . " $xauthority" . $typestr);
                                 }
-                                
+
                                 my $i = 0;
                                 my $last = 0;
                                 my %dones;
-                                
+
                                 #foreach my $key (keys(%rejetons)) {
                                 #       $descendants .= "$key = $rejetons{$key}{nombre}".br; 
                                 #}
-                                                                                                
+
                                 my $indent = $attributes{indentation} || 22;
                                 my $marge = $attributes{marge} || 6;
-                                                                                                
+
                                 foreach my $key (sort {$a cmp $b} keys(%hierarchy)) {
                                         my ($start, $body, @mclass);
                                         my $sign;
@@ -4272,14 +4272,14 @@ sub taxon_card {
                                                 #$start .= td({-id=>$hierarchy{$key}{name}, -class=>'sonsMagicCell', -style=>"cursor: pointer; margin-left: 2px; background: transparent; width: 12px; text-align: center; vertical-align: top; display: $dm;"}, $sign);
                                         }
                                         for (my $j=0; $j<scalar(@{$hierarchy{$key}{parents}}); $j++) {
-                                                
+
                                                 my $p = $hierarchy{$key}{parents}->[$j];
-                                                
+
                                                 push(@mclass, $p);
-                                                                
+
                                                 # The immediate parent
                                                 if ($j == $#{$hierarchy{$key}{parents}}) {
-                                                        
+
                                                         # Store the sons already treated
                                                         if (exists $dones{$p}) { $dones{$p} += 1 } else { $dones{$p} = 1 }
                                                         #else {
@@ -4305,7 +4305,7 @@ sub taxon_card {
                                                                                         );
                                                                 }
                                                         #}
-                                                        
+
                                                         my $nu = $hierarchy{$key}{position} - $rejetons{$p}{position} - 1;
                                                         # Les decalages "_"
                                                         $start .= td({-class=>'sonsMagicCell', -style=>"padding-bottom: 0; width: ".$indent."px; vertical-align: top; display: $dm;"}, 
@@ -4314,7 +4314,7 @@ sub taxon_card {
                                                 }
                                                 else {
                                                         my $pp = $hierarchy{$key}{parents}->[$j+1];
-                                                        
+
                                                         if ($dones{$p} == $rejetons{$p}{nombre}) {
                                                                 # Les blancs " " entre prolongements
                                                                 $start .= td({-class=>'sonsMagicCell', -style=>"padding-bottom: 0; width: ".$indent."px; vertical-align: top; display: $dm;"}, '');
@@ -4328,10 +4328,10 @@ sub taxon_card {
                                                         my $nu = $rejetons{$pp}{position} - $rejetons{$p}{position} - 1;
                                                         # Les blancs " " jusqu'a la racine
                                                         $start .= td({-class=>'sonsMagicCell', -style=>"width: ".$indent."px; display: $dm;"}, '') x $nu;
-                                                        
+
                                                 }
                                         }
-                                        
+
                                         my $oc = "
                                         var elmts = getElementsByClass('".join(' ', @{$hierarchy{$key}{parents}})." $hierarchy{$key}{name}');
                                         var mark = getElementById('$hierarchy{$key}{name}_mark');
@@ -4353,7 +4353,7 @@ sub taxon_card {
                                                 }
                                         }
                                         ";
-                                        
+
                                         #my $dsp = exists $displayed{$hierarchy{$key}{firstParent}} ? 'none' : 'table-row';
                                         my $dsp;
                                         if(url_param('test')) { 
@@ -4362,13 +4362,13 @@ sub taxon_card {
                                         else {
                                                 if ($hierarchy{$key}{firstParent}) { $dsp = 'none' } else { $dsp = 'table-row' };
                                         }
-                                        
+
                                         #$test .= "$hierarchy{$key}{name} :: $hierarchy{$key}{firstParent} <br>";
                                         #$dsp = 'table-row'; # A SUPPRIMER !!!!!!
-                                        
+
                                         $sign //= '';
                                         $body = td({-colspan=>($max-$n), -class=>'sonsMagicCell', -style=>"vertical-align: top; padding-left: 3px; display: $dm;"}, $sign.$hierarchy{$key}{body});
-                                        
+
                                         $descendants .= Tr({-class=>join(' ', @{$hierarchy{$key}{parents}}), -onClick=>"$oc", -style=>" display: $dsp;"}, $start, $body);
                                         $displayed{$hierarchy{$key}{name}} = 1;
                                         $i++;
@@ -4386,9 +4386,9 @@ sub taxon_card {
                                         my $xauthority = $_->[7];
                                         my $xtype = $_->[8];
                                         my $rken = $_->[9];
-                                
+
                                         push(@sons_ids, $xid);
-        
+
                                         my $typestr;
                                         if ($xtype) { $typestr = span({-class=>'typeSpecies'}, "&nbsp;  ".$trans->{"type$rken"}->{$lang}) }
                                         $descendants .= Tr(
@@ -4397,7 +4397,7 @@ sub taxon_card {
                                         $i++;
                                 }
                         }
-                                                
+
                         my $i = 0;
                         my $minimum = 0;
                         if (scalar(keys(%sons_ranks)) > 1) {
@@ -4420,10 +4420,10 @@ sub taxon_card {
                         }
                         if (!$childs) {         
                                 foreach my $key (sort {$a <=> $b} keys(%sons_ranks)) {
-                                        
+
                                         my $label = $sons_ranks{$key}{nom};
                                         if ($sons_ranks{$key}{valeur} > 1) { $label .= 's'; }
-                                        
+
                                         if ($sons_ranks{$key}{nom} ne $limit) {
                                                 $childs .= table({-style=>"padding: 0 0 0 ".($decalage * $i)."px;"}, 
                                                                 Tr(     td({-class=>'arrowRight', -style=>"cursor: pointer;", -onclick=>"location.href='$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$rank&id=$id&limit=$sons_ranks{$key}{nom}'"}, '&nbsp;'), 
@@ -4452,20 +4452,20 @@ sub taxon_card {
                         $req = "SELECT  h.index_taxon_fils
                                         FROM hierarchie AS h 
                                         WHERE index_taxon_parent IN ($parentsIDs);";
-                                                
+
                         my $lowers = request_tab($req,$dbc,1);
-                        
+
                         foreach (@{$lowers}) {
                                 push(@sons_ids, $_);
                         }
                 }
 
-                
+
                 # récupérer les enfants du taxon dans un tableau pour un représentation graphique circulaire
                 if (url_param('test') and $dbase eq 'flow') {
 
                 my $limit = "genus";
-                
+
                 my $sr_req = "
                 SELECT en 
                 FROM rangs 
@@ -4475,10 +4475,10 @@ sub taxon_card {
                         WHERE index_taxon_parent = $id )
                 AND ordre <= (SELECT ordre FROM rangs WHERE en = '$limit')
                 ORDER by ordre DESC;";
-                
+
                 my $sons_ranks = request_tab($sr_req, $dbc, 1);
                 push(@{$sons_ranks}, $rank);
-                
+
                 my $req = "
                 SELECT
                 h.index_taxon_fils,
@@ -4496,9 +4496,9 @@ sub taxon_card {
                 AND h.nom_rang_fils = '$limit'
                 AND txn.ref_statut = 1
                 ORDER BY nc.orthographe, nc.autorite;";
-                
+
                 my $leaves = request_tab($req, $dbc, 2);
-                
+
                 my $phpstr = 'array (';
                 my $i=0;
                 foreach (@{$leaves}) {
@@ -4519,7 +4519,7 @@ sub taxon_card {
                                 LEFT JOIN noms_complets AS nc ON nc.index = txn.ref_nom
                                 WHERE t.index = $parent
                                 AND txn.ref_statut = 1;";
-                                
+
                                 my $ascendant = request_tab($req, $dbc, 2);
                                 if($ascendant->[0]) {
                                         #$test .= $parent." IS A $ascendant->[0][1]<br>";
@@ -4544,7 +4544,7 @@ sub taxon_card {
                                 }
                         }
                         @phpcols = reverse @phpcols;
-                        
+
                         $phpstr .= 'array (\"'.join ('\",\"', @phpcols).'\")';
                         unless ($i == $#$leaves) { $phpstr .= ','; }
                         $i++;
@@ -4561,26 +4561,26 @@ sub taxon_card {
                 my $graphic;
                 push(@names_index, $valid_name->[0]);
                 unless ($display_modes{synonymy}{skip} and $display_modes{chresonymy}{skip} and $mode ne 'full') {
-                        
+
                         my %attributes;
                         my %attributes2;
                         my @attribs;
-                        
+
                         @attribs = split('#', $display_modes{synonymy}{attributes});
                         foreach (@attribs) {
                                 my ($key, $val) = split(':', $_);
                                 $attributes{$key} = $val;
                         }
-                        
+
                         @attribs = split('#', $display_modes{chresonymy}{attributes});
                         foreach (@attribs) {
                                 my ($key, $val) = split(':', $_);
                                 $attributes2{$key} = $val;
                         }
-                        
+
                         my ($nb_syns) = @{request_tab("SELECT count(*) FROM taxons_x_noms WHERE ref_taxon = $id AND ref_statut NOT IN (3,8,17,18,14);", $dbc, 1)};
                         my ($nb_uses) = @{request_tab("SELECT count(*) FROM taxons_x_noms WHERE ref_taxon = $id AND ref_statut IN (3,8,17,18);", $dbc, 1)};                     
-                        
+
                         # Fetch taxon synonyms and chresonyms
                         my $names_list = request_tab("  SELECT  nc.index, 
                                                                 nc.orthographe, 
@@ -4637,7 +4637,7 @@ sub taxon_card {
                                                         WHERE txn.ref_taxon = $id 
                                                         AND s.en != 'valid'
                                                         ORDER BY pubd.annee, n.annee, pubu.annee, txn.date_modification;",$dbc);
-                        
+
                         my $max;
                         $max = $attributes{max} || 0;
                         my $dms = ( ( !$max or ( $max and $nb_syns <= $max ) ) and $display_modes{synonymy}{display} ) ? 'table-cell' : 'none';
@@ -4700,10 +4700,10 @@ sub taxon_card {
                                                         $sl .= getPDF($syn->[5]);
                                                 }
                                                 if ($display_modes{remarks}) { $sl = $syn->[26] ? $sl . " ($syn->[26])" : $sl; }
-                                                
+
                                                 $synonyms .= Tr( td({-colspan=>2, -class=>'synsMagicCell magicCell', -style=>"display: $dms;"}, $sl) );
 
-                                                                                                
+
                                                         push(@statuses, "[\"<i>$syn->[1]</i>\",\"$syn->[2]\",\"$syn->[3]\",\"<i>$syn->[15]</i>\",\"$syn->[16]\",\"$pub_den[1]\",\"$syn->[22]\",\"$syn->[34]\",\"$syn->[35]\",\"$syn->[23]\",\"$syn->[36]\"]");
 
                                         }
@@ -4764,7 +4764,7 @@ sub taxon_card {
                                                 }
                                                 if ($display_modes{remarks}) { $tl = $syn->[26] ? $tl . " ($syn->[26])" : $tl; }
                                                 $synonyms .= Tr( td({-colspan=>2, -class=>'synsMagicCell magicCell', -style=>"display: $dms;"}, $tl) );
-                                                
+
                                                 push(@statuses, "[\"<i>$syn->[1]</i>\",\"$syn->[2]\",\"$syn->[3]\",\"<i>$syn->[15]</i>\",\"$syn->[16]\",\"$pub_den[1]\",\"$syn->[22]\",\"$syn->[34]\",\"$syn->[35]\",\"$syn->[23]\",\"$syn->[36]\"]");
                                                 $graphDone{"$syn->[1] $syn->[2]"}++;
                                         }
@@ -4788,7 +4788,7 @@ sub taxon_card {
                                                 }
                                                 if ($display_modes{remarks}) { $tl = $syn->[26] ? $tl . " ($syn->[26])" : $tl; }
                                                 $synonyms .= Tr( td({-colspan=>2, -class=>'synsMagicCell magicCell', -style=>"display: $dms;"}, $tl) );
-                                                
+
                                                 push(@statuses, "[\"<i>$syn->[1]</i>\",\"$syn->[2]\",\"$syn->[3]\",\"<i>$syn->[15]</i>\",\"$syn->[16]\",\"$pub_den[1]\",\"$syn->[22]\",\"$syn->[34]\",\"$syn->[35]\",\"$syn->[23]\",\"$syn->[36]\"]");
                                                 $graphDone{"$syn->[1] $syn->[2]"}++;
                                         }
@@ -4812,11 +4812,11 @@ sub taxon_card {
                                                 }
                                                 if ($display_modes{remarks}) { $mil = $syn->[26] ? $mil . " ($syn->[26])" : $mil; }
                                                 $chresonyms{$syn->[0].$syn->[4].$syn->[20].$syn->[5].$syn->[21]}{'label'} = $mil;
-                                                
+
                                                 #push(@uses, "[\"<i>$syn->[1]</i>\",\"$syn->[2]\",\"$syn->[3]\",\"\",\"\",\"$pub_den[1]\",\"$syn->[31]\"]");
                                         }
                                         elsif ( $syn->[3] eq 'previous identification' ){
-                                        
+
                                                 my @pub_use = publication($syn->[4], 0, 1, $dbc );
                                                 my @pub_den = publication($syn->[5], 0, 1, $dbc );
                                                 my $pil .= a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[0]"}, i($syn->[1]) . "&nbsp;$syn->[2]" );
@@ -4837,7 +4837,7 @@ sub taxon_card {
                                                 }
                                                 if ($display_modes{remarks}) { $pil = $syn->[26] ? $pil . " ($syn->[26])" : $pil; }
                                                 $chresonyms{$syn->[0].$syn->[4].$syn->[20].$syn->[5].$syn->[21]}{'label'} = $pil;
-        
+
                                                 #push(@uses, "[\"<i>$syn->[1]</i>\",\"$syn->[2]\",\"$syn->[3]\",\"<i>$syn->[15]</i>\",\"$syn->[16]\",\"$pub_den[1]\",\"$syn->[31]\"]");
                                         }
                                         elsif ( $syn->[3] eq 'incorrect original spelling' ){
@@ -4854,7 +4854,7 @@ sub taxon_card {
                                                 }
                                                 if ($display_modes{remarks}) { $iol = $syn->[26] ? $iol . " ($syn->[26])" : $iol; }
                                                 $synonyms .= Tr( td({-colspan=>2, -class=>'synsMagicCell magicCell', -style=>"display: $dms;"}, $iol) );
-        
+
                                                  push(@statuses, "[\"<i>$syn->[1]</i>\",\"$syn->[2]\",\"$syn->[3]\",\"<i>$syn->[15]</i>\",\"$syn->[16]\",\"$pub_den[1]\",\"$syn->[22]\",\"$syn->[34]\",\"$syn->[35]\",\"$syn->[23]\",\"$syn->[36]\"]");
                                         }
                                         elsif ( $syn->[3] eq 'incorrect subsequent spelling' ){
@@ -4878,17 +4878,17 @@ sub taxon_card {
                                                 }
                                                 if ($display_modes{remarks}) { $iel = $syn->[26] ? $iel . " ($syn->[26])" : $iel; }
                                                 $synonyms .= Tr( td({-colspan=>2, -class=>'synsMagicCell magicCell', -style=>"display: $dms;"}, $iel) );
-                                                
+
                                                 push(@statuses, "[\"<i>$syn->[1]</i>\",\"$syn->[2]\",\"$syn->[3]\",\"<i>$syn->[15]</i>\",\"$syn->[16]\",\"$pub_den[1]\",\"$syn->[22]\",\"$syn->[34]\",\"$syn->[35]\",\"$syn->[23]\",\"$syn->[36]\"]");
                                         }
                                         elsif ( $syn->[3] eq 'correct use' ){
-                                                
+
                                                 my @pub_use = publication($syn->[4], 0, 1, $dbc );
-                                                
+
                                                 unless (exists $chresonyms{$syn->[0]}) { 
                                                         $chresonyms{$syn->[0]} = {};
                                                         $chresonyms{$syn->[0]}{'label'} = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[0]"}, i($syn->[1]) . "&nbsp;$syn->[2]" ) . "&nbsp;$trans->{'cited_in'}->{$lang}&nbsp;";
-                                                        
+
                                                         my $page;
                                                         if ($syn->[20]) { $page = ":&nbsp;$syn->[20]" }
                                                         $chresonyms{$syn->[0]}{'refs'} = ();
@@ -4899,7 +4899,7 @@ sub taxon_card {
                                                         if ($syn->[20]) { $page = ":&nbsp;$syn->[20]" }
                                                         push(@{$chresonyms{$syn->[0]}{'refs'}}, a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[4]"}, "$pub_use[1]$page" ) . getPDF($syn->[4]));                                             
                                                 }
-                                                
+
                                                 #push(@uses, "[\"<i>$syn->[1]</i>\",\"$syn->[2]\",\"$syn->[3]\",\"\",\"\",\"$pub_use[1]\",\"$syn->[31]\",\"\"]");
                                         }
                                         elsif ( $syn->[3] eq 'homonym' ){
@@ -4915,14 +4915,14 @@ sub taxon_card {
                                                         $hl .= getPDF($syn->[5]);
                                                 }
                                                 if ($display_modes{remarks}) { $hl = $syn->[26] ? $hl . " ($syn->[26])" : $hl; }
-                                                
+
                                                 #$synonyms .= Tr( td({-colspan=>2, -class=>'synsMagicCell magicCell', -style=>"display: $dms;"}, $hl) );
                                                 $chresonyms{$syn->[0].$syn->[4].$syn->[20].$syn->[5].$syn->[21]}{'label'} = $hl;
-                                                
+
                                                 my $treq = "SELECT count(*) FROM taxons_x_noms AS txn WHERE txn.ref_nom = $syn->[0] AND txn.ref_taxon = $id AND txn.ref_statut not in (SELECT index FROM statuts WHERE en like '%homonym%');";
-                                                                                                
+
                                                 my ($res) = @{request_tab($treq, $dbc, 1)};
-                                                
+
                                                 if (!$res) {
                                                         #$test .= "[\"<i>$syn->[1]</i>\",\"$syn->[2]\",\"$syn->[3]\",\"<i>$syn->[15]</i>\",\"$syn->[16]\",\"$pub_den[1]\"]";
                                                         push(@statuses, "[\"<i>$syn->[1]</i>\",\"$syn->[2]\",\"$syn->[3]\",\"<i>$syn->[15]</i>\",\"$syn->[16]\",\"$pub_den[1]\",\"$syn->[22]\",\"$syn->[34]\",\"$syn->[35]\",\"$syn->[23]\",\"$syn->[36]\"]");
@@ -4945,11 +4945,11 @@ sub taxon_card {
                                                         $nl .= getPDF($syn->[5]);
                                                 }
                                                 if ($display_modes{remarks}) { $nl = $syn->[26] ? $nl . " ($syn->[26])" : $nl; }
-                                                
+
                                                 #$synonyms .= Tr( td({-colspan=>2, -class=>'synsMagicCell magicCell', -style=>"display: $dms;"}, $nl) );
-                                                
+
                                                 $chresonyms{$syn->[0].$syn->[4].$syn->[20].$syn->[5].$syn->[21]}{'label'} = $nl;
-        
+
                                                 #push(@uses, "[\"<i>$syn->[1]</i>\",\"$syn->[2]\",\"$syn->[3]\",\"<i>$syn->[15]</i>\",\"$syn->[16]\",\"$pub_den[1]\",\"$syn->[22]\",\"$syn->[34]\",\"$syn->[35]\"]");
                                         }
                                         elsif ( $syn->[3] eq 'status revivisco' ){
@@ -4986,7 +4986,7 @@ sub taxon_card {
                                                 }
                                                 if ($display_modes{remarks}) { $nl = $syn->[26] ? $nl . " ($syn->[26])" : $nl; }
                                                 $synonyms .= Tr( td({-colspan=>2, -class=>'synsMagicCell magicCell', -style=>"display: $dms;"}, $nl) );
-                                                
+
                                                 push(@statuses, "[\"<i>$syn->[1]</i>\",\"$syn->[2]\",\"$syn->[3]\",\"<i>$syn->[15]</i>\",\"$syn->[16]\",\"$pub_den[1]\",\"$syn->[22]\",\"$syn->[34]\",\"$syn->[35]\",\"$syn->[23]\",\"$syn->[36]\"]");
                                                 $graphDone{"$syn->[1] $syn->[2]"}++;
                                         }
@@ -5004,7 +5004,7 @@ sub taxon_card {
                                                 }
                                                 if ($display_modes{remarks}) { $npl = $syn->[26] ? $npl . " ($syn->[26])" : $npl; }
                                                 $synonyms .= Tr( td({-colspan=>2, -class=>'synsMagicCell magicCell', -style=>"display: $dms;"}, $npl) );
-        
+
                                                 push(@statuses, "[\"<i>$syn->[1]</i>\",\"$syn->[2]\",\"$syn->[3]\",\"<i>$syn->[15]</i>\",\"$syn->[16]\",\"$pub_den[1]\",\"$syn->[22]\",\"$syn->[34]\",\"$syn->[35]\",\"$syn->[23]\",\"$syn->[36]\"]");
                                                 $graphDone{"$syn->[1] $syn->[2]"}++;
                                         }
@@ -5022,7 +5022,7 @@ sub taxon_card {
                                                 }
                                                 if ($display_modes{remarks}) { $npl = $syn->[26] ? $npl . " ($syn->[26])" : $npl; }
                                                 $synonyms .= Tr( td({-colspan=>2, -class=>'synsMagicCell magicCell', -style=>"display: $dms;"}, $npl) );
-        
+
                                                 push(@statuses, "[\"<i>$syn->[1]</i>\",\"$syn->[2]\",\"$syn->[3]\",\"<i>$syn->[15]</i>\",\"$syn->[16]\",\"$pub_den[1]\",\"$syn->[22]\",\"$syn->[34]\",\"$syn->[35]\",\"$syn->[23]\",\"$syn->[36]\"]");
                                         }
                                         elsif ($syn->[3] ne 'valid') {
@@ -5044,20 +5044,20 @@ sub taxon_card {
                                                 }
                                                 if ($display_modes{remarks}) { $ukl = $syn->[26] ? $ukl . " ($syn->[26])" : $ukl; }
                                                 $synonyms .= Tr( td({-colspan=>2, -class=>'synsMagicCell magicCell', -style=>"display: $dms;"}, $ukl) );
-                                                        
+
                                                 no warnings 'uninitialized';
                                                 push(@statuses, "[\"<i>$syn->[1]</i>\",\"$syn->[2]\",\"$syn->[3]\",\"<i>$syn->[15]</i>\",\"$syn->[16]\",\"$pub_den[1]\",\"$syn->[22]\",\"$syn->[34]\",\"$syn->[35]\",\"$syn->[23]\",\"$syn->[36]\"]");
                                         }
                                 }
-                                
+
                                 my $toomuch = 0;
                                 foreach (keys(%graphDone)) {
                                         if ($graphDone{$_} > 1) { $toomuch = 0; last; }
                                 }
-                                
+
                                 # Make a graphic representation of taxon synonymy and chresonymy
                                 if (( !$display_modes{graphic}{skip} or $mode eq 'full') and !$toomuch) {
-                                        
+
                                         my $legend = '';
                                         $legend .= Tr( td({-colspan=>1, -class=>'legMagicCell magicCell', -style=>"display: none;"}, 
                                                                         "<NOBR>
@@ -5139,9 +5139,9 @@ sub taxon_card {
                                                                         -->
                                                                         </NOBR>"                                                                        
                                                                         ));
-                                        
+
                                         $legend = makeRetractableArray ('legTitle', 'legMagicCell magicCell', ucfirst($trans->{'legend'}->{$lang}), $legend, 'arrowRight', 'arrowDown', 1, 'none', 'true');
-                                        
+
                                         #$test = join('<br>',@statuses);
                                         if ($dbase eq 'cool') {
                                                 $graphic .= start_form(-id=>'graphForm', -method=>'POST', -action=>'/explorerdocs/graph.php', -target=>"graphFrame", -style=>'margin: 0; padding: 0;');
@@ -5187,11 +5187,11 @@ sub taxon_card {
                                                                                         '&nbsp;fullscreen'
                                                                                 )))
                                                                         ),
-                                                                        
+
                                                                 )
                                                         );
                                                 #}
-                                                                                                
+
                                                 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                                                 if (($glob_self->param('test') // '') eq 'taxhis' and $dbase eq 'flow') { 
                                                         my %parentForms;
@@ -5228,14 +5228,14 @@ sub taxon_card {
                                                                 }
                                                         }
                                                         @parentIds = reverse @parentIds;
-                                                        
+
                                                         #$test .= "@parentIds<br>";
-                                                        
+
                                                         my @cumulative;
                                                         foreach my $parentId (@parentIds) {
 
                                                                 my @sonsNamesIds = @{request_tab("SELECT index FROM noms WHERE ref_nom_parent = $parentId", $dbc, 1)};
-                                                                                                                                                                                                        
+
                                                                 my $req = "     SELECT  
                                                                                 txn.ref_nom,
                                                                                 nc.orthographe, 
@@ -5266,9 +5266,9 @@ sub taxon_card {
                                                                                 WHERE (ref_nom in (".join("," , @sonsNamesIds).") OR ref_nom_cible IN (".join("," , @sonsNamesIds)."))
                                                                                 AND ref_statut NOT IN (".join("," , keys(%useslink)).")
                                                                                 ORDER BY pubd.annee, n.annee, pubu.annee;";
-                                                                                
-                                                                
-                                                                                                
+
+
+
                                                                 my $sth = $dbc->prepare($req) or $test .= $req;
                                                                 $sth->execute() or $test .= $req;
                                                                 my ($s_id, $s_spell, $s_auth, $s_parentID, $s_parent, $s_year, $statutID, $t_id, $t_spell, $t_auth, $t_parentID, $t_parent, $t_year, $pd_index, $pd_year, $pu_year);
@@ -5277,17 +5277,17 @@ sub taxon_card {
                                                                         push(@cumulative, [$s_id, $s_spell, $s_auth, $s_parentID, $s_parent, $s_year, $statutID, $t_id, $t_spell, $t_auth, $t_parentID, $t_parent, $t_year, $pd_index, $pd_year, $pu_year]);
                                                                 }
                                                         }
-                                        
+
                                                         my %done;
                                                         foreach my $row (@cumulative) {
-                                                                        
+
                                                                 my ($s_id, $s_spell, $s_auth, $s_parentID, $s_parent, $s_year, $statutID, $t_id, $t_spell, $t_auth, $t_parentID, $t_parent, $t_year, $pd_index, $pd_year, $pu_year) = @{$row};                                                                          
-                                                                                                                                                
+
                                                                 # nom 1 => nom 2 
                                                                 # si nom 1 est de parent connu:
-                                                                
+
                                                                 my @pub = publication($pd_index, 0, 1, $dbc);
-                                                                
+
                                                                 if (grep {$_ eq $s_parentID} @parentIds) {
                                                                         # si nom 1 apparait pour la premiere fois dans l'historique :
                                                                         # nom 1 associe a son parent en tant que "entrant" a la date princeps  => repertorier nom 1 comme deja rencontre en "entrant"
@@ -5333,7 +5333,7 @@ sub taxon_card {
                                                                         }
                                                                 }
                                                         }
-                                                        
+
                                                         my $pos = 0;
                                                         my $final;
                                                         foreach my $x (sort {$parentForms{$a}{position} <=> $parentForms{$b}{position}} keys(%parentForms)) {
@@ -5349,7 +5349,7 @@ sub taxon_card {
                                                                 }
                                                                 $pos++;
                                                         }
-                                                        
+
                                                         #$test .= $final;
                                                         my $tmp;
                                                         $tmp .= '<div id="canvas-wrap" style="position:relative; width: 950px; min-height:600px; border: 0px solid grey;">';
@@ -5359,13 +5359,13 @@ sub taxon_card {
                                                         $tmp .= "<script>";
                                                         $tmp .= "draw(\"$final\", ".scalar(keys(%parentForms)).");";
                                                         $tmp .= "</script>";
-                                                        
+
                                                         $tmp  = Tr( td({-colspan=>2, -class=>'taxhMagicCell magicCell', -style=>"display: block;"}, $tmp ) );
-                                                        
+
                                                         $test .= makeRetractableArray ('taxhTitle', 'taxhMagicCell magicCell', "Taxonomic concept evolution", $tmp, 'arrowRight', 'arrowDown', 1, 'none', 'true');
                                                 }
-                                                
-                                                
+
+
                                                 $graphic .= Tr( td({-colspan=>2, -class=>'graphMagicCell magicCell', -style=>"display: none;"},
                                                                         div({-id=>'legendDiv', -style=>'background: transparent;'},
                                                                                 $legend,
@@ -5374,14 +5374,14 @@ sub taxon_card {
                                                                         div({-id=>'graphDiv', -style=>'width: 950px; background: transparent; overflow: auto;'},
                                                                         "<div id='sc_Div'></div>
                                                                         <script type='text/javascript'>
-                                                                                
+
                                                                                 var synonyms = [".join(',',@statuses)."]; 
                                                                                 var uses = [".join(',',@uses)."]; 
                                                                                 var valid = ['<i>$valid_name->[1]</i>','$valid_name->[2]','$valid_name->[20]'];
-                                                                                
+
                                                                                 var S = document.getElementById('sc_Div');
                                                                                 var L = document.getElementById('sc_Legende');
-                                                                                
+
                                                                                 function newSchema() {
                                                                                         /*var displayLink = [];
                                                                                         for(var i = 1; i<16; i++) {
@@ -5389,7 +5389,7 @@ sub taxon_card {
                                                                                                 displayLink[sel.value] = sel.checked;
                                                                                         }
                                                                                         displayLink['dead end'] = 0;*/
-                                                                                        
+
                                                                                         S.innerHTML = '';
                                                                                         var formatedSynonyms = [];
                                                                                         var formatedChresonyms = [];
@@ -5403,20 +5403,20 @@ sub taxon_card {
                                                                                                 //if(displayLink[uses[i][2]])
                                                                                                         formatedChresonyms.push(uses[i].slice(0));
                                                                                         }
-                                                                                        
+
                                                                                         var height = _startAnalysis(formatedSynonyms, formatedChresonyms, valid);
                                                                                         S.style.height = height + 'px';
                                                                                         _displaySchematic(vName, schemaWidth, vName.M.high, 2, '');
-                                                                                
+
                                                                                 } newSchema();
-                                                                                
+
                                                                                 if (document.getElementById('sc_Div').innerHTML != '') {
                                                                                         document.getElementById('graphTable').style.display = 'block';
                                                                                 }
                                                                         </script>"
                                                         )
                                                 ));
-                                                
+
                                                 if ($dbase =~ m/flow/) {
                                                         $graphic = makeRetractableGraph ('graphTitle', 'graphMagicCell magicCell', i($valid_name->[1]).' '.$valid_name->[2].' '.($trans->{'graphdisp'}->{$lang}), $graphic, 'arrowRight', 'arrowDown', 1, 'none', 'true');
                                                 }
@@ -5424,11 +5424,11 @@ sub taxon_card {
                                                         $graphic = makeRetractableGraph ('graphTitle', 'graphMagicCell magicCell', $trans->{'graphDisplay'}->{$lang}, $graphic, 'arrowRight', 'arrowDown', 1, 'none', 'true');
                                                 }
                                         }
-                                        
+
                                         my $pos = $display_modes{graphic}{position} || $default_order{graphic};
                                         $orderedElements{$pos} = $graphic;
                                 }
-                                
+
                                 unless ($display_modes{synonymy}{skip} and $mode ne 'full') {
                                         if ($synonyms) {
                                                 $synonymy = makeRetractableArray ('synsTitle', 'synsMagicCell magicCell', ucfirst($trans->{'synonymie'}->{$lang}), $synonyms, 'arrowRight', 'arrowDown', 1, $dms, 'true');
@@ -5450,10 +5450,10 @@ sub taxon_card {
                                 }
                         }
                 }
-                                
+
                 my $geologic;
                 unless ($display_modes{geological}{skip} or !$valid_name->[12]) {
-                        
+
                         my %attributes;
                         my @attribs;
                         @attribs = split('#', $display_modes{geological}{attributes});
@@ -5464,7 +5464,7 @@ sub taxon_card {
                         my ($nbgeols) = @{request_tab("SELECT count(distinct ref_periode) FROM taxons_x_periodes WHERE ref_taxon = $id;", $dbc, 1)};
                         my $max = $attributes{max} || 0;
                         my $dmg = ( ( !$max or ( $max and $nbgeols <= $max ) ) and $display_modes{geological}{display} ) ? 'table-cell' : 'none';
-                        
+
                         my $georeq = "  SELECT  p.$lang,
                                                 p.debut,
                                                 p.fin,
@@ -5475,7 +5475,7 @@ sub taxon_card {
                                         LEFT JOIN publications AS pub ON pub.index = txp.ref_publication_ori
                                         WHERE txp.ref_taxon = $id
                                         ORDER BY p.fin, p.niveau;";
-                                                                
+
                         my $geols = request_tab($georeq,$dbc,2);
                         my $curr_g;
                         my $str_g;
@@ -5490,10 +5490,10 @@ sub taxon_card {
                                                 }
                                                 $curr_g = "$row->[0]";;
                                                 @pubs_g = ();
-                                                                                                
+
                                                 $str_g = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=fossils&mode=time"}, "$curr_g [$row->[1]-$row->[2] Ma]"); 
                                         }
-        
+
                                         if ($row->[3]) {
                                                 my $page;
                                                 if ($row->[4]) { $page = ": $row->[4]"; }
@@ -5501,12 +5501,12 @@ sub taxon_card {
                                                 push(@pubs_g, a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$row->[3]"}, "$p[1]$page") . getPDF($row->[3]));
                                         }
                                 }
-                                
+
                                 if ($str_g) {
                                         if (scalar(@pubs_g)) { $str_g .= "&nbsp;$trans->{'segun'}->{$lang}&nbsp;" . join(', ', @pubs_g);  }
                                         $geologic .= Tr( td({-colspan=>2, -class=>'geolMagicCell magicCell', -style=>"display: $dmg;"}, $str_g) );
                                 }
-                                                                
+
                                 $geologic = makeRetractableArray ('geolTitle', 'geolMagicCell magicCell', ucfirst($trans->{geoldating}->{$lang}), $geologic, 'arrowRight', 'arrowDown', 1, $dmg, 'true');
                                 my $pos = $display_modes{geological}{position} || $default_order{geological};
                                 $orderedElements{$pos} = $geologic;
@@ -5518,12 +5518,12 @@ sub taxon_card {
                                 my $tab = request_tab($req, $dbc, 1);
                                 @sons_ids = @{$tab};
                 }
-                
+
                 my $taxsonsids = scalar(@sons_ids) ? ', ' . join(', ', @sons_ids) : undef;
                 my $partial;
                 my @sons_rank_names;
                 foreach (sort {$a <=> $b} keys(%sons_ranks)) { push(@sons_rank_names, $sons_ranks{$_}{nom}); }
-                                        
+
                 if ($privacy) {
                         my $r = "SELECT h.index_taxon_fils FROM hierarchie AS h WHERE index_taxon_parent IN (".join(',',split('_',$privacy)).");";
                         #die $r;
@@ -5531,14 +5531,14 @@ sub taxon_card {
                         $taxsonsids = ','.join(', ', @{$l});
                         #die $taxsonsids;
                 }
-                
+
                 unless ($dbase eq 'psylles' and $rank eq 'subfamily') {
-                                        
+
                 # Fetch presence of the taxon in a TDWG region
                 my $countries_list;
                 my $map;
                 unless ($display_modes{tdwg}{skip} and $display_modes{map}{skip} and $mode ne 'full') { 
-                        
+
                         # TODO: exclude FOSSILS from distribution
                         my $req =       "SELECT ref_pays, p.$lang, p.en, p.tdwg, p.tdwg_level, p.parent, ref_publication_ori, page_ori, precision, ref_taxon, ref_publication_maj, page_maj
                                         FROM taxons_x_pays AS txp 
@@ -5548,17 +5548,17 @@ sub taxon_card {
                                         AND p.en != 'Unknown'
                                         AND (txp.origine = 'native' OR txp.origine IS NULL)
                                         ORDER BY p.$lang, pub.annee;";
-                        
+
                         my $sth5 = $dbc->prepare( $req );
-                                                        
+
                         #if (url_param("test")) { $test = $req; }
-        
+
                         $sth5->execute( );
                         my ( $country_id, $country, $en, $tdwg, $level, $parent, $ref_pub_ori, $page_ori, $precision, $ref_taxon, $ref_pub_maj, $page_maj, $isfossil );
                         # jompo
                         # $sth5->bind_columns( \( $country_id, $country, $en, $tdwg, $level, $parent, $ref_pub_ori, $page_ori, $precision, $ref_taxon, $ref_pub_maj, $page_maj, $isfossil ) );
                         $sth5->bind_columns( \( $country_id, $country, $en, $tdwg, $level, $parent, $ref_pub_ori, $page_ori, $precision, $ref_taxon, $ref_pub_maj, $page_maj ) );
-                                                
+
                         my $current_id;
                         my $current_name;
                         my $precis = '';
@@ -5573,7 +5573,7 @@ sub taxon_card {
                         my %tdwgA123;
                         my %pubdone;
                         my %level1;
-                                                
+
                         my %attributes;
                         my @attribs;
                         my ($nb_pays) = @{request_tab("SELECT count(*) FROM taxons_x_pays WHERE ref_taxon in ($id $taxsonsids) and (SELECT en from pays where index = ref_pays) NOT ILIKE 'unknown';", $dbc, 1)};
@@ -5584,7 +5584,7 @@ sub taxon_card {
                         }
                         my $max = $attributes{max} || 0;
                         my $dmt = ( ( !$max or ( $max and $nb_pays <= $max ) ) and $display_modes{tdwg}{display} ) ? 'table-cell' : 'none';
-                        
+
                         while ( $sth5->fetch ) {
                                 my $pdisp;
                                 $precision //= '';
@@ -5605,7 +5605,7 @@ sub taxon_card {
                                         if ($precision) { $string .= '&nbsp;' . $precision }
                                         unless ($current_name =~ m/$sup .*\(/) { $sup = $current_name }
                                 }
-                                        
+
                                 $page_ori //= '';
                                 unless (!$ref_pub_ori or exists($pubdone{"$ref_pub_ori:$page_ori"})) {
                                         $pubdone{"$ref_pub_ori:$page_ori"} = 1;
@@ -5623,23 +5623,23 @@ sub taxon_card {
                                         $page //= '';
                                         push(@pubs, a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$ref_pub_ori"}, "$p[1]$page") . getPDF($ref_pub_ori) . $denonce . getPDF($ref_pub_maj));
                                 }
-                                
+
                                 unless (exists $tdwg4{$tdwg} or $ref_pub_maj) {
-                                        
+
                                         my @fathers;
-                                        
+
                                         if (length($tdwg) >= 5) { 
-                                                
+
                                                 if (length($tdwg) > 5) { 
                                                         my @p = split(',', $tdwg); 
-                                                        
+
                                                         foreach (@p) {
                                                                 if (length($_) < 5) { push(@fathers, $_); }
                                                                 else { $tdwg123{$_} = 1; }
                                                         }
-                                                         
+
                                                 }
-                                                
+
                                                 if ($parent) {
                                                         my ($father) = request_row("SELECT en FROM pays WHERE tdwg = '$parent';",$dbc,1);
                                                         if ($father eq $en) { push(@fathers, $parent) }
@@ -5671,12 +5671,12 @@ sub taxon_card {
                                         } else {
                                                 push(@fathers, $tdwg);
                                         }
-                                        
+
                                         while (scalar(@fathers)) {
                                                 my $sons = request_tab("SELECT tdwg FROM pays WHERE parent IN ('" . join("', '",@fathers) . "');", $dbc, 1);
-                                                
+
                                                 @fathers = ();
-                                                
+
                                                 if (scalar(@{$sons})) {
                                                         foreach (@{$sons}) {
                                                                 if (!$isfossil) {
@@ -5696,22 +5696,22 @@ sub taxon_card {
                         if ($sup and $current_name ne $sup) { $string = p({-style=>'margin: 0; padding: 0 0 0 1em;'}, $string); }
                         $countries_list .= $string ? Tr( td({-colspan=>2, -class=>'geoMagicCell magicCell', -style=>"display: $dmt;"}, $string) ) : '';
                         $sth5->finish();
-                        
-                        
+
+
                         my $areas;              
                         my $areasF;             
                         if (($dbase eq 'psylles' or $dbase eq 'cool') and !$valid_name->[9]) { $partial = "&nbsp;&nbsp;($trans->{partial}->{$lang})"; }
                         if ( $countries_list ) {
-                                                                
+
                                 unless ($display_modes{tdwg}{skip} and $mode ne 'full') {
                                         $countries_list = makeRetractableArray ('geoTitle', 'geoMagicCell magicCell', ucfirst($trans->{"geodistribution"}->{$lang}) . $partial, $countries_list, 'arrowRight', 'arrowDown', 1, $dmt, 'true');
                                         my $pos = $display_modes{tdwg}{position} || $default_order{tdwg};
                                         $orderedElements{$pos} = $countries_list;
                                 }
                                 else { $countries_list = undef; }
-                                
+
                                 unless ($display_modes{map}{skip} and $mode ne 'full') {
-                                        
+
                                         my $dmm = $display_modes{map}{display} ? 'table-cell' : 'none';
                                         my %attributes;
                                         my @attribs = split('#', $display_modes{map}{attributes});
@@ -5720,7 +5720,7 @@ sub taxon_card {
                                                 $attributes{$key} = $val;
                                         }
                                         my ($sea_color, $continent_color, $continent_borders, $area_color, $area_borders, $alien_color, $alien_borders, $area_color_np, $area_borders_np, $area_color_fsl, $area_borders_fsl, $area_color_fsl_np, $area_borders_fsl_np, $map_width);
-                                        
+
                                         $sea_color = $attributes{sea} ? "#$attributes{sea}" : 'transparent';
                                         $continent_color = $attributes{continents} || 'AAAAAA';
                                         $continent_borders = $attributes{cborders} || 'AAAAAA';
@@ -5732,13 +5732,13 @@ sub taxon_card {
                                         $alien_borders = $attributes{aborders_alien} || '00008B';
                                         $area_color_np = $attributes{areas_not_precise} || $area_color;
                                         $area_borders_np = $attributes{aborders_not_precise} || $area_borders;
-                                        
+
                                         $area_color_fsl = $attributes{areas_fossil} || $area_color;
                                         $area_borders_fsl = $attributes{aborders_fossil} || $area_borders;
                                         $area_color_fsl_np = $attributes{areas_fossil_not_precise} || $area_color;
                                         $area_borders_fsl_np = $attributes{aborders_fossil_not_precise} || $area_borders;
-                                        
-                                        
+
+
                                         my $mapok;
                                         my $mapokF;
                                         if (scalar(keys(%tdwg123))) {
@@ -5759,7 +5759,7 @@ sub taxon_card {
                                         }                                       
                                         my $level2 = request_tab("SELECT DISTINCT get_tdwg_parent_by_level(tdwg, 2) FROM pays WHERE tdwg IN ('" . join("', '", keys(%tdwg4), keys(%tdwg123)) . "') AND get_tdwg_parent_by_level(tdwg, 2) NOT IN ('61','63') ORDER BY 1;", $dbc, 1);
                                         my $level2F = request_tab("SELECT DISTINCT get_tdwg_parent_by_level(tdwg, 2) FROM pays WHERE tdwg IN ('" . join("', '", keys(%tdwgF4), keys(%tdwgF123)) . "') AND get_tdwg_parent_by_level(tdwg, 2) NOT IN ('61','63') ORDER BY 1;", $dbc, 1);
-                                        
+
                                         my $bbox;
                                         my $mappos;
                                         if ("@{$level2}" eq "42" or "@{$level2}" eq "43" or "@{$level2}" eq "42 43" or "@{$level2}" eq "60"  or "@{$level2}" eq "62" or "@{$level2}" eq "60 62") {
@@ -5770,7 +5770,7 @@ sub taxon_card {
                                                 $bbox = "&bbox=-105,5,-55,30"; 
                                                 $mappos = 'left';
                                         }
-                                        
+
                                         my $bboxF;
                                         my $mapposF;
                                         if ("@{$level2F}" eq "42" or "@{$level2F}" eq "43" or "@{$level2F}" eq "42 43" or "@{$level2F}" eq "60"  or "@{$level2F}" eq "62" or "@{$level2F}" eq "60 62") {
@@ -5781,20 +5781,20 @@ sub taxon_card {
                                                 $bboxF = "&bbox=-105,5,-55,30"; 
                                                 $mapposF = 'left';
                                         }
-                                                                                
+
                                                 $areas = substr($areas,0,-2);
                                                 $areas = "tdwg4:c:".join(',',@{request_tab("SELECT tdwg FROM pays WHERE tdwg not in ('".join("','", keys(%tdwg4), keys(%tdwg123))."') and tdwg_level = '4' AND parent IN (SELECT tdwg FROM pays WHERE tdwg_level = '3');", $dbc, 1)})."||$areas";
-                                                
+
                                                 $areasF //= '';
                                                 $areasF = substr($areasF,0,-2);
                                                 $areasF = "tdwg4:c:".join(',',@{request_tab("SELECT tdwg FROM pays WHERE tdwg not in ('".join("','", keys(%tdwgF4), keys(%tdwgF123))."') and tdwg_level = '4' AND parent IN (SELECT tdwg FROM pays WHERE tdwg_level = '3');", $dbc, 1)})."||$areasF";
                                         #}
                                         $areas = "ad=$areas";
                                         $areasF = "ad=$areasF";
-                                        
+
                                         my $styles = "as=c:$continent_color,$continent_borders,0|b:$area_color_np,$area_borders_np,0|a:$area_color,$area_borders,0";
                                         my $stylesF = "as=a:$area_color_fsl,$area_borders_fsl,0|b:$area_color_fsl_np,$area_borders_fsl_np,0|c:$continent_color,$continent_borders,0";
-                                        
+
                                         my $zoom;
                                         my $bound;
                                         if ($bbox) { 
@@ -5805,10 +5805,10 @@ sub taxon_card {
                                                                 onMouseOver=".'"'."this.style.cursor='pointer';".'"'."  
                                                                 onclick=".'"'."ImageMax('$maprest?$areas&$styles&ms=1000$bbox&recalculate=false');".'"'.
                                                         ">";
-                                                
+
                                                 unless ($dbase eq 'cool') { $bound = "&nbsp;&nbsp;" } else { $bound = "<br><br>" }
                                         }
-                                        
+
                                         if ($mapok) {
                                                 $map .= "
                                                 <script type='text/javascript'>
@@ -5820,19 +5820,19 @@ sub taxon_card {
                                                         popupImage.document.close()
                                                 };
                                                 </script>";
-                                                        
+
                                                 $map .=  "<img id='cmap' 
                                                                 style='background: $sea_color; margin-top: 0em; border: 0px solid black; display: none;' 
                                                                 src='$maprest?$areas&$styles&ms=$map_width&recalculate=false' 
                                                                 onMouseOver=".'"'."this.style.cursor='pointer';".'"'."  
                                                                 onclick=".'"'."ImageMax('$maprest?$areas&$styles&ms=1000');".'"'.">";
-                                                
+
                                                 #if($dbase eq 'cool') { $map .= $bound.$zoom; } else { $map = $mappos eq 'left' ? $zoom.$bound.$map : $map.$bound.$zoom; }
-                                                        
+
                                                 my $mapWidth = 720;
                                                 my $mapHeight = 450;
                                                 if ($dbase eq 'cool') { $mapWidth = 570; $mapHeight = 360; }
-                                                
+
                                                 #if ($mode eq 'full') {
                                                         #die $valid_name->[1].'##'.$valid_name->[18];
                                                         #/explorerdocs/js/compositeMaps.js
@@ -5861,13 +5861,13 @@ sub taxon_card {
                                                                         )
                                                                 ); 
                                                 }                                                       
-                                                
+
                                                 $map = Tr( td({-colspan=>2, -class=>'mapMagicCell magicCell', -style=>"display: $dmm;"}, $map . $lgnd ) );
                                                 $map = makeRetractableArray ('mapTitle', 'mapMagicCell magicCell', ucfirst($trans->{"geomap"}->{$lang}.': '.$trans->{'extant_taxa'}->{$lang}), $map, 'arrowRight', 'arrowDown', 1, $dmm, 'true');
                                                 my $pos = $display_modes{map}{position} || $default_order{map};
                                                 $orderedElements{$pos} .= $map;
                                         }
-                                        
+
                                         if ($bboxF) { 
                                                 if ($dbase eq 'cool') { $map_width = 600; } else { $map_width = 470; }
                                                 $zoom = "<img id='cmap2' 
@@ -5876,10 +5876,10 @@ sub taxon_card {
                                                                 onMouseOver=".'"'."this.style.cursor='pointer';".'"'."  
                                                                 onclick=".'"'."ImageMax('$maprest?$areasF&$stylesF&ms=1000$bboxF&recalculate=false');".'"'.
                                                         ">";
-                                                
+
                                                 unless ($dbase eq 'cool') { $bound = "&nbsp;&nbsp;" } else { $bound = "<br><br>" }
                                         }
-                                        
+
                                         if ($mapokF) {
                                                 $map = "
                                                 <script type='text/javascript'>
@@ -5897,9 +5897,9 @@ sub taxon_card {
                                                                 onMouseOver=".'"'."this.style.cursor='pointer';".'"'."  
                                                                 onclick=".'"'."ImageMax('$maprest?$areasF&$stylesF&ms=1000');".'"'.
                                                         ">";
-                                                
+
                                                 if($dbase eq 'cool') { $map .= $bound.$zoom; } else { $map = $mapposF eq 'left' ? $zoom.$bound.$map : $map.$bound.$zoom; }                                              
-                                                
+
                                                 my $lgnd;                                               
                                                 if($area_color_fsl ne $area_color_fsl_np and scalar(keys(%tdwgF123))) { 
                                                         $lgnd .= table({-style=>'margin-top: 5px;'},
@@ -5913,7 +5913,7 @@ sub taxon_card {
                                                                         )
                                                                 ); 
                                                 }                                                       
-                                                
+
                                                 $map = Tr( td({-colspan=>2, -class=>'mapFMagicCell magicCell', -style=>"display: $dmm;"}, $map . $lgnd ) );
                                                 $map = makeRetractableArray ('mapFTitle', 'mapFMagicCell magicCell', ucfirst($trans->{"geomap"}->{$lang}.': '.$trans->{'extinct_taxa'}->{$lang}), $map, 'arrowRight', 'arrowDown', 1, $dmm, 'true');
                                                 my $pos = $display_modes{map}{position} || $default_order{map};
@@ -5922,10 +5922,10 @@ sub taxon_card {
                                 }
                         }
                 }
-                
+
                 my $associates;
                 unless ($display_modes{associates}{skip} and $mode ne 'full') {
-                        
+
                         my %attributes;
                         my @attribs;
                         my ($nb_hosts) = @{request_tab("SELECT count(*) FROM taxons_x_taxons_associes WHERE ref_taxon IN ($id $taxsonsids);", $dbc, 1)};
@@ -5956,9 +5956,9 @@ sub taxon_card {
                                                         LEFT JOIN publications AS pub ON pub.index = txt.ref_publication_ori
                                                         WHERE txt.ref_taxon IN ($id $taxsonsids)
                                                         ORDER BY ty.$lang, 2, txt.certitude, pub.annee;",$dbc,2);
-                                                        
-        
-        
+
+
+
                         my $curr_ta;
                         my $curr_ty;
                         my $curr_tystr;
@@ -6002,40 +6002,40 @@ sub taxon_card {
                                                 elsif ($row->[3]) {
                                                         $higher .= " ($row->[3])";
                                                 }
-                                                                                                
+
                                                 $str_ta = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=associate&id=$row->[0]"}, $str . $higher); 
                                         }
-                                                
+
                                         if ($row->[7]) {
                                                 my $page;
                                                 if ($row->[8]) { $page = ": $row->[8]" }
                                                 my @p = publication($row->[7], 0, 1, $dbc);
                                                 push(@pubs_ta, a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$row->[7]"}, "$p[1]$page") . getPDF($row->[7]));
                                         }
-                                        
+
                                         if ($row->[16] eq 'uncertain') { $confirm = "&nbsp; [&nbsp;$trans->{'doubtful'}->{$lang}&nbsp;]"; }
                                         elsif ($row->[16] eq 'certain') { $confirm = "&nbsp; [&nbsp;$trans->{'confirmed'}->{$lang}&nbsp;]"; }
-                                        
+
                                 }
-        
+
                                 if (scalar(@pubs_ta)) { $str_ta .= "&nbsp;$trans->{'segun'}->{$lang}&nbsp;" . join(', ', @pubs_ta);  }
                                 $ss_grp .= Tr( td({-colspan=>2, -class=>'ssgrp'.$curr_ty.'_'.'MagicCell magicCell', -style=>"display: $dmh;"}, $str_ta.$confirm) );
                                 $ss_grp = makeRetractableArray ("ssgrpTitle_$curr_ty", 'ssgrp'.$curr_ty.'_'.'MagicCell magicCell', ucfirst($curr_tystr), $ss_grp, 'arrowRight', 'arrowDown', 1, $dmh, 'true');
                                 $associates .= Tr( td({-colspan=>2, -class=>'assocMagicCell magicCell', -style=>"display: $dmh;"}, "$ss_grp" ) );
-                                                                
+
                         }
-                                                
+
                         if ($associates) {
                                 $associates = makeRetractableArray ('assocTitle', 'assocMagicCell magicCell', ucfirst($trans->{"bioInteract"}->{$lang}), $associates, 'arrowRight', 'arrowDown', 1, $dmh, 'true', undef, 'none');
                                 my $pos = $display_modes{associates}{position} || $default_order{associates};
                                 $orderedElements{$pos} = $associates;
                         }
                 }
-                
+
                 my $localities;
                 #unless ($display_modes{localities}{skip} and $mode ne 'full') {
                 if ($dbase eq 'hefo') {
-                        
+
                         my %attributes;
                         my @attribs;
                         my ($nb_loc) = @{request_tab("SELECT count(*) FROM taxons_x_sites WHERE ref_taxon IN ($id $taxsonsids);", $dbc, 1)};
@@ -6046,7 +6046,7 @@ sub taxon_card {
                         }
                         my $max = $attributes{max} || 0;
                         my $dmh = ( ( !$max or ( $max and $nb_loc <= $max ) ) and $display_modes{localities}{display} ) ? 'table-cell' : 'table-cell';
-                        
+
                         my $locals = request_tab("      SELECT  l.index,
                                                                 l.nom || ' (' || p.en || ')',
                                                                 (
@@ -6093,7 +6093,7 @@ sub taxon_card {
                                                         WHERE txs.ref_taxon IN ($id $taxsonsids)
                                                         AND afficher = 'display'
                                                         ORDER BY l.nom, pub.annee;",$dbc,2);
-                                                        
+
                         my $curr;
                         my $str;
                         my @pubs;
@@ -6126,7 +6126,7 @@ sub taxon_card {
                                 if (scalar(@pubs)) { $str .= "Publication: " . join(', ', @pubs);  }
                                 $localities .= Tr( td({-colspan=>2, -class=>'locMagicCell magicCell', -style=>"display: $dmh;"}, $str ) );                                                              
                         }
-                                                
+
                         if ($localities) {
                                 $localities = makeRetractableArray ('locTitle', 'locMagicCell magicCell', ucfirst($trans->{"fossilSites"}->{$lang}), $localities, 'arrowRight', 'arrowDown', 1, $dmh, 'true', undef, 'none');
                                 my $pos = $display_modes{localities}{position} || $default_order{localities};
@@ -6139,7 +6139,7 @@ sub taxon_card {
                 # Fetch vernacular names
                 my $vernaculars;
                 unless ($display_modes{vernaculars}{skip} and $mode ne 'full') {                
-                        
+
                         my %attributes;
                         my @attribs;
                         my ($nb_vern) = @{request_tab("SELECT count(*) FROM taxons_x_vernaculaires WHERE ref_taxon IN ($id $taxsonsids);", $dbc, 1)};
@@ -6155,13 +6155,13 @@ sub taxon_card {
                         my $pos = $display_modes{vernaculars}{position} || $default_order{vernaculars};
                         $orderedElements{$pos} = $vernaculars;
                 }
-                
+
                 my $images;
                 unless ($display_modes{images}{skip} and $mode ne 'full') {
-                                                
+
                         # Fetch specimen images
                         my $imgs = request_tab("SELECT icone_url, index, url, commentaire FROM taxons_x_images AS txi LEFT JOIN images AS I ON txi.ref_image = I.index WHERE txi.ref_taxon = $id ORDER BY groupe, tri;",$dbc);
-                        
+
                         # Fetch type specimen images
                         my $type_imgs = request_tab("   SELECT icone_url, I.index, url, nc.orthographe, nc.autorite, nxi.commentaire
                                                         FROM noms_x_images AS nxi 
@@ -6169,7 +6169,7 @@ sub taxon_card {
                                                         LEFT JOIN noms_complets AS nc ON nxi.ref_nom = nc.index
                                                         WHERE nxi.ref_nom in (".join(',', @names_index).")
                             ORDER BY groupe, tri;",$dbc);
-                        
+
                         my %attributes;
                         my @attribs;
                         my $nb_imgs = scalar @{$imgs} + scalar @{$type_imgs};
@@ -6180,9 +6180,9 @@ sub taxon_card {
                         }
                         my $max = $attributes{max} || 0;
                         my $dmi = ( ( !$max or ( $max and $nb_imgs <= $max ) ) and $display_modes{images}{display} ) ? 'table-cell' : 'none';
-                                        
+
                         if ( scalar @{$imgs} or scalar @{$type_imgs} ){
-                                
+
                                 $images .= "<DIV ID=imgsdiv>";
                                 if ($dbase eq 'cool') {
                                         foreach my $row ( @{$imgs} ){
@@ -6204,11 +6204,11 @@ sub taxon_card {
                                         }
                                 }
                                 $images .= '</DIV>' . div({-style=>'clear: both; float: none;'});
-                                
+
                                 $images = Tr( td({-colspan=>2, -class=>'imgMagicCell magicCell', -style=>"display: $dmi;"}, $images ) );
-                                                                
+
                                 $images = makeRetractableArray ('imgsTitle', 'imgMagicCell magicCell', ucfirst($trans->{"images"}->{$lang}), $images, 'arrowRight', 'arrowDown', 1, $dmi, 'true');
-                                
+
                                 my $pos = $display_modes{images}{position} || $default_order{images};
                                 $orderedElements{$pos} = $images;
                         }
@@ -6227,7 +6227,7 @@ sub taxon_card {
                                                                                         LEFT JOIN types_depot AS td ON ( nxt.ref_type_depot = td.index )
                                                                                         WHERE nxt.ref_nom in (".join(',', @names_index).")
                                                                                         ORDER BY ld.nom, tt.$lang, quantite;",$dbc);
-                        
+
                         my $sum = 0;
                         foreach my $type ( @{$typesSQL} ) {
                                 my @more;
@@ -6235,7 +6235,7 @@ sub taxon_card {
                                         if ($type->[5] eq 'male') { push(@more, "&#9794;"); }
                                         elsif ($type->[5] eq 'female') { push(@more, "&#9792;"); }
                                 }
-                                
+
                                 if ($type->[6]) { push(@more, $type->[6])}
                                 my $lien;
                                 my $pluriel;
@@ -6246,7 +6246,7 @@ sub taxon_card {
                                 else {
                                         $lien = $trans->{deposited_in}->{$lang};
                                 }
-                                
+
                                 my $source;
                                 if ($type->[9]) { 
                                         my @p = publication($type->[9], 0, 1, $dbc);
@@ -6255,14 +6255,14 @@ sub taxon_card {
                                         else { $pmaj = $p[1] }
                                         $source = " $trans->{'segun'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$type->[9]"}, $pmaj) . getPDF($type->[9]); 
                                 }
-                                
+
                                 $types .= Tr( td({-colspan=>2, -class=>'typesMagicCell magicCell', -style=>"display: $dmt;"}, 
                                                         "$type->[3] $type->[4]$pluriel " . join(', ',@more) . " $trans->{of}->{$lang} " . i($type->[1]) . " $type->[2]" .
                                                         " $lien " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=repository&id=$type->[7]"}, $type->[8]) . $source . " $type->[11]" ) );
-                                
+
                                 $sum += $type->[3] || 1;
                         }
-                        
+
                         if ($types) {   
                                 my $subtitle = "$sum " . ucfirst($trans->{'type(s)'}->{$lang});
                                 $types = makeRetractableArray ('typesTitle', 'typesMagicCell magicCell', $subtitle, $types, 'arrowRight', 'arrowDown', 1, $dmt, 'true');
@@ -6271,25 +6271,23 @@ sub taxon_card {
                         }
                 }
 
-                
+
                 my $cross;
                 if ($dbase eq 'cipa') { 
                         $cross = display_cross_tables($id, $dbc);
                 }
-                
+
                 my $elements;
                 foreach my $key (sort {$a <=> $b} keys(%orderedElements)) {
                         $elements .= $orderedElements{$key};
                 }
-                
+
                 my $stats;
                 if ($dbase eq 'flow' and $rkorder < $genus_order) { 
                                 $stats = a({-href=>"$scripts{$dbase}db=$dbase&lang=en&card=autotext&id=$id&loading=1"}, img({-src=>"/explorerdocs/stats.png", -style=>'width: 28px; float: right;', title=>'Taxon synopsis'}) );
                 }
-                
-                $fullhtml =     # FAST
-                                #$jscript.
-                                div({-class=>'content'},
+
+                $fullhtml =     div({-class=>'content'},
                                         div({-id=>'navigationDiv'},
                                                         $bulleinfo,
                                                         $navigation
@@ -6333,9 +6331,9 @@ sub name_card {
                                         FROM noms_complets AS nc 
                                         LEFT JOIN noms AS n ON n.index = nc.index 
                                         WHERE nc.index = $name_id;";
-                
+
                 my $name = request_row($req,$dbc);
-                
+
                 my $taxa = request_tab("SELECT txn.ref_taxon, 
                                                 s.en, 
                                                 txn.ref_publication_utilisant, 
@@ -6372,7 +6370,7 @@ sub name_card {
                                         WHERE (txn.ref_nom = $name_id)
                                         AND s.en not in ('correct use', 'status revivisco')
                                         ORDER BY p1.annee, p2.annee;",$dbc);
-                
+
                 if (scalar(@{$taxa}) == 1 and $taxa->[0][1] eq 'valid') {
                         $dbc->disconnect;
                         $id = $taxa->[0][0];
@@ -6390,19 +6388,19 @@ sub name_card {
                         else {
                                 #$ori_pub = ul( li($trans->{"UNK"}->{$lang}));
                         }
-                        
+
                         my $taxa_tab;
                         my @chresos;
                         my %done;
                         my $origin;
                         foreach my $taxon ( @{$taxa} ){
-                                
+
                                 if ($taxon->[12] == $name_id) { $origin = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[18]) . " $taxon->[19]" )." "; }
                                 if ( $taxon->[1] eq 'synonym' or $taxon->[1] eq 'junior synonym'){
-                                        
+
                                         my $ambiguous = synonymy( $taxon->[4], $taxon->[6], $taxon->[8] );
                                         my $complete = completeness( $taxon->[5], $taxon->[7], $taxon->[9] );
-                                        
+
                                         my $tt = "$taxon->[13] $trans->{'of'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22]" );
                                         my @pub_den = publication($taxon->[3], 0, 1, $dbc );
                                         if ($pub_den[1]) { 
@@ -6410,11 +6408,11 @@ sub name_card {
                                                 $tt .= " $trans->{'segun'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[3]"}, "$pub_den[1]".$taxon->[16] );
                                                 $tt .= getPDF($taxon->[3]);
                                         }
-        
+
                                         $taxa_tab .= li($origin.$tt);
                                 }
                                 elsif ( $taxon->[1] eq 'wrong spelling'){
-                                        
+
                                         my @pub_use = publication($taxon->[2], 0, 1, $dbc );
                                         my @pub_den = publication($taxon->[3], 0, 1, $dbc );
                                         my $tt = "$taxon->[13] $trans->{'of'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22]" );
@@ -6431,7 +6429,7 @@ sub name_card {
                                         $taxa_tab .= li($origin.$tt);
                                 }
                                 elsif ( $taxon->[1] eq 'previous identification'){
-                                        
+
                                         my @pub_use = publication($taxon->[2], 0, 1, $dbc );
                                         my @pub_den = publication($taxon->[3], 0, 1, $dbc );
                                         my $tt = "$trans->{'misid'}->{$lang} $trans->{'of'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22]" );
@@ -6448,9 +6446,9 @@ sub name_card {
                                         $taxa_tab .= li($origin.$tt);
                                 }
                                 elsif ( $taxon->[1] eq 'previous combination' or $taxon->[1] eq 'previous name'){
-                                        
+
                                         my @pub_den = publication($taxon->[3], 0, 1, $dbc );
-                                        
+
                                         my $tt = $name->[4] ? "$taxon->[13] $trans->{'of'}->{$lang}" : $trans->{'prevtaxpos'}->{$lang};
                                         $tt .= " " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22]" );
                                         if ($taxon->[21].$taxon->[22] eq $taxon->[18].$taxon->[19]) { $tt .= " ($taxon->[23])"; }
@@ -6462,11 +6460,11 @@ sub name_card {
                                         $taxa_tab .= li($origin.$tt);
                                 }
                                 elsif ( $taxon->[1] eq 'misidentification' ){
-                                        
+
                                         my $test = request_tab("SELECT count(*) from taxons_x_noms WHERE ref_nom = $name_id and ref_statut = 18",$dbc);
-                                        
+
                                         unless ($test->[0][0]) {
-                                        
+
                                                 my @pub_use = publication($taxon->[2], 0, 1, $dbc );
                                                 my @pub_den = publication($taxon->[3], 0, 1, $dbc );
                                                 my $tt = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, "$taxon->[13]" );
@@ -6487,7 +6485,7 @@ sub name_card {
                                         $taxa_tab = li(" $trans->{'valid'}->{$lang} $trans->{'of'}->{$lang} " .a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[15]&id=$taxon->[0]"}, i($name->[0]) . " $name->[1]")) . $taxa_tab;
                                 }
                                 elsif ( $taxon->[1] eq 'incorrect original spelling' or $taxon->[1] eq 'incorrect subsequent spelling' ){
-                                        
+
                                         my @pub_use = publication($taxon->[2], 0, 1, $dbc );
                                         my @pub_den = publication($taxon->[3], 0, 1, $dbc );
                                         my $tt = "$taxon->[13] $trans->{'of'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22]" );
@@ -6504,9 +6502,9 @@ sub name_card {
                                         $taxa_tab = li($origin.$tt);
                                 }
                                 elsif ( $taxon->[1] eq 'homonym' and !exists($done{$taxon->[12]}) ) {
-                                        
+
                                         $done{$taxon->[12]} = 1;
-                                        
+
                                         my @pub_den = publication($taxon->[3], 0, 1, $dbc );
                                         my $tt = "$taxon->[13] $trans->{'of'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22]" );
                                         if ($pub_den[1]) { 
@@ -6517,7 +6515,7 @@ sub name_card {
                                         $taxa_tab .= li($origin.$tt);
                                 }
                                 elsif ( $taxon->[1] eq 'nomen nudum'){
-                                        
+
                                         my @pub_den = publication($taxon->[3], 0, 1, $dbc );
                                         my $tt = i($taxon->[13]); 
                                         if ($taxon->[22]) {
@@ -6531,7 +6529,7 @@ sub name_card {
                                         $taxa_tab .= li($origin.$tt);
                                 }
                                 elsif ( $taxon->[1] eq 'status revivisco' or $taxon->[1] eq 'combinatio revivisco'){
-                                        
+
                                         my @pub_den = publication($taxon->[3], 0, 1, $dbc );
                                         my $tt; 
                                         if ($taxon->[12] != $id) {
@@ -6546,7 +6544,7 @@ sub name_card {
                                         $taxa_tab .= li($origin.$tt);
                                 }
                                 elsif ( $taxon->[1] eq 'nomen praeoccupatum'){
-                                        
+
                                         my @pub_den = publication($taxon->[3], 0, 1, $dbc );
                                         my $tt = i($taxon->[13]) . " $trans->{'fromto'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22]" ) . ' ' . i($trans->{'nnov'}->{$lang});
                                         if ($pub_den[1]) { 
@@ -6557,7 +6555,7 @@ sub name_card {
                                         $taxa_tab .= li($origin.$tt);
                                 }
                                 elsif ( $taxon->[1] eq 'nomen oblitum'){
-                                        
+
                                         my @pub_den = publication($taxon->[3], 0, 1, $dbc );
                                         my $tt = i($taxon->[13]) . ", $trans->{'synonym'}->{$lang} $trans->{'of'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22]" ) . ' ' . i($trans->{'nprotect'}->{$lang});
                                         if ($pub_den[1]) { 
@@ -6568,12 +6566,12 @@ sub name_card {
                                         $taxa_tab .= li($origin.$tt);
                                 }
                                 elsif ( $taxon->[1] eq 'outside taxon'){
-                                        
+
                                         my $tt = $taxon->[13];
                                         $taxa_tab .= li($origin.$tt);
                                 }
                                 elsif ( $taxon->[1] eq 'dead end'){
-                                        
+
                                         my $tt = $taxon->[13];
                                         if ($taxon->[22]) {
                                                 $tt .= " $trans->{'relatedto'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22]" );
@@ -6591,7 +6589,7 @@ sub name_card {
                                         $taxa_tab .= li($origin.$tt);
                                 }
                         }
-                        
+
                         my $chr;
                         if (scalar @chresos) {
                                 $chr = div({-class=>'titre'}, ucfirst($trans->{'Chresonym(s)'}->{$lang}));
@@ -6601,20 +6599,20 @@ sub name_card {
                                 }
                                 $chr .= end_ul();
                         }
-        
+
                         my ($cardtitle, $usage);
-        
+
                         $cardtitle = $trans->{'name'}->{$lang}; 
                         $usage = div({-class=>'titre'}, ucfirst("$trans->{'statu(s)'}->{$lang}")) . ul( $taxa_tab);
-                        
+
                         my $drvreq = "  SELECT nc.index, nc.orthographe, nc.autorite, nc.gen_type, r.en 
                                         FROM noms_complets AS nc
                                         LEFT JOIN rangs as r ON r.index = nc.ref_rang
                                         WHERE nc.index in (SELECT index FROM noms WHERE ref_nom_parent = $name_id) 
                                         ORDER BY orthographe;";
-        
+
                         my $derives = request_tab($drvreq,$dbc);
-                        
+
                         my $drvnames;
                         if (scalar @{$derives}) {
                                 $drvnames = div({-class=>'titre'}, ucfirst($trans->{'drvname(s)'}->{$lang}));
@@ -6626,17 +6624,17 @@ sub name_card {
                                 }
                                 $drvnames .= end_ul();
                         }
-                                                
-                        
+
+
                         my $subject = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$id"}, i($name->[0]) . " $name->[1]");
                         my $fields = "index, orthographe ||' '|| coalesce(autorite, '')";
                         my $table = "noms_complets";
                         my $where = "WHERE ref_rang = (SELECT ref_rang FROM noms_complets WHERE index = $id)";
                         my $order = "(orthographe, autorite)";
                         my $sid = $id;
-                        
+
                         $subject = trans_navigation($subject, $fields, $table, $where, $order, $sid, $dbc);
-                        
+
                         $fullhtml =     div({-class=>'content'},
                                                 div({-id=>'mainCardDiv'},       
                                                         div({-class=>'titre'}, ucfirst($cardtitle) ),
@@ -6656,19 +6654,19 @@ sub name_card {
 }
 
 sub trans_navigation {
-        
+
         my ($subject, $fields, $table, $where, $order, $sid, $dbc) = @_;
-        
+
         ## Make previous & next card navigation : #########################
 
         my ($current_id, $current_elmnt, $previous_id, $prev_elmnt, $next_id, $next_elmnt, $stop);
-        
+
         my $first = request_tab("SELECT $fields FROM $table $where ORDER BY $order limit 1;", $dbc, 2);
         my $last = request_tab("SELECT $fields FROM $table $where ORDER BY $order DESC limit 1;", $dbc, 2);
-        
+
         my ( $first_id, $first_elmnt ) = ( $first->[0][0], $first->[0][1] );
         my ( $last_id, $last_elmnt ) = ( $last->[0][0], $last->[0][1] );
-                
+
         my $sth2 = $dbc->prepare( "SELECT $fields FROM $table $where ORDER BY $order;" );
         $sth2->execute( );
         $sth2->bind_columns( \( $current_id, $current_elmnt ) );
@@ -6682,20 +6680,20 @@ sub trans_navigation {
         $sth2->finish();
         unless($previous_id) { ( $previous_id, $prev_elmnt ) = ( $last_id, $last_elmnt ); }
         unless($next_id) { ( $next_id, $next_elmnt ) = ( $first_id, $first_elmnt ); }
-                                
+
         $subject =      div({-class=>'info', -id=>"prevElmnt", -style=>'position: absolute; display: none;'}, $prev_elmnt).
                         div({-class=>'info', -id=>"nextElmnt", -style=>'position: absolute; display: none;'}, $next_elmnt).
                         prev_next_card($card, undef, $previous_id, div({-class=>'subject'}, $subject), $next_id, "prevElmnt", "nextElmnt", "0 0 0 0px");
-                
+
         ###################################################################
 }
 
 sub makeup {
-        
+
         my ($cible, $display, $letter) = @_;
-        
+
         if ($letter) { $letter = "&alph=$letter" }
-        
+
         my $up = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=$cible$letter"}, $display );
 
         return $up;
@@ -6715,9 +6713,9 @@ sub author_card {
                 my $where = "";
                 my $order = "(UPPER(desaccentue), UPPER(prenom))";
                 my $sid = $id;
-                
+
                 $subject = trans_navigation($subject, $fields, $table, $where, $order, $sid, $dbc);
-                
+
                 # fetch species that author described
                 my $sp_list = request_tab("SELECT t.index, nc.orthographe, nc.autorite, s.$lang, s.en, r.$lang, r.en
                                                 FROM auteurs AS a 
@@ -6738,13 +6736,11 @@ sub author_card {
                 my $count = 0;
                 my $current = $sp_list->[0][6];
                 my $curlang = $sp_list->[0][5];
-                
+
                 if ( $sp_list->[0][0] ){
                         my $size = scalar @{$sp_list};
                         my $subtitle;
-                        #if ($size == 1 ) { $subtitle = $trans->{'taxon'}->{$lang}; }
-                        #else { $subtitle = $trans->{'taxons'}->{$lang}; }
-                                                
+
                         $sp_tab .= start_ul({-style=>'margin-bottom: 10px;'});
                         foreach my $sp ( @{$sp_list} ){
                                 if ($current ne $sp->[6]) {
@@ -6765,12 +6761,8 @@ sub author_card {
                         if ($size != $count) { $sp_tab .= div({-class=>'titre'}, ''); }
                         $sp_tab .= li(div({-class=>'titre'}, "$count $sbt"));        
                         $sp_tab .= $tmp_tab;
-                        
-                        #if ($size != $count) {
-                        #       if ($dbase eq 'psylles') { $sp_tab .= "$size $subtitle" . $sp_tab; }
-                        #       else { $sp_tab = div({-class=>'titre'}, "$size $subtitle") . $sp_tab; }
-                        #}
-                        
+
+
                         $sp_tab .= end_ul();
                 }
 
@@ -6780,7 +6772,7 @@ sub author_card {
                                                 INNER JOIN auteurs_x_publications AS axp ON a.index = axp.ref_auteur
                                                 INNER JOIN publications AS p ON p.index = axp.ref_publication
                                                 WHERE a.index = $author_id ORDER BY p.annee;",$dbc);
-                
+
                 my $pub_tab;
                 my @pubids;
                 if ( scalar @{$pub_list}){
@@ -6794,7 +6786,7 @@ sub author_card {
                         }
                         $pub_tab .= end_ul() ;
                 }
-                
+
                 # fetch names done by the author
                 my $na_list = request_tab("SELECT n.index, nc.orthographe, nc.autorite, s.$lang, s.en, nc2.orthographe, nc2.autorite 
                                                 FROM auteurs AS a 
@@ -6807,7 +6799,7 @@ sub author_card {
                                                 WHERE s.en != 'valid' AND a.index =  $author_id
                                                 GROUP BY n.index, nc.orthographe, nc.autorite, s.$lang, s.en, nc2.orthographe, nc2.autorite
                                                 ORDER BY LOWER ( nc.orthographe );",$dbc);
-                                                
+
                 my $na_tab;
                 if ( scalar @{$na_list} != 0){
                         my $size = scalar @{$na_list};
@@ -6818,7 +6810,7 @@ sub author_card {
                         }
                         $na_tab .= end_ul() ;
                 }
-                
+
                 $fullhtml =     div({-class=>'content'},
                                         div({-id=>'mainCardDiv'},       
                                                 div({-class=>'titre'}, ucfirst($trans->{'author'}->{$lang})),
@@ -6828,9 +6820,9 @@ sub author_card {
                                                 $pub_tab
                                         )
                                 );
-                                
+
                 print $fullhtml;
-                        
+
                 $dbc->disconnect;
         }
         else {}
@@ -6840,28 +6832,28 @@ sub author_card {
 #################################################################
 sub publication_card {
         if ( my $dbc = db_connection($config) ) {
-                
+
                 my $pub_id = $id;
                 my @pub = publication( $pub_id, 1, 0, $dbc );
-                
+
                 my $req;
                 my $sth;
                 my $princeps;
-                                
+
                 my $subject = $pub[1];
                 my $fields = "index, abrege";
                 my $table = "publications";
                 my $where = "";
                 my $order = "(abrege, titre)";
                 my $sid = $id;
-                
+
                 $subject = trans_navigation($subject, $fields, $table, $where, $order, $sid, $dbc) . br;
-                
+
                 my %display_modes = %{request_hash("SELECT * FROM display_modes WHERE card = 'publication';", $dbc, 'element')};
 
                 my %orderedElements;
                 unless ($display_modes{princeps}{skip}) {
-                                                
+
                         $req = "        SELECT t.index, nc.index, nc.orthographe, nc.autorite, nc2.index, nc2.orthographe, nc2.autorite, s.en, s.$lang, r.en
                                         FROM taxons AS t JOIN taxons_x_noms AS txn ON t.index = txn.ref_taxon
                                         LEFT JOIN noms_complets AS nc ON txn.ref_nom = nc.index
@@ -6871,10 +6863,10 @@ sub publication_card {
                                         WHERE s.index NOT IN (3,8,14,17,18,20,21,22)
                                         AND nc.ref_publication_princeps = $pub_id
                                         ORDER BY nc.orthographe;";
-                        
+
                         # Fetch names that were first published in this publication
                         my $prcps = request_tab($req,$dbc,2);
-                        
+
                         my %attributes;
                         my @attribs;
                         my $nb_prcps = scalar(@{$prcps});
@@ -6885,7 +6877,7 @@ sub publication_card {
                         }
                         my $max = $attributes{max} || 0;
                         my $dmp = ( ( !$max or ( $max and $nb_prcps <= $max ) ) and $display_modes{princeps}{display} ) ? 'table-cell' : 'none';
-                        
+
                         my %done;
                         foreach my $name ( @{$prcps} ){
                                 my $validrank = $name->[9];
@@ -6907,13 +6899,13 @@ sub publication_card {
                                 $orderedElements{$pos} = $princeps;
                         }
                 }
-                
+
                 my ( $ref_nom, $ref_taxon, $exactitude, $completude, $exactitude_male, $completude_male, $exactitude_femelle, $completude_femelle, $orthographe, $autorite, $tax_name, $tax_autorite, $validrank, $ordre, $oriFam, $tgtFam );
-                
+
                 my $synonyms;
                 # Fetch synonymy denonciation made in this publication
                 unless ($display_modes{synonyms}{skip}) {
-                        
+
                         my %attributes;
                         my @attribs;
                         my ($nb_syns) = @{request_tab("SELECT count(*) FROM taxons_x_noms WHERE ref_statut = 2 AND ref_publication_denonciation = $pub_id;", $dbc, 1)};
@@ -6924,7 +6916,7 @@ sub publication_card {
                         }
                         my $max = $attributes{max} || 0;
                         my $dms = ( ( !$max or ( $max and $nb_syns <= $max ) ) and $display_modes{synonyms}{display} ) ? 'table-cell' : 'none';
-                        
+
                         my $sth = $dbc->prepare( "SELECT txn.ref_nom, txn.ref_taxon, txn.exactitude, txn.completude, txn.exactitude_male, txn.completude_male, txn.exactitude_femelle, txn.completude_femelle, nc.orthographe, nc.autorite, nc2.orthographe, nc2.autorite, r.en
                                                 FROM taxons_x_noms AS txn LEFT JOIN statuts AS s ON txn.ref_statut = s.index
                                                 LEFT JOIN noms_complets AS nc ON txn.ref_nom = nc.index
@@ -6935,9 +6927,9 @@ sub publication_card {
                                                 ORDER BY nc.orthographe;" );
                         $sth->execute;
                         $sth->bind_columns( \( $ref_nom, $ref_taxon, $exactitude, $completude, $exactitude_male, $completude_male, $exactitude_femelle, $completude_femelle, $orthographe, $autorite, $tax_name, $tax_autorite, $validrank ) );
-                        
+
                         while ( $sth->fetch ) {
-        
+
                                 my $ambiguous = synonymy( $exactitude, $exactitude_male, $exactitude_femelle );
                                 my $complete = completeness( $completude, $completude_male, $completude_femelle );
                                 $synonyms .= Tr( td({-colspan=>2, -class=>'synsMagicCell magicCell', -style=>"display: $dms;"},
@@ -6952,11 +6944,11 @@ sub publication_card {
                                 $orderedElements{$pos} = $synonyms;
                         }
                 }
-                
+
                 my $transfers;
                 # Fetch transfer made in this publication
                 unless ($display_modes{transfers}{skip}) {
-                        
+
                         my %attributes;
                         my @attribs;
                         my ($nb_trans) = @{request_tab("SELECT count(*) FROM taxons_x_noms WHERE ref_statut = 4 AND ref_publication_denonciation = $pub_id;", $dbc, 1)};
@@ -6967,7 +6959,7 @@ sub publication_card {
                         }
                         my $max = $attributes{max} || 0;
                         my $dmt = ( ( !$max or ( $max and $nb_trans <= $max ) ) and $display_modes{transfers}{display} ) ? 'table-cell' : 'none';
-                                                
+
                         $req = "SELECT txn.ref_nom, txn.ref_taxon, nc.orthographe, nc.autorite, nc2.orthographe, nc2.autorite, r.en, r.ordre, (select get_parent_by_name(nc.index, 'family', 'notfull')), (select get_parent_by_name(nc2.index, 'family', 'notfull'))
                                         FROM taxons_x_noms AS txn LEFT JOIN statuts AS s ON txn.ref_statut = s.index
                                         LEFT JOIN noms_complets AS nc ON txn.ref_nom = nc.index
@@ -6976,13 +6968,13 @@ sub publication_card {
                                         WHERE txn.ref_publication_denonciation = $pub_id 
                                         AND s.en = 'previous combination' 
                                         ORDER BY nc.orthographe;";
-                        
+
                         $sth = $dbc->prepare($req) or die $req;
                         $sth->execute or die $req;
-        
+
                         ( $ref_nom, $ref_taxon, $orthographe, $autorite, $tax_name, $tax_autorite, $validrank, $ordre, $oriFam, $tgtFam ) = ( undef, undef, undef, undef, undef, undef, undef, undef, undef );
                         $sth->bind_columns( \( $ref_nom, $ref_taxon, $orthographe, $autorite, $tax_name, $tax_autorite, $validrank, $ordre, $oriFam, $tgtFam ) );
-                        
+
                         while ( $sth->fetch ) {                 
                                 if ($orthographe.$autorite ne $tax_name.$tax_autorite) {
                                         $transfers .= Tr( td({-colspan=>2, -class=>'transMagicCell magicCell', -style=>"display: $dmt;"},
@@ -6997,18 +6989,18 @@ sub publication_card {
                                 }
                         }
                         $sth->finish();
-                        
+
                         if ( $transfers ){
                                 $transfers = makeRetractableArray ('transTitle', 'transMagicCell magicCell', ucfirst($trans->{'transfer(s)'}->{$lang}), $transfers, 'arrowRight', 'arrowDown', 1, $dmt, 'true');
                                 my $pos = $display_modes{transfers}{position} || 3;
                                 $orderedElements{$pos} = $transfers;
                         }
                 }
-                
+
                 my $newnames;
                 # Fetch transfer made in this publication
                 unless ($display_modes{newnames}{skip}) {
-                        
+
                         my %attributes;
                         my @attribs;
                         my ($nb_trans) = @{request_tab("SELECT count(*) FROM taxons_x_noms WHERE ref_statut = 4 AND ref_publication_denonciation = $pub_id;", $dbc, 1)};
@@ -7019,7 +7011,7 @@ sub publication_card {
                         }
                         my $max = $attributes{max} || 0;
                         my $dmt = ( ( !$max or ( $max and $nb_trans <= $max ) ) and $display_modes{transfers}{display} ) ? 'table-cell' : 'none';
-                                                
+
                         $req = "SELECT txn.ref_nom, txn.ref_taxon, nc.orthographe, nc.autorite, nc2.orthographe, nc2.autorite, r.en, r.ordre, (select get_parent_by_name(nc.index, 'family', 'notfull')), (select get_parent_by_name(nc2.index, 'family', 'notfull'))
                                         FROM taxons_x_noms AS txn LEFT JOIN statuts AS s ON txn.ref_statut = s.index
                                         LEFT JOIN noms_complets AS nc ON txn.ref_nom = nc.index
@@ -7028,13 +7020,13 @@ sub publication_card {
                                         WHERE txn.ref_publication_denonciation = $pub_id 
                                         AND s.en = 'previous name' 
                                         ORDER BY nc.orthographe;";
-                        
+
                         $sth = $dbc->prepare($req) or die $req;
                         $sth->execute or die $req;
-        
+
                         ( $ref_nom, $ref_taxon, $orthographe, $autorite, $tax_name, $tax_autorite, $validrank, $ordre, $oriFam, $tgtFam ) = ( undef, undef, undef, undef, undef, undef, undef, undef, undef );
                         $sth->bind_columns( \( $ref_nom, $ref_taxon, $orthographe, $autorite, $tax_name, $tax_autorite, $validrank, $ordre, $oriFam, $tgtFam ) );
-                        
+
                         while ( $sth->fetch ) {                 
                                 if ($orthographe.$autorite ne $tax_name.$tax_autorite) {
                                         $newnames .= Tr( td({-colspan=>2, -class=>'transMagicCell magicCell', -style=>"display: $dmt;"},
@@ -7049,18 +7041,18 @@ sub publication_card {
                                 }
                         }
                         $sth->finish();
-                        
+
                         if ( $newnames ){
                                 $newnames = makeRetractableArray ('transTitle', 'transMagicCell magicCell', ucfirst($trans->{'transfer(s)'}->{$lang}), $newnames, 'arrowRight', 'arrowDown', 1, $dmt, 'true');
                                 my $pos = $display_modes{newnames}{position} || 100;
                                 $orderedElements{$pos} = $newnames;
                         }
                 }
-                
+
                 my $neonyms;            
                 # Fetch neonyms made in this publication
                 unless ($display_modes{neonyms}{skip}) {
-                        
+
                         my %attributes;
                         my @attribs;
                         my ($nb_neo) = @{request_tab("SELECT count(*) FROM taxons_x_noms WHERE ref_statut = 11 AND ref_publication_denonciation = $pub_id;", $dbc, 1)};
@@ -7071,7 +7063,7 @@ sub publication_card {
                         }
                         my $max = $attributes{max} || 0;
                         my $dmn = ( ( !$max or ( $max and $nb_neo <= $max ) ) and $display_modes{neonyms}{display} ) ? 'table-cell' : 'table-cell';
-                        
+
                         $req = "SELECT txn.ref_nom, txn.ref_taxon, nc.orthographe, nc.autorite, nc2.orthographe, nc2.autorite, r.en
                                                                                 FROM taxons_x_noms AS txn LEFT JOIN statuts AS s ON txn.ref_statut = s.index
                                                                                 LEFT JOIN noms_complets AS nc ON txn.ref_nom = nc.index
@@ -7083,12 +7075,12 @@ sub publication_card {
                                                                                 ORDER BY nc.orthographe;";
                         $sth = $dbc->prepare($req) or die $req;
                         $sth->execute or die $req;
-        
+
                         ( $ref_nom, $ref_taxon, $orthographe, $autorite, $tax_name, $tax_autorite, $validrank ) = ( undef, undef, undef, undef, undef, undef, undef);
                         $sth->bind_columns( \( $ref_nom, $ref_taxon, $orthographe, $autorite, $tax_name, $tax_autorite, $validrank ) );
-                        
+
                         while ( $sth->fetch ) {
-                                                        
+
                                 $neonyms .= Tr( td({-colspan=>2, -class=>'neoMagicCell magicCell', -style=>"display: $dmn;"},
                                                         a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$ref_nom"}, i($orthographe) . " $autorite" ) .
                                                         " $trans->{'Nomen_praeoccupatum'}->{$lang} $trans->{'fromto'}->{$lang} " . 
@@ -7096,7 +7088,7 @@ sub publication_card {
                                                 ) );
                         }
                         $sth->finish();
-                                
+
                         if ( $neonyms ){
                                 $neonyms = makeRetractableArray ('neoTitle', 'neoMagicCell magicCell', ucfirst($trans->{'Homonym(s)'}->{$lang}), $neonyms, 'arrowRight', 'arrowDown', 1, $dmn, 'true');
                                 my $pos = $display_modes{neonyms}{position} || 4;
@@ -7107,7 +7099,7 @@ sub publication_card {
                 my $misidentifications;
                 # Fetch misidentifications made in this publication
                 unless ($display_modes{misidentifications}{skip}) {
-                        
+
                         my %attributes;
                         my @attribs;
                         my ($nb_misid) = @{request_tab("SELECT count(*) FROM taxons_x_noms WHERE ref_statut = 17 AND ref_publication_utilisant = $pub_id;", $dbc, 1)};
@@ -7118,9 +7110,9 @@ sub publication_card {
                         }
                         my $max = $attributes{max} || 0;
                         my $dmm = ( ( !$max or ( $max and $nb_misid <= $max ) ) and $display_modes{misidentifications}{display} ) ? 'table-cell' : 'none';
-                        
+
                         my %mspdone;
-                        
+
                         $sth = $dbc->prepare( "SELECT txn.ref_nom, txn.ref_taxon, txn.exactitude, txn.completude, txn.exactitude_male, txn.completude_male, txn.exactitude_femelle, txn.completude_femelle, txn.ref_publication_utilisant, nc.orthographe, nc.autorite, nc2.orthographe, nc2.autorite, r.en, txn.ref_publication_denonciation
                                                 FROM taxons_x_noms AS txn LEFT JOIN statuts AS s ON txn.ref_statut = s.index
                                                 LEFT JOIN noms_complets AS nc ON txn.ref_nom = nc.index
@@ -7149,18 +7141,18 @@ sub publication_card {
                                 }
                         }
                         $sth->finish(); 
-                        
+
                         if ( $misidentifications ){
                                 $misidentifications = makeRetractableArray ('misidTitle', 'misidMagicCell magicCell', ucfirst($trans->{'id_error'}->{$lang}), $misidentifications, 'arrowRight', 'arrowDown', 1, $dmm, 'true');
                                 my $pos = $display_modes{misidentifications}{position} || 5;
                                 $orderedElements{$pos} = $misidentifications;
                         }
                 }
-                
+
                 my $cormis;
                 # Fetch corrections of misidentifications made in this publication
                 unless ($display_modes{misidentifications}{skip}) {
-                        
+
                         my %attributes;
                         my @attribs;
                         my ($nb_misid) = @{request_tab("SELECT count(*) FROM taxons_x_noms WHERE ref_statut = 18 AND ref_publication_denonciation = $pub_id;", $dbc, 1)};
@@ -7171,9 +7163,9 @@ sub publication_card {
                         }
                         my $max = $attributes{max} || 0;
                         my $dmm = ( ( !$max or ( $max and $nb_misid <= $max ) ) and $display_modes{misidentifications}{display} ) ? 'table-cell' : 'none';
-                        
+
                         my %mspdone;
-                        
+
                         $sth = $dbc->prepare( "SELECT txn.ref_nom, txn.ref_taxon, txn.exactitude, txn.completude, txn.exactitude_male, txn.completude_male, txn.exactitude_femelle, txn.completude_femelle, txn.ref_publication_utilisant, nc.orthographe, nc.autorite, nc2.orthographe, nc2.autorite, r.en, txn.ref_publication_denonciation
                                                 FROM taxons_x_noms AS txn LEFT JOIN statuts AS s ON txn.ref_statut = s.index
                                                 LEFT JOIN noms_complets AS nc ON txn.ref_nom = nc.index
@@ -7202,18 +7194,18 @@ sub publication_card {
                                 }
                         }
                         $sth->finish(); 
-                        
+
                         if ( $cormis ){
                                 $cormis = makeRetractableArray ('cormisidTitle', 'cormisidMagicCell magicCell', ucfirst($trans->{'descr_err'}->{$lang}), $cormis, 'arrowRight', 'arrowDown', 1, $dmm, 'true');
                                 my $pos = $display_modes{misidentifications}{position} || 5;
                                 $orderedElements{$pos} .= $cormis;
                         }
                 }
-                
+
                 my $emendations;                
                 # Fetch emendations made in this publication
                 unless ($display_modes{emendations}{skip}) {
-                        
+
                         my %attributes;
                         my @attribs;
                         my ($nb_emend) = @{request_tab("SELECT count(*) FROM taxons_x_noms WHERE ref_statut = 15 AND ref_publication_denonciation = $pub_id;", $dbc, 1)};
@@ -7224,7 +7216,7 @@ sub publication_card {
                         }
                         my $max = $attributes{max} || 0;
                         my $dme = ( ( !$max or ( $max and $nb_emend <= $max ) ) and $display_modes{emendations}{display} ) ? 'table-cell' : 'none';
-                        
+
                         $req = "SELECT txn.ref_nom, txn.ref_taxon, nc.orthographe, nc.autorite, nc2.orthographe, nc2.autorite, r.en
                                                                                 FROM taxons_x_noms AS txn LEFT JOIN statuts AS s ON txn.ref_statut = s.index
                                                                                 LEFT JOIN noms_complets AS nc ON txn.ref_nom = nc.index
@@ -7236,12 +7228,12 @@ sub publication_card {
                                                                                 ORDER BY nc.orthographe;";
                         $sth = $dbc->prepare($req) or die $req;
                         $sth->execute or die $req;
-        
+
                         ( $ref_nom, $ref_taxon, $orthographe, $autorite, $tax_name, $tax_autorite, $validrank ) = ( undef, undef, undef, undef, undef, undef, undef);
                         $sth->bind_columns( \( $ref_nom, $ref_taxon, $orthographe, $autorite, $tax_name, $tax_autorite, $validrank ) );
-                        
+
                         while ( $sth->fetch ) {
-                                                        
+
                                 $emendations .= Tr( td({-colspan=>2, -class=>'emendMagicCell magicCell', -style=>"display: $dme;"},
                                                         a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$ref_nom"}, i($orthographe) . " $autorite" ) .
                                                         " $trans->{'emended'}->{$lang} $trans->{'toen'}->{$lang} " . 
@@ -7249,19 +7241,19 @@ sub publication_card {
                                                 ) );
                         }
                         $sth->finish();
-        
+
                         if ( $emendations ){
                                 $emendations = makeRetractableArray ('emendTitle', 'emendMagicCell magicCell', ucfirst($trans->{'emendation(s)'}->{$lang}), $emendations, 'arrowRight', 'arrowDown', 1, $dme, 'true');
                                 my $pos = $display_modes{emendations}{position} || 6;
                                 $orderedElements{$pos} = $emendations;
                         }
                 }
-                
+
                 my $misspellings = '';
                 my $misspellings_corrections = '';
                 # Fetch wrong spelling made in this publication
                 unless ($display_modes{misspellings}{skip} and $display_modes{misspellings_corrections}{skip}) {
-                        
+
                         my %attributes;
                         my @attribs;
                         my ($nb_wsp) = @{request_tab("SELECT count(*) FROM taxons_x_noms WHERE ref_statut = 3 AND ref_publication_utilisant = $pub_id;", $dbc, 1)};
@@ -7272,7 +7264,7 @@ sub publication_card {
                         }
                         my $max = $attributes{max} || 0;
                         my $dmms = ( ( !$max or ( $max and $nb_wsp <= $max ) ) and $display_modes{misspellings}{display} ) ? 'table-cell' : 'none';
-                        
+
                         my ($nb_wspc) = @{request_tab("SELECT count(*) FROM taxons_x_noms WHERE ref_statut = 3 AND ref_publication_denonciation = $pub_id;", $dbc, 1)};
                         @attribs = split('#', $display_modes{misspellings_corrections}{attributes});
                         foreach (@attribs) {
@@ -7292,17 +7284,17 @@ sub publication_card {
                                         AND (txn.ref_publication_denonciation = $pub_id OR txn.ref_publication_utilisant = $pub_id)
                                         GROUP BY txn.ref_nom, txn.ref_taxon, nc.orthographe, nc.autorite, nc2.orthographe, nc2.autorite, r.en, s.$lang, txn.ref_publication_denonciation
                                         ORDER BY nc.orthographe;";
-                        
+
                         $sth = $dbc->prepare($req) or die $req;
                         $sth->execute or die $req;
-        
+
                         my $statut;
                         my $pubden;
                         ( $ref_nom, $ref_taxon, $orthographe, $autorite, $tax_name, $tax_autorite, $validrank, $statut, $pubden ) = ( undef, undef, undef, undef, undef, undef, undef );
                         $sth->bind_columns( \( $ref_nom, $ref_taxon, $orthographe, $autorite, $tax_name, $tax_autorite, $validrank, $statut, $pubden ) );
-                        
+
                         while ( $sth->fetch ) {
-                                                        
+
                                 if ($pubden == $pub_id) {
                                         $misspellings_corrections .= Tr( td({-colspan=>2, -class=>'miscorMagicCell magicCell', -style=>"display: $dmmc;"},
                                                                         a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$ref_nom"}, i($orthographe) . " $autorite" ) .
@@ -7317,7 +7309,7 @@ sub publication_card {
                                 }
                         }
                         $sth->finish();
-                        
+
                         if ( $misspellings and !$display_modes{misspellings}{skip} ){
                                 $misspellings = makeRetractableArray ('misspTitle', 'misspMagicCell magicCell', ucfirst($statut), $misspellings, 'arrowRight', 'arrowDown', 1, $dmms, 'true');
                                 my $pos = $display_modes{misspellings}{position} || 7;
@@ -7329,11 +7321,11 @@ sub publication_card {
                                 $orderedElements{$pos} = $misspellings_corrections;
                         }
                 }
-                
+
                 my $chresonyms;
                 # Fetch Chresonyms in this publication
                 unless ($display_modes{chresonyms}{skip}) {
-                
+
                         my %attributes;
                         my @attribs;
                         my ($nb_chre) = @{request_tab("SELECT count(*) FROM taxons_x_noms WHERE ref_statut = 8 AND ref_publication_utilisant = $pub_id;", $dbc, 1)};
@@ -7344,7 +7336,7 @@ sub publication_card {
                         }
                         my $max = $attributes{max} || 0;
                         my $dmc = ( ( !$max or ( $max and $nb_chre <= $max ) ) and $display_modes{chresonyms}{display} ) ? 'table-cell' : 'none';
-                        
+
                         $req = "SELECT DISTINCT txn.ref_nom, nc.orthographe, nc.autorite, s.$lang
                                         FROM taxons_x_noms AS txn 
                                         LEFT JOIN statuts AS s ON txn.ref_statut = s.index
@@ -7352,20 +7344,20 @@ sub publication_card {
                                         WHERE txn.ref_publication_utilisant = $pub_id
                                         AND s.en = 'correct use'
                                         ORDER BY nc.orthographe;";
-                        
+
                         $sth = $dbc->prepare($req) or die $req;
                         $sth->execute or die $req;
-        
+
                         my $statut;
                         ( $ref_nom, $orthographe, $autorite, $statut ) = ( undef, undef, undef, undef );
                         $sth->bind_columns( \( $ref_nom, $orthographe, $autorite, $statut ) );
-                        
+
                         while ( $sth->fetch ) {                 
                                 $chresonyms.= Tr( td({-colspan=>2, -class=>'chresoMagicCell magicCell', -style=>"display: $dmc;"},
                                                         a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$ref_nom"}, i($orthographe) . " $autorite" ) ) );
                         }
                         $sth->finish();
-                        
+
                         if ( $chresonyms ){
                                 $chresonyms = makeRetractableArray ('chresoTitle', 'chresoMagicCell magicCell', ucfirst($statut), $chresonyms, 'arrowRight', 'arrowDown', 1, $dmc, 'true');
                                 my $pos = $display_modes{chresonyms}{position} || 9;
@@ -7376,7 +7368,7 @@ sub publication_card {
                 my $distribution;
                 # Fetch distribution documented in this publication
                 unless ($display_modes{distribution}{skip}) {
-                
+
                         my %attributes;
                         my @attribs;
                         my ($nb_dist) = @{request_tab("SELECT count(*) FROM taxons_x_pays WHERE ref_publication_ori = $pub_id;", $dbc, 1)};
@@ -7387,7 +7379,7 @@ sub publication_card {
                         }
                         my $max = $attributes{max} || 0;
                         my $dmd = ( ( !$max or ( $max and $nb_dist <= $max ) ) and $display_modes{distribution}{display} ) ? 'table-cell' : 'none';
-                        
+
                         $req = "SELECT txn.ref_nom, txn.ref_taxon, nc.orthographe, nc.autorite, r.en
                                         FROM taxons_x_noms AS txn 
                                         LEFT JOIN taxons_x_pays AS txp ON txp.ref_taxon = txn.ref_taxon
@@ -7398,45 +7390,45 @@ sub publication_card {
                                         AND txn.ref_statut = 1
                                         GROUP BY txn.ref_nom, txn.ref_taxon, nc.orthographe, nc.autorite, r.en
                                         ORDER BY nc.orthographe;";
-                        
+
                         $sth = $dbc->prepare($req) or die $req;
                         $sth->execute or die $req;
-        
+
                         my $statut;
                         ( $ref_nom, $ref_taxon, $orthographe, $autorite, $validrank ) = ( undef, undef, undef, undef, undef );
                         $sth->bind_columns( \( $ref_nom, $ref_taxon, $orthographe, $autorite, $validrank ) );
-                        
+
                         while ( $sth->fetch ) {                 
                                 $distribution .= Tr( td({-colspan=>2, -class=>'distribMagicCell magicCell', -style=>"display: $dmd;"},
                                                         a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$validrank&id=$ref_taxon"}, i($orthographe) . " $autorite" ) ) );
                         }
                         $sth->finish();
-                        
+
                         if ( $distribution ){
                                 $distribution = makeRetractableArray ('distribTitle', 'distribMagicCell magicCell', ucfirst($trans->{'geodistribution'}->{$lang}), $distribution, 'arrowRight', 'arrowDown', 1, $dmd, 'true');
                                 my $pos = $display_modes{distribution}{position} || 10;
                                 $orderedElements{$pos} = $distribution;
                         }
                 }
-                
+
                 my $host_plants;
-                
+
                 my $pub = pub_formating($pub_id, $dbc) . getPDF($pub_id);
-                
+
                 my $elements;
                 foreach my $key (sort {$a <=> $b} keys(%orderedElements)) {
                         $elements .= $orderedElements{$key};
                 }
-                
+
                 $fullhtml =     div({-class=>'content'},
                                         div({-class=>'titre'}, ucfirst($trans->{'publication'}->{$lang})),
                                         $subject,
                                         span({-class=>'subject'}, a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$pub_id"}, $pub ) ),
                                         $elements
                                 );
-                                
+
                 print $fullhtml;
-                        
+
                 $dbc->disconnect;
         }
         else {}
@@ -7465,17 +7457,17 @@ sub get_last_updates {
                                                 UNION (SELECT date_modification FROM taxons_x_taxons_associes) 
                                                 UNION (SELECT date_modification FROM noms_x_types) 
                                                 UNION (SELECT date_modification FROM noms_x_images)) AS binded;";
-                
+
                 my ($y, $m, $d) = @{request_tab($req, $dbc, 2)->[0]};
-                                
+
                 my ($ly, $lm, $ld) = ($y, $m-1, $d);
                 if ($m == 1) { $lm = 12; $ly -= 1; }
                 if ($d > 28) { $ld = 28; }
-                
+
                 my $orderBy;
                 if ($mode eq 'family') { $orderBy = "7, 4"; } else { $orderBy = "3 DESC, 4"; }
-                        
-                
+
+
                 $req = "SELECT       DISTINCT txn.ref_taxon, bd.ref_nom, bd.date_modification, nc.orthographe, nc.autorite, r.en, t.family
                                         FROM    (
                                                 (SELECT ref_nom, date_modification FROM taxons_x_noms WHERE ref_statut != 20) 
@@ -7494,11 +7486,11 @@ sub get_last_updates {
                                         WHERE bd.date_modification >= '$ly-$lm-$ld' and bd.date_modification <= '$y-$m-$d'
                                         ORDER BY $orderBy
                                         LIMIT 1000;";
-                
+
                 my $noms = request_tab($req, $dbc, 2);
-                
+
                 my %list;               
-                
+
                 if ($mode eq 'family') {
                         my $pos = 1;
                         foreach (@{$noms}) {
@@ -7517,12 +7509,12 @@ sub get_last_updates {
                                 $pos++;
                         }
                 }
-                
+
                 my $display;
                 foreach my $x (sort {$list{$a}{position} <=> $list{$b}{position}} keys(%list)) {
                         $display .= $list{$x}{display};
                 }
-                
+
                 $fullhtml =     div({-class=>'content'}, 
                                         div({-class=>'titre'}, ucfirst($trans->{'lastUpdates'}->{$lang})),
                                         $trans->{'LastModif'}->{$lang}. p .
@@ -7531,7 +7523,7 @@ sub get_last_updates {
                                         a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=updates&mode=family"}, lcfirst($trans->{'family'}->{$lang})) . '<br><br>' . 
                                         $display
                                 );
-                
+
                 print $fullhtml;
 }
 
@@ -7540,14 +7532,14 @@ sub get_last_updates {
 #################################################################
 sub plant_card {
         if ( my $dbc = $glob_self->dbh_for($config->{DEFAULT_DB}) ) {
-                
+
                 my (%list, $req, $taxon_name, $taxon_parent, $taxon_rank);
-                
+
                 my %display_modes = %{request_hash("SELECT * FROM display_modes WHERE card = 'plant';", $dbc, 'element')};
 
                 my $fully_display = 0;
                 if($display_modes{associations}{display} or $mode eq 'full') { $fully_display = 1; }
-                                
+
                 my ($nom, $autorite, $rang, $vparent);
                 my $parent = $id;
                 my (@highers, $navigation, $bulleinfo);
@@ -7557,13 +7549,13 @@ sub plant_card {
                                 LEFT JOIN plantes AS v ON v.index = p.ref_parent 
                                 LEFT JOIN rangs AS r ON r.index = p.ref_rang 
                                 WHERE p.index = $parent;";
-                                
+
                         my $xid = $parent;
-                        
+
                         ($nom, $autorite, $parent, $rang, $vparent) = @{(request_tab($req, $dbc, 2))->[0]};
-                        
+
                         $parent = $vparent ? $vparent : $parent;
-                                                                        
+
                         if ($rang eq 'order') { 
                                 $req = "SELECT p.index, (get_host_plant(p.index)).nom, (get_host_plant(p.index)).autorite
                                         FROM plantes AS p 
@@ -7578,16 +7570,16 @@ sub plant_card {
                                         FROM plantes AS p 
                                         WHERE p.ref_parent = $parent
                                         ORDER BY (get_host_plant(p.index)).nom;";
-                                
+
                         }                                               
-                        
+
                         my $taxa = request_tab($req, $dbc, 2);
-                        
+
                         if (scalar(@{$taxa}) > 1) {
                                 my ( $previd, $prevname, $nextid, $nextname, $found);                   
                                 foreach my $taxon (@{$taxa}) {
                                         my ( $currid, $currname ) = ( $taxon->[0], i($taxon->[1])." ".$taxon->[2] );
-                                        
+
                                         if ($found == 1) { ( $nextid, $nextname ) = ( $currid, $currname); last; }
                                         else {
                                                 if ( $currid == $xid ) { $found = 1; }
@@ -7596,7 +7588,7 @@ sub plant_card {
                                 }
                                 unless($previd) { ( $previd, $prevname ) = ( $taxa->[$#{$taxa}][0], i($taxa->[$#{$taxa}][1])." ".$taxa->[$#{$taxa}][2] ); }
                                 unless($nextid) { ( $nextid, $nextname ) = ( $taxa->[0][0], i($taxa->[0][1])." ".$taxa->[0][2] ); }
-                                
+
                                 my $label;
                                 unless ($taxon_name) { 
                                         unshift(@highers, prev_next_card('plant', undef, $previd, div({-class=>'hierarch'}, a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=plant&id=$xid"}, i($nom) . " " . $autorite)), $nextid, "prev$rang", "next$rang", 0));
@@ -7609,7 +7601,7 @@ sub plant_card {
                                                 unshift(@highers, div({-class=>'hierarch'}, i($nom) . " " . $autorite));
                                         }
                                 }
-                                
+
                                 $bulleinfo .=   div({-class=>'info', -id=>"prev$rang", -style=>'position: absolute; display: none;'}, $prevname).
                                                 div({-class=>'info', -id=>"next$rang", -style=>'position: absolute; display: none;'}, $nextname);
                         }
@@ -7617,7 +7609,7 @@ sub plant_card {
                                 my $label;
                                 if (1 or $fully_display) { $label = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=plant&id=$xid"}, i($nom) . " " . $autorite); }
                                 else { $label = i($nom) . " " . $autorite; }
-                                
+
                                 unshift(@highers, table( 
                                                         Tr(
                                                                 td({-style=>'vertical-align: middle; border: 0px solid black; padding-right: 6px;'}, 
@@ -7625,12 +7617,12 @@ sub plant_card {
                                                                 td({-style=>'vertical-align: middle; border: 0px solid black;'}, div({-class=>'hierarch'}, $label)
                                                 ))));
                         }
-                
+
                         unless ($taxon_name) { $taxon_name = i($nom) . " " . $autorite; $taxon_parent = $parent; $taxon_rank = $rang; }
                 }
-                
+
                 $bulleinfo = div({-style=>'border: 0px solid black;'}, $bulleinfo);
-                
+
                 my $indent = 0;
                 my $marge = 20;
                 foreach (@highers) {
@@ -7652,20 +7644,20 @@ sub plant_card {
                                 OR p.ref_parent IN (SELECT DISTINCT index FROM plantes WHERE ref_valide IN (" . join(',', @sons) . ")))
                                 AND p.ref_valide IS NULL
                                 ORDER BY (get_host_plant(p.index)).nom, (get_host_plant(p.index)).autorite;";
-                                                
+
                         my $childs = request_tab($req, $dbc, 2);
-                        
+
                         @sons = ();
                         if (scalar(@{$childs})) {
                                 foreach my $child (@{$childs}) {
-                                                                
+
                                         if (exists($list{$child->[4]})) { $list{$child->[0]}{hierark} = $list{$child->[4]}{hierark} . $child->[1]; }
                                         else { $list{$child->[0]}{hierark} = $child->[1]; }
                                         $list{$child->[0]}{parent} = $child->[4];
                                         $list{$child->[0]}{rank} = $child->[3];
                                         $list{$child->[0]}{margin} = $indent;
                                         $list{$child->[0]}{label} = a({-class=>'links2', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=plant&id=".$child->[0]}, i($child->[1]) . " " . $child->[2]);
-                                        
+
                                         if($fully_display) {
 
                                                 $req = "SELECT DISTINCT txp.ref_taxon, nc.orthographe, nc.autorite, r.en, nf.orthographe, nf.autorite
@@ -7679,9 +7671,9 @@ sub plant_card {
                                                         AND txnf.ref_statut = 1
                                                         AND (txp.ref_plante = $child->[0] OR txp.ref_plante IN (SELECT index FROM plantes WHERE ref_valide = $child->[0]))
                                                         ORDER BY nc.orthographe, nc.autorite";
-                                                                                                
+
                                                 my $species = request_tab($req, $dbc, 2);
-                                                
+
                                                 my $nb = scalar(@{$species});
                                                 if ($nb) {
                                                         if ($child->[3] eq 'genus') {
@@ -7701,15 +7693,15 @@ sub plant_card {
                                                         $notempty{$child->[4]} = 1;
                                                 }
                                         }
-                                        
+
                                         unshift(@sons, $child->[0]);
                                 }
                                 $indent++;
                         }
                 }
-                                
+
                 if(1 or $fully_display) {
-                        
+
                         $req = "SELECT DISTINCT txp.ref_taxon, nc.orthographe, nc.autorite, r.en, nf.orthographe, nf.autorite
                                 FROM taxons_x_plantes AS txp
                                 LEFT JOIN taxons_x_noms AS txn ON txp.ref_taxon = txn.ref_taxon
@@ -7721,9 +7713,9 @@ sub plant_card {
                                 AND txnf.ref_statut = 1
                                 AND (txp.ref_plante = $id OR txp.ref_plante IN (SELECT index FROM plantes WHERE ref_valide = $id))
                                 ORDER BY nf.orthographe, nf.autorite, nc.orthographe, nc.autorite";
-                                                                        
+
                         my $species = request_tab($req, $dbc, 2);
-                        
+
                         if ($total or scalar @{$species}) {
                                 my $sum = $total + scalar(@{$species});
                                 if ($sum > 1) { 
@@ -7732,7 +7724,7 @@ sub plant_card {
                                 else { 
                                         $display .= div({-class=>'titre'}, $sum . " " . ucfirst($trans->{'associated_taxon'}->{$lang}) );
                                 }
-                                
+
                                 my $label;
                                 my $nb = scalar(@{$species});
                                 if($nb) {
@@ -7777,11 +7769,11 @@ sub plant_card {
                                 }
                         }
                 }
-                
+
                 my $start;
                 my $preindent = 0;
                 foreach my $key (sort {$list{$a}{hierark} cmp $list{$b}{hierark}} keys(%list)) {
-                        
+
                         if ($list{$key}{rank} ne 'species') { 
                                 unless ( $list{$key}{rank} eq 'genus' and !exists($notempty{$key}) ) {
                                         if ( $list{$key}{margin} < $preindent ) { 
@@ -7797,10 +7789,10 @@ sub plant_card {
                                 $display .= div({-style=>"margin-left: ".($list{$key}{margin}*$marge)."px;"}, $list{$key}{label} );
                                 $preindent = $list{$key}{margin};
                         }
-                        
+
                         if (exists $list{$key}{nbtaxa}) {
                                 my $sum = $list{$key}{nbtaxa};
-                                
+
                                 my ($label, $xmargin, $tmargin);
                                 if ($list{$key}{label2}) {
                                         $label = $list{$key}{label2};
@@ -7812,7 +7804,7 @@ sub plant_card {
                                         $xmargin = ($list{$key}{margin}*$marge);
                                         $tmargin = (($list{$key}{margin}-1)*$marge);
                                 }                               
-                                
+
                                 if ($sum > 1) { 
                                         $display .= div({-style=>"margin-left: $xmargin"."px;"}, $sum . " " . ucfirst($trans->{'associated_taxa'}->{$lang}) . " $trans->{assoc_with}->{$lang} " . $label );
                                 }
@@ -7831,7 +7823,7 @@ sub plant_card {
                                 $display .= div({-class=>"titre"}, '');
                         }
                 }
-                
+
                 $fullhtml = div({-class=>'content'},
                                                 div({-id=>'navigationDiv'},
                                                                 $bulleinfo,
@@ -7844,7 +7836,7 @@ sub plant_card {
                                                         $display
                                                 )
                                         );
-                                
+
                 print $fullhtml;
 
                 $dbc->disconnect;
@@ -7855,12 +7847,12 @@ sub plant_card {
 # Associated taxon
 #################################################################
 sub association {
-        
+
         my ($type) = @_;
-        
+
         if ( my $dbc = $glob_self->dbh_for($config->{DEFAULT_DB}) ) {
                 my $taxon_id = $id;
-                
+
                 my (@ids, $pid, @eids);
                 $pid = $taxon_id;
                 push(@ids, $pid);
@@ -7873,11 +7865,11 @@ sub association {
                         @eids = @{request_tab("SELECT ta.index FROM taxons_associes AS ta WHERE ta.ref_parent IN (".join(',', @eids).");",$dbc,1)};
                         if (scalar @eids) { push(@ids, @eids); }
                 }
-                
+
                 my $taxon = request_row("SELECT ta.index, (get_taxon_associe(ta.index)).*
                                                 FROM taxons_associes AS ta 
                                                 WHERE ta.index = $taxon_id;",$dbc);
-                                
+
 
                 my $sp_list = request_tab("SELECT distinct t.index, n.orthographe, n.autorite, t.ref_taxon_parent, r.en, LOWER ( n.orthographe ), ty.$lang
                                 FROM taxons AS t
@@ -7899,7 +7891,7 @@ sub association {
                         foreach my $sp ( @{$sp_list} ){
                                 my $parent_name = [];
                                 $parent_name = request_row( "SELECT family from taxons where index = $sp->[3];", $dbc );
-                                
+
                                 $tab .= li(a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=$sp->[4]&id=$sp->[0]"}, i("$sp->[1]"), " $sp->[2]") . "&nbsp; ($parent_name->[0])" );
                         }
                         $tab .= end_ul();
@@ -7917,7 +7909,7 @@ sub association {
                                         span({-class=>'subject'}, $associate). $higher,
                                         $tab
                                 );
-                                
+
                 print $fullhtml;
 
                 $dbc->disconnect;
@@ -7929,29 +7921,29 @@ sub association {
 # Country card
 #################################################################
 sub country_card {
-        
+
         if ( my $dbc = $glob_self->dbh_for($config->{DEFAULT_DB}) ) {
-                                
+
                 my ($country_id, $taxnameid) = split('XX', $id);
                 my ($country, $tdwg, $tdwg_level, $countrySQL, $parent);
                 my $de_tab;
-                
+
                 my ($families) = @{request_row("SELECT count(*) FROM taxons WHERE ref_rang = 2;", $dbc)};
                 ($country, $tdwg, $tdwg_level, $parent) = @{request_row("SELECT $lang, tdwg, tdwg_level, parent FROM pays WHERE index = $country_id;", $dbc)};
-                                
+
                 $countrySQL = $country;
                 $countrySQL =~ s/'/''/;
-                                
+
                 my %xtaxa;      
                 my ($taxname, $taxauthor, $croise, $precise, $getall);
-                
+
                 if ($taxnameid) { 
                         ($taxname, $taxauthor) = @{request_row("SELECT orthographe, autorite FROM noms_complets WHERE index = $taxnameid;",$dbc)};
                         $croise = "AND n.orthographe like '$taxname %'";
                         $precise = "$trans->{'dansin'}->{$lang} $taxname $taxauthor";
                         $getall = span('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=country&id=$country_id"}, $trans->{'getAllSpeciesFrom'}->{$lang}));
                 }
-                
+
                 my %desc;
                 my $size = 0;
                 my $order = 1;
@@ -7993,7 +7985,7 @@ sub country_card {
                 while ($parent) {
                         my ($index, $trad, $code, $level);
                         ($index, $trad, $code, $level, $parent) = @{request_row("SELECT index, $lang, tdwg, tdwg_level, parent FROM pays WHERE tdwg ILIKE '$parent';", $dbc)};
-                        
+
                         my $taxa = request_tab("SELECT DISTINCT txp.ref_taxon, nc.orthographe, nc.autorite, r.en, nf.orthographe, nf.autorite
                                                 FROM taxons_x_pays AS txp
                                                 LEFT JOIN taxons_x_noms AS txn ON txn.ref_taxon = txp.ref_taxon 
@@ -8024,9 +8016,9 @@ sub country_card {
                                 }
                         }
                 }
-                                
+
                 $order = 0;
-                
+
                 # Fetch taxa present in the TDWG area
                 my $list = request_tab("        SELECT DISTINCT txp.ref_taxon, nc.orthographe, nc.autorite, r.en, nf.orthographe, nf.autorite
                                                 FROM taxons_x_pays AS txp 
@@ -8039,7 +8031,7 @@ sub country_card {
                                                 WHERE ref_pays = $country_id 
                                                 AND txnf.ref_statut = 1
                                                 AND txn.ref_statut = 1;", $dbc, 2);
-                
+
                 if ( scalar @{$list}){
                         $desc{$id}{order} = $order;
                         $desc{$id}{label} = $country;
@@ -8054,18 +8046,18 @@ sub country_card {
                                 $xtaxa{$sp->[1].$sp->[2]}{family} = $fam;
                         }
                 }
-                
+
                 my %display_modes = %{request_hash("SELECT * FROM display_modes WHERE card = 'country';", $dbc, 'element')};
                 my $fully_display = 0;
                 if($display_modes{descendants}{display} or $mode eq 'full') { $fully_display = 1; }
-                
+
                 my $aires = $tdwg;
                 my $airesSQL = $tdwg;
-                
+
                 if($fully_display) {
-                        
+
                         my $regions = request_tab("SELECT index, $lang, tdwg, tdwg_level FROM pays WHERE $lang like '$countrySQL %' OR (tdwg IN ('".join("','", split(/\s*,\s*/,$tdwg))."') AND tdwg != '$tdwg');", $dbc, 2);
-                                                
+
                         foreach my $region (@{$regions}) {
                                 my $taxa = request_tab("SELECT DISTINCT txp.ref_taxon, nc.orthographe, nc.autorite, r.en, nf.orthographe, nf.autorite
                                                         FROM taxons_x_pays AS txp
@@ -8099,7 +8091,7 @@ sub country_card {
                                         }
                                 }
                         }
-                        
+
                         my @sons = ($tdwg);
                         while (scalar(@sons)) { 
                                 my $req = "SELECT index, $lang, tdwg, tdwg_level FROM pays WHERE parent in ('".join("','", @sons)."') AND tdwg != parent;";
@@ -8118,7 +8110,7 @@ sub country_card {
                                                                 WHERE txp.ref_pays = $child->[0] 
                                                                 AND txnf.ref_statut = 1
                                                                 AND txn.ref_statut = 1;", $dbc, 2);
-                                        
+
                                         if (scalar(@{$taxa})) {
                                                 unless(exists $desc{$child->[0]}) {
                                                         $desc{$child->[0]}{order} = $order;
@@ -8140,7 +8132,7 @@ sub country_card {
                                 }
                         }
                 }
-                
+
                 my $display;
                 my $title;
                 my $decalage = 0;
@@ -8152,7 +8144,7 @@ sub country_card {
                 if ($size) {
                         if ($size > 1) { $title = "$size $trans->{taxons}->{$lang}  $precise"; }
                         else { $title = "$size $trans->{taxon}->{$lang}  $precise"; }
-                        
+
                         if ($sort ne 'family') {
                                 foreach my $x (sort {$a->{label} cmp $b->{label}} keys(%xtaxa)) {
                                         $display .= Tr( td({-colspan=>2, -class=>"MagicCellT$id magicCell", -style=>"display: none;"}, $xtaxa{$x}{label} ) );
@@ -8177,10 +8169,10 @@ sub country_card {
                 else {
                         $dmx = 'table-cell';
                 }
-                
+
                 $decalage *= 20; 
                 foreach my $x (sort {$desc{$b}{order} <=> $desc{$a}{order} || $desc{$a}{label} cmp $desc{$b}{label}} keys(%desc)) {
-                
+
                         #$decalage = (int($desc{$x}{'level'}) - int($tdwg_level)) || 1;
                         my $sum = scalar(@{$desc{$x}{taxa}});
                         if ($sum > 1) { $title = $trans->{'taxons'}->{$lang} . " $trans->{located_ins}->{$lang} "; }
@@ -8208,29 +8200,29 @@ sub country_card {
                                 $display .= div({-style=>"margin-left: ".$decalage."px;"}, makeRetractableArraySemiClickable ("Title$x", "MagicCell$x magicCell", $title, $body, 'arrowRight', 'arrowDown', 1, $dmx, 'true', 'none', $link) );
                         }
                 }
-                                
 
-                
+
+
                 my $vdisplay = get_vernaculars($dbc, 'nv.ref_pays', $country_id);
-                
+
                 my %attributes;
                 my @attribs = split('#', $display_modes{map}{attributes});
                 foreach (@attribs) {
                         my ($key, $val) = split(':', $_);
                         $attributes{$key} = $val;
                 }
-                
+
                 my ($sea_color, $continent_color, $continent_borders, $area_color, $area_borders, $width);
-                
+
                 $sea_color = $attributes{sea} ? "#$attributes{sea}" : 'transparent';
                 $continent_color = $attributes{continents} || 'AAAAAA';
                 $continent_borders = $attributes{cborders} || 'AAAAAA';
                 $area_color = $attributes{areas} || '00008B';
                 $area_borders = $attributes{aborders} || '00008B';
                 $width =  $attributes{width} || 450;
-        
+
         $airesSQL =~ s/,/','/g;
-                
+
                 my $map;
         my $zoom;
         my $bbox;
@@ -8253,18 +8245,18 @@ sub country_card {
                                                 $areas .= 'tdwg'.$tdwg_level.':a:'.$aires;
                                         }
                         }
-                
+
                         $areas = "ad=$areas";
-                        
+
                         my $styles = "as=a:$area_color,$area_borders,0|b:$continent_color,$continent_borders,0";
-            
+
             my $level2 = request_tab("SELECT DISTINCT get_tdwg_parent_by_level(tdwg, 2) FROM pays WHERE tdwg IN ('" . $airesSQL . "') AND get_tdwg_parent_by_level(tdwg, 2) NOT IN ('60','61','62','63') ORDER BY 1;", $dbc, 1);
-            
+
             if ("@{$level2}" eq "42" or "@{$level2}" eq "43" or "@{$level2}" eq "42 43") {
                 $bbox = "&bbox=90,-25,186,22";
             }
             elsif ("@{$level2}" eq "81") { $bbox = "&bbox=-105,5,-55,30" }
-                        
+
             if ($bbox) {
                 $zoom = "<img id='cmap2'
                 style='background: $sea_color; margin-top: 0em; border: 1px solid black;'
@@ -8273,7 +8265,7 @@ sub country_card {
                 onclick=".'"'."ImageMax('$maprest?$areas&$styles&ms=1000$bbox&recalculate=false');".'"'.
                 ">";
             }
-                                
+
             $map =      td({-style=>'vertical-align: top; width: '.($width+20).'px; text-align: center;'},
                                         "<img id='cmap'
                                         style='background: $sea_color; margin-top: 0em; border: 0px solid black;'
@@ -8283,17 +8275,17 @@ sub country_card {
                    "><BR><BR>".$zoom
                                 );
                 }
-        
+
                 my $subject = $country;
                 my $fields = "index, $lang";
                 my $table = "pays";
                 my $where = "WHERE index IN (SELECT ref_pays FROM taxons_x_pays)";
                 $order   = "$lang";
                 my $sid = $id;
-                
+
                 $subject = trans_navigation($subject, $fields, $table, $where, $order, $sid, $dbc);
 
-                
+
                 $fullhtml = div({-class=>'content'},
                                         div({-class=>'titre'}, ucfirst($trans->{'geodistribution'}->{$lang})),
                                         $subject, $getall,
@@ -8317,7 +8309,7 @@ sub country_card {
                                                 )
                                         ),
                         );
-                                
+
                 print $fullhtml;
 
                 $dbc->disconnect;
@@ -8325,48 +8317,48 @@ sub country_card {
 }
 
 sub image_card {
-        
+
         if ( my $dbc = $glob_self->dbh_for($config->{DEFAULT_DB}) ) {
-        
+
                 my $req = "SELECT I.url, xxi.commentaire, nc.orthographe, nc.autorite, txn.ref_taxon, xxi.ref_nom
                         FROM images AS I 
                         LEFT JOIN ((SELECT ref_nom, ref_image, commentaire FROM noms_x_images) UNION (SELECT ref_nom, ref_image, commentaire FROM taxons_x_images)) AS xxi ON I.index = xxi.ref_image
                         LEFT JOIN taxons_x_noms AS txn ON txn.ref_nom = xxi.ref_nom
                         LEFT JOIN noms_complets AS nc ON nc.index = txn.ref_nom
                         WHERE I.index = $id;";
-                
+
                 my $image = request_row($req,$dbc);
-                
+
                 $req = "SELECT I.index, I.icone_url, I.url
                         FROM images AS I 
                         LEFT JOIN ((SELECT ref_nom, ref_image, commentaire FROM noms_x_images) UNION (SELECT ref_nom, ref_image, commentaire FROM taxons_x_images)) AS xxi ON I.index = xxi.ref_image
                         WHERE I.index != $id
                         AND xxi.ref_nom = $image->[5]
                         ORDER BY I.groupe, I.tri;";
-                
+
                 my $mini = request_tab($req,$dbc);
-                
+
                 my $icons;
                 foreach my $icon ( @{$mini} ) {
                         my $thumbnail = $icon->[1] ? img({-src=>"$icon->[1]", -style=>'border: 0; margin: 0;'}) : img({-src=>"$icon->[2]", -style=>'height: 150px; border: 0; margin: 0;'});
                         $icons .= div({-style=>'float: left; margin: 0 8px 8px 0;'}, a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=image&id=$icon->[0]&search=nom"}, $thumbnail));
                 }
                 if ($icons) { $icons = br . br . $icons . div({-style=>'clear: both;'}); }
-                
-                
+
+
                 my $comment;
                 if ($image->[1]) { $comment = $image->[1] . br . br; }
 
-                
+
                 my $subject = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=species&id=$image->[4]"}, i($image->[2]) . " $image->[3]" );
                 my $fields = "(SELECT ref_image FROM ((SELECT ref_nom, ref_image FROM taxons_x_images) UNION (SELECT ref_nom, ref_image FROM noms_x_images)) AS nmni WHERE ref_nom = nms.ref_nom LIMIT 1), nc.orthographe || coalesce(' '||nc.autorite)";
                 my $table = "((SELECT ref_nom FROM taxons_x_images) UNION (SELECT ref_nom FROM noms_x_images)) AS nms LEFT JOIN noms_complets AS nc ON nc.index = nms.ref_nom";
                 my $where = "";
                 my $order = "2";
                 my $sid = $id;
-                
+
                 $subject = trans_navigation($subject, $fields, $table, $where, $order, $sid, $dbc);
-                
+
                 $fullhtml = div({-class=>'content'},    
                                         div({-class=>'titre'}, ucfirst($trans->{'image'}->{$lang})),
                                         $subject
@@ -8384,20 +8376,20 @@ sub image_card {
                                                 document.getElementById('full').onclick = function() { window.open(\"$image->[0]\"); };
                                                 image.style.cursor='pointer';
                                                 image.onclick = function() { window.open(\"$image->[0]\"); };
-                                                
+
                                         </script>",
                                         $icons
                                 );
-                
+
                 print $fullhtml;
                 $dbc->disconnect;
         }
 }
 
 sub vernacular_card {
-        
+
         if ( my $dbc = $glob_self->dbh_for($config->{DEFAULT_DB}) ) {
-                
+
                 my $req = "SELECT v.nom, l.langage, p.en, txn.ref_taxon, nc.orthographe, nc.autorite, r.en, txv.ref_pub, v.ref_pays
                         FROM noms_vernaculaires AS v
                         LEFT JOIN taxons_x_vernaculaires AS txv ON v.index = txv.ref_vernaculaire
@@ -8445,16 +8437,16 @@ sub vernacular_card {
 
                 my $xpays = '';
                 if ($pays) { $xpays = " in " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=country&id=".$ref_pays}, $pays); }
-                
+
                 my $fullhtml =  div({-class=>'content'},
                                         div({-class=>'titre'}, ucfirst($trans->{'vernacular'}->{$lang})),
                                         div({-class=>'subject', -style=>'display: inline;'}, $nom) . $xpays . " ($langg)",
                                         div({-class=>'titre'}, ucfirst($trans->{'sciname(s)'}->{$lang})),
                                         $vdisplay
                                 );
-                                        
+
                 print $fullhtml;
-        
+
                 $dbc->disconnect;
         }
 }
@@ -8508,7 +8500,7 @@ sub repository_card {
                                 WHERE nxt.ref_lieux_depot = $repository_id
                                 AND txn.ref_statut = 1
                                 ORDER BY nc.orthographe, nc.autorite;";
-                
+
                 my $types = request_tab($req,$dbc,2);
 
                 my $types_tab;
@@ -8519,7 +8511,7 @@ sub repository_card {
                                 if ($type->[5] eq 'male') { push(@more, "&#9794;"); }
                                 elsif ($type->[5] eq 'female') { push(@more, "&#9792;"); }
                         }
-                        
+
                         if ($type->[6]) { push(@more, $type->[6])}
                         if ($type->[7]) { push(@more, $type->[7])}
                         my $pluriel;
@@ -8527,18 +8519,18 @@ sub repository_card {
                         $types_tab .= li(a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$type->[9]&id=$type->[8]"}, i($type->[1]) . " $type->[2]") . " : $type->[3] $type->[4]$pluriel " . join(', ',@more) );
                         $sum += $type->[3] || 1;
                 }
-                
+
                 if ($types_tab) {       
                         $types_tab = div({-class=>'titre'}, "$sum " . ucfirst($trans->{'type_img(s)'}->{$lang})) . ul($types_tab);
                 }
-                
+
                 my $subject = "$repository->[0][0]. $repository->[0][1]";
                 my $fields = "index, nom";
                 my $table = "lieux_depot";
                 my $where = "WHERE index IN (SELECT ref_lieux_depot FROM noms_x_types)";
                 my $order = "nom";
                 my $sid = $id;
-                
+
                 $subject = trans_navigation($subject, $fields, $table, $where, $order, $sid, $dbc);
 
                 $fullhtml = div({-class=>'content'},    
@@ -8546,9 +8538,9 @@ sub repository_card {
                                         $subject,
                                         $types_tab
                                 );
-                                
+
                 print $fullhtml;
-                        
+
                 $dbc->disconnect;
         }
         else {}
@@ -8625,7 +8617,7 @@ sub era_card {
                                         div({-class=>'subject'}, $era->[1]),
                                         $sp_tab
                                 );
-                                
+
                 print $fullhtml;
 
                 $dbc->disconnect;
@@ -8699,7 +8691,7 @@ sub region_card {
                 else {
                         #$sp_tab = ul( li($trans->{"UNK"}->{$lang}));
                 }
-                
+
                 if ($region->[1]) { $region->[0] .= " ($region->[1])" }
 
 
@@ -8708,7 +8700,7 @@ sub region_card {
                                         div({-class=>'subject'}, $region->[0] ),
                                         $sp_tab
                                 );
-                                
+
                 print $fullhtml;
 
                 $dbc->disconnect;
@@ -8779,7 +8771,7 @@ sub agent_card {
                                         div({-class=>'titre'}, ucfirst($trans->{"A_SP"}->{$lang})),
                                         $sp_tab
                                 );
-                                
+
                 print $fullhtml;
 
                 $dbc->disconnect;
@@ -8843,7 +8835,7 @@ sub edition_card {
                                         div({-class=>'titre'}, ucfirst($trans->{"pu_ed"}->{$lang})),
                                         $pub_tab
                                 );
-                                
+
                 print $fullhtml;
 
                 $dbc->disconnect;
@@ -8904,7 +8896,7 @@ sub habitat_card {
                                         div({-class=>'titre'}, ucfirst($trans->{"SP_HA"}->{$lang})),
                                         $sp_tab
                                 );
-                                
+
                 print $fullhtml;
 
                 $dbc->disconnect;
@@ -8963,7 +8955,7 @@ sub locality_card {
                         $sp_tab .= li(a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=species&id=$sp->[0]"}, i($sp->[1]) . " $sp->[2]" ) . ", $sp->[3]" );
                 }
                 $sp_tab = ul($sp_tab);
-                
+
 
                 $fullhtml =     div({-class=>'content'},
                                         div({-class=>'titre'}, ucfirst($trans->{'locality'}->{$lang})),
@@ -8971,7 +8963,7 @@ sub locality_card {
                                         div({-class=>'titre'}, ucfirst($trans->{"SP_LO"}->{$lang})),
                                         $sp_tab
                                 );
-                                
+
                 print $fullhtml;
 
                 $dbc->disconnect;
@@ -9067,7 +9059,7 @@ sub type_card {
                         }
                 }
                 $sth2->finish();
-                
+
                 #Fetch species captured by this mean
                 my $sp_list = request_tab("     SELECT distinct nc.index, nc.orthographe, nc.autorite, nc.ref_rang
                                                 FROM noms_x_types AS nxt 
@@ -9080,7 +9072,7 @@ sub type_card {
                         $sp_tab .= li(a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$sp->[0]"}, i($sp->[1]) . " $sp->[2]" ) );
                 }
                 $sp_tab = ul($sp_tab);
-                
+
 
                 $fullhtml =     div({-class=>'content'},
                                         div({-class=>'titre'}, ucfirst($trans->{'type'}->{$lang})),
@@ -9133,7 +9125,7 @@ sub prev_next_topic { #TODO: make prev_next card optional
                         last;
                 }
         }
-        
+
         $html .= div (
                         #span('< '),
                         a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=$previous_topic"}, "$trans->{$previous_topic}->{$lang}"),
@@ -9167,18 +9159,18 @@ sub alpha_build {
 
 sub prev_next_card {
         my ( $card, $bridge, $prev_id, $label, $next_id, $jsidprev, $jsidnext, $margin ) = @_;
-        
+
         my $mouseOverPrev = "   var bulle = document.getElementById('$jsidprev');
                                 var pos = findPos(this);
                                 bulle.style.top = pos[1] - 30 + 'px';
                                 bulle.style.display = 'block';";
-        
+
         my $mouseOverNext = "   var bulle = document.getElementById('$jsidnext');
                                 var pos = findPos(this);
                                 bulle.style.top = pos[1] - 30 + 'px';
                                 bulle.style.left = pos[0] - 72 + 'px';
                                 bulle.style.display = 'block';";
-        
+
         my $prev_card = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=$card&id=$prev_id", -onMouseOver=>$mouseOverPrev, -onMouseOut=>"document.getElementById('$jsidprev').style.display = 'none';"}, div({-class=>'arrowLeft'}, ''));
         my $next_card = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=$card&id=$next_id", -onMouseOver=>$mouseOverNext, -onMouseOut=>"document.getElementById('$jsidnext').style.display = 'none';"}, div({-class=>'arrowRight'}, ''));
 
@@ -9206,9 +9198,9 @@ sub read_lang { #TODO: put the params in a conf file
                 my $error_msg .= $DBI::errstr;
 
                 $fullhtml =     div({-class=>'subject'}, "Database connection error");
-                
+
                 print $fullhtml;
-                
+
                 return undef;
         }
 }
@@ -9261,7 +9253,7 @@ sub request_row {
         my ($req,$dbh) = @_; # get query 
         my $i = 0;
         my $row_ref;
-        
+
         unless ( $row_ref = $dbh->selectrow_arrayref($req) ){ # prepare, execute, fetch row
                 # TODO: if request returns no results it dies anyway
                 die "Could'nt execute sql request: $DBI::errstr\n--$req--\n" # Could'nt execute sql request
@@ -9275,7 +9267,7 @@ sub html_header {
         my ( $navi ) = @_;
 
         my $html = header(). $navi;
-        
+
         return $html;
 }
 
@@ -9283,7 +9275,7 @@ sub html_header {
 ############################################################################################
 sub html_footer {
         my $html;
-        
+
         return $html;
 }
 
@@ -9372,13 +9364,13 @@ sub publication {
                 $pre_pub->[1] =~ s/^(.{1,20}).+$/$1/;
                 $publication = "$author ($pre_pub->[2]$letter) $pre_pub->[1]...";
         }
-        
+
         $abrev = "<NOBR>$author</NOBR>&nbsp;($pre_pub->[2]$letter)";
         $author =~ s/<i>//g;
         $author =~ s/<\/i>//g;
         $author =~ s/&nbsp;/ /g;
         my $abrev2 = "$author ($pre_pub->[2]$letter)";
-        
+
         return ( $publication, $abrev, $abrev2 );
 }
 
@@ -9562,7 +9554,7 @@ sub get_pub_params {
         my $typereq = "SELECT type.en FROM types_publication as type LEFT JOIN publications as p on (p.ref_type_publication = type.index) WHERE p.index = $index;";
         my ($pub_type) = @{request_row($typereq,$dbc)};
         my $pubhash;
-        
+
         # Get all the information concerning a publication according to his type
         if ( $pub_type eq "Article" ) {
                 my $pubreq = "SELECT p.index, tp.en as type, p.titre, p.annee, p.fascicule, p.page_debut, p.page_fin, p.nombre_auteurs, r.nom as revue, p.volume 
@@ -9676,10 +9668,10 @@ sub get_pub_params {
 sub pub_formating {
         my ($id,$dbc,$xpage) = @_;
         my $pub = get_pub_params($id,$dbc);
-        
+
         my ($index) = keys(%{$pub});
         my $type = $pub->{$index}->{'type'};
-        
+
         # Construct the Authority part of the reference citation
         my $nb_authors = $pub->{$index}->{'nombre_auteurs'};
         my @authors;
@@ -9694,11 +9686,11 @@ sub pub_formating {
         } else {
                 $author_str = span({-class=>'pubAuteurs'},"$pub->{$index}->{'auteurs'}->{$nb_authors}->{'nom'}&nbsp;$pub->{$index}->{'auteurs'}->{$nb_authors}->{'prenom'}");
         }
-                        
+
         my @strelmt;    
         # Adapt the reference citation according to the type of publication
         if ($type eq "Article") {
-                
+
                 if ($author_str) { push(@strelmt, b($author_str));} else { push(@strelmt, "Authors Unknown");}
                 if (my $annee = $pub->{$index}->{'annee'}) { push(@strelmt, "$annee - ");} else { push(@strelmt, "&nbsp;- ");}
                 if (my $titre = $pub->{$index}->{'titre'}) {
@@ -9743,7 +9735,7 @@ sub pub_formating {
                         }
                 }
         }
-        
+
         elsif ($type eq "Book") {
 
                 if ($author_str) { push(@strelmt, b($author_str));} else { push(@strelmt, "Authors&nbsp;Unknown");}
@@ -9766,7 +9758,7 @@ sub pub_formating {
                                 push(@strelmt, "$vol.");
                         }
                 } else {
-                        
+
                         if (my $cards = $pub->{$index}->{'page_debut'}) {
                                 if ($cards == 1 or $cards eq 'i' or $cards eq 'I') { 
                                         if (my $cardf = $pub->{$index}->{'page_fin'}) { $cards = "$cardf&nbsp;pp.";}
@@ -9797,7 +9789,7 @@ sub pub_formating {
                 if (my $annee = $pub->{$index}->{'annee'}) { push(@strelmt, "$annee&nbsp;- ");} else { push(@strelmt, "&nbsp;- ");}
                 if (my $titre = $pub->{$index}->{'titre'}) { push(@strelmt, "$titre.");} else { push(@strelmt, i("Title&nbsp;unknown."));}
                 push(@strelmt,"In:");
-                                
+
                 my $nb_authors_livre = $pub->{$index}->{'nbauteurslivre'};
                 my @authors_livre;
                 my $book_author_str;
@@ -9811,7 +9803,7 @@ sub pub_formating {
                 } else {
                         $book_author_str = span({-class=>'pubAuteurs'},"$pub->{$index}->{'auteurslivre'}->{$nb_authors_livre}->{'nom'}&nbsp;$pub->{$index}->{'auteurslivre'}->{$nb_authors_livre}->{'prenom'}");
                 }
-                
+
                 if ($book_author_str) { push(@strelmt,$book_author_str);} else { push(@strelmt, "Book&nbsp;Authors&nbsp;Unknown");}
                 if (my $annee = $pub->{$index}->{'anneelivre'}) { push(@strelmt, "$annee&nbsp;- ");} else { push(@strelmt,"&nbsp;- ");}
                 if (my $titre = $pub->{$index}->{'titrelivre'}) { push(@strelmt, i("$titre,"));} else { push(@strelmt,i("Title unknown,"));}
@@ -9840,7 +9832,7 @@ sub pub_formating {
                 }
 
         }
-        
+
         elsif ($type eq "Thesis") {
 
                 if ($author_str) { push(@strelmt, $author_str );} else { push(@strelmt,"Authors&nbsp;Unknown");}
@@ -9881,7 +9873,7 @@ sub pub_formating {
                 }
         }
         else {
-                
+
                 if ($author_str) { push(@strelmt, b($author_str));} else { push(@strelmt, "Authors&nbsp;Unknown");}
                 if (my $annee = $pub->{$index}->{'annee'}) { push(@strelmt, "$annee&nbsp;- ");} else { push(@strelmt, "&nbsp;- ");}
                 if (my $titre = $pub->{$index}->{'titre'}) {
@@ -9892,7 +9884,7 @@ sub pub_formating {
                 if (my $vol = $pub->{$index}->{'volume'}) {
                         $vol = $vol;
                         if (my $fasc = $pub->{$index}->{'fascicule'}) { $vol .= "($fasc)";}
-                        
+
                         if ($xpage) {
                                 if (my $cards = $pub->{$index}->{'page_debut'}) {
                                         push(@strelmt,"$vol:");
@@ -9928,21 +9920,21 @@ sub pub_formating {
                         }
                 }
         }
-        
+
         # return the html refrence citation
         return join(' ',@strelmt);
 }
 
 sub search_results {
-                
+
         my $dbc = $glob_self->dbh_for($config->{DEFAULT_DB});
         my $sth;
         my $content;
-                
+
         if ($searchid) {
                 $id = $searchid;
                 if ($searchtable eq 'noms_complets') { 
-                        
+
                         my $req = "SELECT DISTINCT t.index, nc.orthographe, nc.autorite, s.en, r.en, nc.index, s.index
                                 FROM taxons AS t 
                                 LEFT JOIN taxons_x_noms AS txn ON t.index = txn.ref_taxon
@@ -9953,15 +9945,15 @@ sub search_results {
                                 AND s.en not in ('correct use', 'status revivisco')
                                 AND (txn.ref_nom = $id)
                                 ORDER BY nc.orthographe, s.index;";
-                                                
+
                         $sth = $dbc->prepare($req);                                     
-                        
+
                         $sth->execute( );
                         my ( $taxonid, $name, $autority, $status, $rank, $nameid, $statusid );
                         $sth->bind_columns( \( $taxonid, $name, $autority, $status, $rank, $nameid, $statusid ) );
-                        
+
                         my $nb = $sth->rows;
-                        
+
                         if ( $nb == 0 and $id) {
                                 my ($label) = @{request_tab("SELECT orthographe || coalesce(' ' || autorite, '') FROM noms_complets WHERE index = $id;",$dbc,1)};
                                 $content .= div({-style=>'margin: 50px auto; width: 600px;'},  "$label is in the database, probably found in scientific literature,<BR>but is not yet linked to any taxon, this information will be completed as soon as possible.");
@@ -9989,9 +9981,9 @@ sub search_results {
                                                 $rows .= li(a({-href=>$link}, i($name) . "&nbsp; " . $autority . "&nbsp; " . b($status) ));
                                         }
                                }
-                               
+
                                #if ($id==10746) { die scalar(keys(%done)); }
-                               
+
                                if ( scalar(keys(%done)) == 1){
                                        if ($valid) { $card = $rank; $id = $valid || $taxonid; }
                                        else { $card = 'name'; ($id) = keys(%done); }
@@ -10010,7 +10002,7 @@ sub search_results {
                 elsif ($searchtable eq 'pays') { $card = 'country' }
                 elsif ($searchtable eq 'taxons_associes') { $card = 'associate' }
                 elsif ($searchtable eq 'noms_vernaculaires') { $card = 'vernacular' }
-                
+
                 if ($content) {
                         print   div({-class=>'content'},
                                 $totop,
@@ -10022,13 +10014,13 @@ sub search_results {
                 }
         }
         elsif ($search) {
-                
+
                 my $query = $search;
                 $query =~ s/\*/.*/g;
                 $query =~ s/'/\\'/g;
                 $query =~ s/\(/\\\\(/g;
                 $query =~ s/\)/\\\\)/g;
-                                
+
                 $query = ".*$query.*";
 
                 my $req;
@@ -10067,9 +10059,9 @@ sub search_results {
                         $nbresults = $sth->rows;
                 }
                 if ($searchtable eq 'noms_complets') {
-                        
+
                         my $query2;
-                        
+
                         $query2 = ".*$query.*";
                         $query2 = $query2.'†';
 
@@ -10077,9 +10069,9 @@ sub search_results {
                         $query =~ s/\s*$/\$/;
                         $query2 =~ s/^\s*/\^/;
                         $query2 =~ s/\s*$/\$/;
-                                                
+
                         $dbc->{RaiseError} = 1;
-                                                                        
+
                         $req = "SELECT DISTINCT t.index, nc.orthographe, nc.autorite, s.en, r.en, nc.index
                                 FROM taxons AS t LEFT JOIN taxons_x_noms AS txn ON t.index = txn.ref_taxon
                                 LEFT JOIN noms_complets AS nc ON txn.ref_nom = nc.index
@@ -10090,7 +10082,7 @@ sub search_results {
                                 AND nc.orthographe ~* '$query'
                                 OR nc.orthographe ~* '$query2'
                                 ORDER BY nc.orthographe;";
-                                
+
                         $sth = $dbc->prepare($req);                                     
                         $sth->execute( );
                         $sth->bind_columns( \( $taxonid, $name, $autority, $status, $rank, $nameid ) );
@@ -10110,12 +10102,12 @@ sub search_results {
                                 }
                         }
                 }                                       
-                                
+
                 if ( $nbresults ){
                         if ( $nbresults > 1 ){
                                 $content .= div({-class=>'titre'},  "$nbresults $trans->{'match_names'}->{$lang}");
                                 $content .= start_ul({});
-                                
+
                                 if ($searchtable eq 'noms_complets') {
                                         while ( $sth->fetch() ){
                                                 my $link = '';
@@ -10162,13 +10154,13 @@ sub search_results {
                 else {
                         $content .=     div({-style=>'margin: 50px 0 0 200px;'},  $trans->{'noresults'}->{$lang} );
                }
-               
+
                if($nbresults != 1) {
                         $fullhtml =     div({-class=>'content'},
                                                 $totop,
                                                 $content
                                         );
-                        
+
                         print $fullhtml;
                }
                else {
