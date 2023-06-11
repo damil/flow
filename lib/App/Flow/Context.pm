@@ -27,6 +27,7 @@ sub new_uri {
   my $query_params = ref $_[0] ? $_[0] : {@_};
 
   my $uri = $self->req->uri;
+  $uri->query_param($_ => [])                  foreach qw/rank id alph/;
   $uri->query_param($_ => $query_params->{$_}) foreach keys %$query_params;
   return $uri->as_string;
 }
