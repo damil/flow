@@ -249,632 +249,6 @@ sub build_card {
         unless ( $trans = read_lang($config) ) { error_msg( "lang = $lang" ); }
         else {
 
-                if ($dbase eq 'cipa') {
-
-                        my $dbc = $self->dbh_for($config->{DEFAULT_DB});
-                        make_hash ($dbc, "SELECT index, $lang FROM sexes;", \$sexes);
-                        make_hash ($dbc, "SELECT index, $lang FROM etats_conservation;", \$conservation_status);
-                        make_hash ($dbc, "SELECT index, $lang FROM types_observation;", \$observ_types);
-                        make_hash ($dbc, "SELECT index, $lang FROM periodes;", \$periods);
-                        make_hash ($dbc, "SELECT index, $lang FROM niveaux_frequence;", \$frekens);
-                        make_hash ($dbc, "SELECT index, $lang FROM types_type;", \$typeTypes);
-                        make_hash ($dbc, "SELECT index, $lang FROM types_depot;", \$depotTypes);
-                        make_hash ($dbc, "SELECT a.index, a.$lang, t.$lang FROM agents_infectieux AS a LEFT JOIN types_agent_infectieux AS t ON t.index = a.ref_type_agent_infectieux;", \$agents);
-                        make_hash ($dbc, "SELECT index, $lang FROM niveaux_confirmation;", \$confirm);
-                        make_hash ($dbc, "SELECT index, $lang FROM habitats;", \$habitats);
-                        make_hash ($dbc, "SELECT index, $lang FROM modes_capture;", \$captures);
-
-                        $cross_tables = {
-                                                'taxons_x_regions' => {
-                                                                        'title' => 'Taxon x region',
-                                                                        'ordre' => 1,
-                                                                        'definition' => [
-                                                                                                {       'type'  => 'foreign',
-                                                                                                        'title' => 'Region',
-                                                                                                        'id'    => 'region',
-                                                                                                        'ref'   => 'ref_region',
-                                                                                                        'thesaurus' => 'regions',
-                                                                                                        'addurl' => 'generique.pl?table=regions',
-                                                                                                        'card' => 'region'
-                                                                                                }, {
-                                                                                                        'type' => 'pub',
-                                                                                                        'title' => 'Original publication',
-                                                                                                        'id'   => 'ref_publication_ori'
-                                                                                                }, {
-                                                                                                        'type' => 'pub',
-                                                                                                        'title' => 'Updating publication',
-                                                                                                        'id'   => 'ref_publication_maj'
-                                                                                                }, {
-                                                                                                        'type'  => 'foreign',
-                                                                                                        'title' => 'Male name',
-                                                                                                        'id'    => 'nom_male',
-                                                                                                        'ref'   => 'ref_nom_specifique_male',
-                                                                                                        'thesaurus' => 'noms',
-                                                                                                        'addurl' => 'typeSelect.pl?action=add&type=sciname',
-                                                                                                        'class' => 'name',
-                                                                                                        'card' => 'name'
-                                                                                                }, {
-                                                                                                        'type' => 'pub',
-                                                                                                        'title' => 'Male publication',
-                                                                                                        'id'   => 'ref_publication_male',
-                                                                                                }, {
-                                                                                                        'type'    => 'foreign',
-                                                                                                        'title' => 'Female name',
-                                                                                                        'id'    => 'nom_femelle',
-                                                                                                        'ref'   => 'ref_nom_specifique_femelle',
-                                                                                                        'thesaurus' => 'noms',
-                                                                                                        'addurl' => 'typeSelect.pl?action=add&type=sciname',
-                                                                                                        'class' => 'name',
-                                                                                                        'card' => 'name'
-                                                                                                }, {
-                                                                                                        'type' => 'pub',
-                                                                                                        'title' => 'Female publication',
-                                                                                                        'id'   => 'ref_publication_femelle',
-                                                                                                }, {
-                                                                                                        'type'    => 'foreign',
-                                                                                                        'title' => 'Unknown sex name',
-                                                                                                        'id'    => 'nom_sexe_inconnu',
-                                                                                                        'ref'   => 'ref_nom_specifique_sexe_inconnu',
-                                                                                                        'thesaurus' => 'noms',
-                                                                                                        'addurl' => 'typeSelect.pl?action=add&type=sciname',
-                                                                                                        'class' => 'name',
-                                                                                                        'card' => 'name'
-                                                                                                }, {
-                                                                                                        'type' => 'pub',
-                                                                                                        'title' => 'Unknown sex publication',
-                                                                                                        'id'   => 'ref_publication_sexe_inconnu',
-                                                                                                }, {
-                                                                                                        'type' => 'internal',
-                                                                                                        'title' => 'Minimum altitude',
-                                                                                                        'id'   => 'altitude_min',
-                                                                                                        'length' => 3
-                                                                                                }, {
-                                                                                                        'type' => 'internal',
-                                                                                                        'title' => 'Maximum altitude',
-                                                                                                        'id'   => 'altitude_max',
-                                                                                                        'length' => 3
-                                                                                                }, {
-                                                                                                        'type' => 'internal',
-                                                                                                        'title' => 'Minimum minimum altitude',
-                                                                                                        'id'   => 'altitude_min_min',
-                                                                                                        'length' => 3
-                                                                                                }, {
-                                                                                                        'type' => 'internal',
-                                                                                                        'title' => 'Maximum maximum altitude',
-                                                                                                        'id'   => 'altitude_max_max',
-                                                                                                        'length' => 3
-                                                                                                }, {
-                                                                                                        'type' => 'internal',
-                                                                                                        'title' => 'abundance epoch',
-                                                                                                        'id'   => 'epoque_abondance',
-                                                                                                }, {
-                                                                                                        'type'  => 'select',
-                                                                                                        'title' => 'Frequency level',
-                                                                                                        'id'    => 'ref_niveau_frequence',
-                                                                                                        'values' => ['', sort {$frekens->{$a} cmp $frekens->{$b}} keys(%{$frekens})],
-                                                                                                        'labels' => $frekens,
-                                                                                                        'addurl' => 'generique.pl?table=niveaux_frequence'
-                                                                                                }
-                                                                                        ],
-                                                                        'obligatory' => ['region', 'ref_region'],
-                                                                        'foreign_fields' => ['r.nom'],
-                                                                        'foreign_joins' => 'LEFT JOIN regions AS r ON r.index = tx.ref_region',
-                                                                        'order' => 'ORDER BY r.nom'
-                                                },
-
-                                                'taxons_x_regions_x_agents_infectieux' => {
-                                                                        'title' => 'Taxon x region x infectious agent',
-                                                                        'ordre' => 2,
-                                                                        'definition' => [
-                                                                                                {       'type'  => 'foreign',
-                                                                                                        'title' => 'Region',
-                                                                                                        'id'    => 'region',
-                                                                                                        'ref'   => 'ref_region',
-                                                                                                        'thesaurus' => 'regions',
-                                                                                                        'addurl' => 'generique.pl?table=regions',
-                                                                                                        'card' => 'region'
-                                                                                                }, {
-                                                                                                        'type'  => 'select',
-                                                                                                        'title' => 'Infectious agent',
-                                                                                                        'id'    => 'ref_agent_infectieux',
-                                                                                                        'values' => ['', sort {$agents->{$a} cmp $agents->{$b}} keys(%{$agents})],
-                                                                                                        'labels' => $agents,
-                                                                                                        'addurl' => 'generique.pl?table=agents_infectieux',
-                                                                                                        'card' => 'agent'
-                                                                                                }, {
-                                                                                                        'type'  => 'select',
-                                                                                                        'title' => 'Confirmation level',
-                                                                                                        'id'    => 'ref_niveau_confirmation',
-                                                                                                        'values' => ['', sort {$confirm->{$a} cmp $confirm->{$b}} keys(%{$confirm})],
-                                                                                                        'labels' => $confirm,
-                                                                                                        'addurl' => 'generique.pl?table=niveaux_confirmation'
-                                                                                                }, {
-                                                                                                        'type' => 'pub',
-                                                                                                        'title' => 'Original publication',
-                                                                                                        'id'   => 'ref_publication_ori'
-                                                                                                }, {
-                                                                                                        'type' => 'pub',
-                                                                                                        'title' => 'Updating publication',
-                                                                                                        'id'   => 'ref_publication_maj'
-                                                                                                }
-                                                                                        ],
-                                                                        'obligatory' => ['ref_region', 'region', 'ref_agent_infectieux'],
-                                                                        'foreign_fields' => ['r.nom', "a.$lang"],
-                                                                        'foreign_joins' => 'LEFT JOIN regions AS r ON r.index = tx.ref_region LEFT JOIN agents_infectieux AS a ON a.index = tx.ref_agent_infectieux ',
-                                                                        'order' => "ORDER BY r.nom, a.$lang"
-                                                },
-
-                                                'taxons_x_regions_x_habitats' => {
-                                                                        'title' => 'Taxon x region x habitat',
-                                                                        'ordre' => 3,
-                                                                        'definition' => [
-                                                                                                {       'type'  => 'foreign',
-                                                                                                        'title' => 'Region',
-                                                                                                        'id'    => 'region',
-                                                                                                        'ref'   => 'ref_region',
-                                                                                                        'thesaurus' => 'regions',
-                                                                                                        'addurl' => 'generique.pl?table=regions',
-                                                                                                        'card' => 'region'
-                                                                                                }, {
-                                                                                                        'type'  => 'select',
-                                                                                                        'title' => 'Habitat',
-                                                                                                        'id'    => 'ref_habitat',
-                                                                                                        'values' => ['', sort {$habitats->{$a} cmp $habitats->{$b}} keys(%{$habitats})],
-                                                                                                        'labels' => $habitats,
-                                                                                                        'addurl' => 'generique.pl?table=habitats',
-                                                                                                        'card' => 'habitat'
-                                                                                                }, {
-                                                                                                        'type' => 'pub',
-                                                                                                        'title' => 'Original publication',
-                                                                                                        'id'   => 'ref_publication_ori'
-                                                                                                }, {
-                                                                                                        'type' => 'pub',
-                                                                                                        'title' => 'Updating publication',
-                                                                                                        'id'   => 'ref_publication_maj'
-                                                                                                }
-                                                                                        ],
-                                                                        'obligatory' => ['ref_region', 'region', 'ref_habitat'],
-                                                                        'foreign_fields' => ['r.nom', "h.$lang"],
-                                                                        'foreign_joins' => 'LEFT JOIN regions AS r ON r.index = tx.ref_region LEFT JOIN habitats AS h ON h.index = tx.ref_habitat ',
-                                                                        'order' => "ORDER BY r.nom, h.$lang"
-                                                },
-
-                                                'taxons_x_regions_x_modes_capture' => {
-                                                                        'title' => 'Taxon x region x capture mode',
-                                                                        'ordre' => 4,
-                                                                        'definition' => [
-                                                                                                {       'type'  => 'foreign',
-                                                                                                        'title' => 'Region',
-                                                                                                        'id'    => 'region',
-                                                                                                        'ref'   => 'ref_region',
-                                                                                                        'thesaurus' => 'regions',
-                                                                                                        'addurl' => 'generique.pl?table=regions',
-                                                                                                        'card' => 'region'
-                                                                                                }, {
-                                                                                                        'type'  => 'select',
-                                                                                                        'title' => 'Capture mode',
-                                                                                                        'id'    => 'ref_mode_capture',
-                                                                                                        'values' => ['', sort {$captures->{$a} cmp $captures->{$b}} keys(%{$captures})],
-                                                                                                        'labels' => $captures,
-                                                                                                        'addurl' => 'generique.pl?table=modes_capture',
-                                                                                                        'card' => 'capture'
-                                                                                                }, {
-                                                                                                        'type' => 'pub',
-                                                                                                        'title' => 'Original publication',
-                                                                                                        'id'   => 'ref_publication_ori'
-                                                                                                }, {
-                                                                                                        'type' => 'pub',
-                                                                                                        'title' => 'Updating publication',
-                                                                                                        'id'   => 'ref_publication_maj'
-                                                                                                }
-                                                                                        ],
-                                                                        'obligatory' => ['ref_region', 'region', 'ref_mode_capture'],
-                                                                        'foreign_fields' => ['r.nom', "c.$lang"],
-                                                                        'foreign_joins' => 'LEFT JOIN regions AS r ON r.index = tx.ref_region LEFT JOIN modes_capture AS c ON c.index = tx.ref_mode_capture ',
-                                                                        'order' => "ORDER BY r.nom, c.$lang"
-                                                },
-
-                                                'taxons_x_pays' => {
-                                                                                'title' => 'Taxon x country',
-                                                                                'ordre' => 5,
-                                                                                'definition' => [
-                                                                                                {       'type'  => 'foreign',
-                                                                                                        'title' => 'Country',
-                                                                                                        'id'    => 'pays',
-                                                                                                        'ref'   => 'ref_pays',
-                                                                                                        'thesaurus' => 'pays',
-                                                                                                        'addurl' => 'generique.pl?table=pays',
-                                                                                                        'card' => 'country'
-                                                                                                }, {
-                                                                                                        'type' => 'pub',
-                                                                                                        'title' => 'Original publication',
-                                                                                                        'id'   => 'ref_publication_ori'
-                                                                                                }, {
-                                                                                                        'type' => 'internal',
-                                                                                                        'title' => 'Original citation page',
-                                                                                                        'id'   => 'page_ori',
-                                                                                                        'length' => 1
-                                                                                                }, {
-                                                                                                        'type' => 'pub',
-                                                                                                        'title' => 'Updating publication',
-                                                                                                        'id'   => 'ref_publication_maj'
-                                                                                                }, {
-                                                                                                        'type' => 'internal',
-                                                                                                        'title' => 'Updating page',
-                                                                                                        'id'   => 'page_maj',
-                                                                                                        'length' => 1
-                                                                                                }, {
-                                                                                                        'type'  => 'foreign',
-                                                                                                        'title' => 'Male name',
-                                                                                                        'id'    => 'nom_male',
-                                                                                                        'ref'   => 'ref_nom_specifique_male',
-                                                                                                        'thesaurus' => 'noms',
-                                                                                                        'addurl' => 'typeSelect.pl?action=add&type=sciname',
-                                                                                                        'class' => 'name',
-                                                                                                        'card' => 'name'
-                                                                                                }, {
-                                                                                                        'type' => 'pub',
-                                                                                                        'title' => 'Male publication',
-                                                                                                        'id'   => 'ref_publication_male',
-                                                                                                }, {
-                                                                                                        'type'    => 'foreign',
-                                                                                                        'title' => 'Female name',
-                                                                                                        'id'    => 'nom_femelle',
-                                                                                                        'ref'   => 'ref_nom_specifique_femelle',
-                                                                                                        'thesaurus' => 'noms',
-                                                                                                        'addurl' => 'typeSelect.pl?action=add&type=sciname',
-                                                                                                        'class' => 'name',
-                                                                                                        'card' => 'name'
-                                                                                                }, {
-                                                                                                        'type' => 'pub',
-                                                                                                        'title' => 'Female publication',
-                                                                                                        'id'   => 'ref_publication_femelle',
-                                                                                                }, {
-                                                                                                        'type'    => 'foreign',
-                                                                                                        'title' => 'Unknown sex name',
-                                                                                                        'id'    => 'nom_sexe_inconnu',
-                                                                                                        'ref'   => 'ref_nom_specifique_sexe_inconnu',
-                                                                                                        'thesaurus' => 'noms',
-                                                                                                        'addurl' => 'typeSelect.pl?action=add&type=sciname',
-                                                                                                        'class' => 'name',
-                                                                                                        'card' => 'name'
-                                                                                                }, {
-                                                                                                        'type' => 'pub',
-                                                                                                        'title' => 'Unknown sex publication',
-                                                                                                        'id'   => 'ref_publication_sexe_inconnu',
-                                                                                                }, {
-                                                                                                        'type' => 'internal',
-                                                                                                        'title' => 'Minimum altitude',
-                                                                                                        'id'   => 'altitude_min',
-                                                                                                }, {
-                                                                                                        'type' => 'internal',
-                                                                                                        'title' => 'Maximum altitude',
-                                                                                                        'id'   => 'altitude_max',
-                                                                                                }, {
-                                                                                                        'type' => 'internal',
-                                                                                                        'title' => 'Minimum minimum altitude',
-                                                                                                        'id'   => 'altitude_min_min',
-                                                                                                }, {
-                                                                                                        'type' => 'internal',
-                                                                                                        'title' => 'Maximum maximum altitude',
-                                                                                                        'id'   => 'altitude_max_max',
-                                                                                                }, {
-                                                                                                        'type' => 'internal',
-                                                                                                        'title' => 'abundance epoch',
-                                                                                                        'id'   => 'epoque_abondance',
-                                                                                                }
-                                                                                        ],
-                                                                        'obligatory' => ['pays', 'ref_pays'],
-                                                                        'foreign_fields' => ["p.$lang"],
-                                                                        'foreign_joins' => 'LEFT JOIN pays AS p ON p.index = tx.ref_pays',
-                                                                        'order' => "ORDER BY p.$lang"
-                                                },
-
-                                                'taxons_x_pays_x_agents_infectieux' => {
-                                                                        'title' => 'Taxon x country x infectious agent',
-                                                                        'ordre' => 6,
-                                                                        'definition' => [
-                                                                                                {       'type'  => 'foreign',
-                                                                                                        'title' => 'Country',
-                                                                                                        'id'    => 'pays',
-                                                                                                        'ref'   => 'ref_pays',
-                                                                                                        'thesaurus' => 'pays',
-                                                                                                        'addurl' => 'generique.pl?table=pays',
-                                                                                                        'card' => 'country'
-                                                                                                }, {
-                                                                                                        'type'  => 'select',
-                                                                                                        'title' => 'Infectious agent',
-                                                                                                        'id'    => 'ref_agent_infectieux',
-                                                                                                        'values' => ['', sort {$agents->{$a} cmp $agents->{$b}} keys(%{$agents})],
-                                                                                                        'labels' => $agents,
-                                                                                                        'addurl' => 'generique.pl?table=agents_infectieux',
-                                                                                                        'card' => 'agent'
-                                                                                                }, {
-                                                                                                        'type'  => 'select',
-                                                                                                        'title' => 'Confirmation level',
-                                                                                                        'id'    => 'ref_niveau_confirmation',
-                                                                                                        'values' => ['', sort {$confirm->{$a} cmp $confirm->{$b}} keys(%{$confirm})],
-                                                                                                        'labels' => $confirm,
-                                                                                                        'addurl' => 'generique.pl?table=niveaux_confirmation'
-                                                                                                }, {
-                                                                                                        'type' => 'pub',
-                                                                                                        'title' => 'Original publication',
-                                                                                                        'id'   => 'ref_publication_ori'
-                                                                                                }, {
-                                                                                                        'type' => 'pub',
-                                                                                                        'title' => 'Updating publication',
-                                                                                                        'id'   => 'ref_publication_maj'
-                                                                                                }
-                                                                                        ],
-                                                                        'obligatory' => ['ref_pays', 'pays', 'ref_agent_infectieux'],
-                                                                        'foreign_fields' => ["p.$lang", "a.$lang"],
-                                                                        'foreign_joins' => 'LEFT JOIN pays AS p ON p.index = tx.ref_pays LEFT JOIN agents_infectieux AS a ON a.index = tx.ref_agent_infectieux ',
-                                                                        'order' => "ORDER BY p.$lang, a.$lang"
-                                                },
-
-                                                'taxons_x_pays_x_habitats' => {
-                                                                        'title' => 'Taxon x country x habitat',
-                                                                        'ordre' => 7,
-                                                                        'definition' => [
-                                                                                                {       'type'  => 'foreign',
-                                                                                                        'title' => 'Country',
-                                                                                                        'id'    => 'pays',
-                                                                                                        'ref'   => 'ref_pays',
-                                                                                                        'thesaurus' => 'pays',
-                                                                                                        'addurl' => 'generique.pl?table=pays',
-                                                                                                        'card' => 'country'
-                                                                                                }, {
-                                                                                                        'type'  => 'select',
-                                                                                                        'title' => 'Habitat',
-                                                                                                        'id'    => 'ref_habitat',
-                                                                                                        'values' => ['', sort {$habitats->{$a} cmp $habitats->{$b}} keys(%{$habitats})],
-                                                                                                        'labels' => $habitats,
-                                                                                                        'addurl' => 'generique.pl?table=habitats',
-                                                                                                        'card' => 'habitat'
-                                                                                                }, {
-                                                                                                        'type' => 'pub',
-                                                                                                        'title' => 'Original publication',
-                                                                                                        'id'   => 'ref_publication_ori'
-                                                                                                }, {
-                                                                                                        'type' => 'pub',
-                                                                                                        'title' => 'Updating publication',
-                                                                                                        'id'   => 'ref_publication_maj'
-                                                                                                }
-                                                                                        ],
-                                                                        'obligatory' => ['ref_pays', 'pays', 'ref_habitat'],
-                                                                        'foreign_fields' => ["p.$lang", "h.$lang"],
-                                                                        'foreign_joins' => 'LEFT JOIN pays AS p ON p.index = tx.ref_pays LEFT JOIN habitats AS h ON h.index = tx.ref_habitat ',
-                                                                        'order' => "ORDER BY p.$lang, h.$lang"
-                                                },
-
-                                                'taxons_x_pays_x_modes_capture' => {
-                                                                        'title' => 'Taxon x country x capture mode',
-                                                                        'ordre' => 8,
-                                                                        'definition' => [
-                                                                                                {       'type'  => 'foreign',
-                                                                                                        'title' => 'Country',
-                                                                                                        'id'    => 'pays',
-                                                                                                        'ref'   => 'ref_pays',
-                                                                                                        'thesaurus' => 'pays',
-                                                                                                        'addurl' => 'generique.pl?table=pays',
-                                                                                                        'card' => 'country'
-                                                                                                }, {
-                                                                                                        'type'  => 'select',
-                                                                                                        'title' => 'Capture mode',
-                                                                                                        'id'    => 'ref_mode_capture',
-                                                                                                        'values' => ['', sort {$captures->{$a} cmp $captures->{$b}} keys(%{$captures})],
-                                                                                                        'labels' => $captures,
-                                                                                                        'addurl' => 'generique.pl?table=modes_capture',
-                                                                                                        'card' => 'capture'
-                                                                                                }, {
-                                                                                                        'type' => 'pub',
-                                                                                                        'title' => 'Original publication',
-                                                                                                        'id'   => 'ref_publication_ori'
-                                                                                                }, {
-                                                                                                        'type' => 'pub',
-                                                                                                        'title' => 'Updating publication',
-                                                                                                        'id'   => 'ref_publication_maj'
-                                                                                                }
-                                                                                        ],
-                                                                        'obligatory' => ['ref_pays', 'pays', 'ref_mode_capture'],
-                                                                        'foreign_fields' => ["p.$lang", "c.$lang"],
-                                                                        'foreign_joins' => 'LEFT JOIN pays AS p ON p.index = tx.ref_pays LEFT JOIN modes_capture AS c ON c.index = tx.ref_mode_capture ',
-                                                                        'order' => "ORDER BY p.$lang, c.$lang"
-                                                },
-
-                                                'taxons_x_localites' => {
-                                                                        'title' => 'Taxon x locality',
-                                                                        'ordre' => 9,
-                                                                        'definition' => [
-                                                                                                {       'type'  => 'foreign',
-                                                                                                        'title' => 'Locality',
-                                                                                                        'id'    => 'localite',
-                                                                                                        'ref'   => 'ref_localite',
-                                                                                                        'thesaurus' => 'localites',
-                                                                                                        'addurl' => 'generique.pl?table=localites',
-                                                                                                        'card' => 'locality'
-                                                                                                }, {
-                                                                                                        'type'  => 'select',
-                                                                                                        'title' => 'Observation type',
-                                                                                                        'id'    => 'ref_type_observation',
-                                                                                                        'values' => ['', sort {$observ_types->{$a} cmp $observ_types->{$b}} keys(%{$observ_types})],
-                                                                                                        'labels' => $observ_types,
-                                                                                                        'addurl' => 'generique.pl?table=types_observation'
-                                                                                                }, {
-                                                                                                        'type' => 'pub',
-                                                                                                        'title' => 'Original publication',
-                                                                                                        'id'   => 'ref_publication_ori'
-                                                                                                }, {
-                                                                                                        'type' => 'pub',
-                                                                                                        'title' => 'Updating publication',
-                                                                                                        'id'   => 'ref_publication_maj'
-                                                                                                }
-                                                                                        ],
-                                                                        'obligatory' => ['localite', 'ref_localite'],
-                                                                        'foreign_fields' => ['l.nom'],
-                                                                        'foreign_joins' => 'LEFT JOIN localites AS l ON l.index = tx.ref_localite',
-                                                                        'order' => 'ORDER BY l.nom'
-                                                },
-
-                                                'taxons_x_periodes' => {
-                                                                        'title' => 'Taxon x geological period',
-                                                                        'ordre' => 10,
-                                                                        'definition' => [
-                                                                                                {       'type'  => 'select',
-                                                                                                        'title' => 'Geological period',
-                                                                                                        'id'    => 'ref_periode',
-                                                                                                        'values' => ['', sort {$periods->{$a} cmp $periods->{$b}} keys(%{$periods})],
-                                                                                                        'labels' => $periods,
-                                                                                                        'addurl' => 'generique.pl?table=periodes',
-                                                                                                        'card' => 'era'
-                                                                                                }, {
-                                                                                                        'type' => 'pub',
-                                                                                                        'title' => 'Original publication',
-                                                                                                        'id'   => 'ref_publication_ori'
-                                                                                                }, {
-                                                                                                        'type' => 'pub',
-                                                                                                        'title' => 'Updating publication',
-                                                                                                        'id'   => 'ref_publication_maj'
-                                                                                                }
-                                                                                        ],
-                                                                        'obligatory' => ['ref_periode'],
-                                                                        'foreign_fields' => ["p.$lang"],
-                                                                        'foreign_joins' => 'LEFT JOIN periodes AS p ON p.index = tx.ref_periode',
-                                                                        'order' => "ORDER BY p.$lang"
-                                                },
-
-                                                'noms_x_types' => {
-                                                                        'title' => 'Name x type',
-                                                                        'ordre' => 11,
-                                                                        'definition' => [
-                                                                                                {       'type'  => 'select',
-                                                                                                        'title' => 'Type',
-                                                                                                        'id'    => 'ref_type',
-                                                                                                        'values' => ['', sort {$typeTypes->{$a} cmp $typeTypes->{$b}} keys(%{$typeTypes})],
-                                                                                                        'labels' => $typeTypes,
-                                                                                                        'addurl' => 'generique.pl?table=types_type'
-                                                                                                }, {
-                                                                                                        'type'  => 'select',
-                                                                                                        'title' => 'Sex',
-                                                                                                        'id'    => 'ref_sexe',
-                                                                                                        'values' => ['', sort {$sexes->{$a} cmp $sexes->{$b}} keys(%{$sexes})],
-                                                                                                        'labels' => $sexes,
-                                                                                                        'addurl' => 'generique.pl?table=sexes'
-                                                                                                }, {
-                                                                                                        'type'  => 'foreign',
-                                                                                                        'title' => 'Deposit place',
-                                                                                                        'id'    => 'lieux_depot',
-                                                                                                        'ref'   => 'ref_lieux_depot',
-                                                                                                        'thesaurus' => 'lieux_depot',
-                                                                                                        'addurl' => 'generique.pl?table=lieux_depot',
-                                                                                                        'card' => 'repository'
-                                                                                                }, {
-                                                                                                        'type'  => 'select',
-                                                                                                        'title' => 'Deposit type',
-                                                                                                        'id'    => 'ref_type_depot',
-                                                                                                        'values' => ['', sort {$depotTypes->{$a} cmp $depotTypes->{$b}} keys(%{$depotTypes})],
-                                                                                                        'labels' => $depotTypes,
-                                                                                                        'addurl' => 'generique.pl?table=types_depot'
-                                                                                                }, {
-                                                                                                        'type'  => 'select',
-                                                                                                        'title' => 'Conservation status',
-                                                                                                        'id'    => 'ref_etat_conservation',
-                                                                                                        'values' => ['', sort {$conservation_status->{$a} cmp $conservation_status->{$b}} keys(%{$conservation_status})],
-                                                                                                        'labels' => $conservation_status,
-                                                                                                        'addurl' => 'generique.pl?table=etats_conservation'
-                                                                                                }, {
-                                                                                                        'type' => 'internal',
-                                                                                                        'title' => 'Number of specimens',
-                                                                                                        'id'   => 'quantite',
-                                                                                                        'length' => 3
-                                                                                                }
-                                                                                        ],
-                                                                        'obligatory' => ['lieux_depot', 'ref_lieux_depot', 'ref_type'],
-                                                                        'foreign_fields' => ['ld.nom'],
-                                                                        'foreign_joins' => 'LEFT JOIN lieux_depot AS ld ON ld.index = tx.ref_lieux_depot LEFT JOIN types_type AS tt ON tt.index = tx.ref_type',
-                                                                        'order' => "ld.nom, tt.$lang"
-                                                },
-
-                                                'taxons_x_lieux_depot' => {
-                                                                        'title' => 'Taxon x repository',
-                                                                        'ordre' => 12,
-                                                                        'definition' => [
-                                                                                                {       'type'  => 'foreign',
-                                                                                                        'title' => 'Deposit place',
-                                                                                                        'id'    => 'lieux_depot',
-                                                                                                        'ref'   => 'ref_lieux_depot',
-                                                                                                        'thesaurus' => 'lieux_depot',
-                                                                                                        'addurl' => 'generique.pl?table=lieux_depot',
-                                                                                                        'card' => 'repository'
-                                                                                                }, {
-                                                                                                        'type'  => 'foreign',
-                                                                                                        'title' => 'Name used',
-                                                                                                        'id'    => 'nom_utilise',
-                                                                                                        'ref'   => 'ref_nom_utilise',
-                                                                                                        'thesaurus' => 'noms',
-                                                                                                        'addurl' => 'typeSelect.pl?action=add&type=sciname',
-                                                                                                        'class' => 'name',
-                                                                                                        'card' => 'name'
-                                                                                                }, {
-                                                                                                        'type'  => 'select',
-                                                                                                        'title' => 'Sex',
-                                                                                                        'id'    => 'ref_sexe',
-                                                                                                        'values' => ['', sort {$sexes->{$a} cmp $sexes->{$b}} keys(%{$sexes})],
-                                                                                                        'labels' => $sexes,
-                                                                                                        'addurl' => 'generique.pl?table=sexes'
-                                                                                                }, {
-                                                                                                        'type'  => 'select',
-                                                                                                        'title' => 'Conservation status',
-                                                                                                        'id'    => 'ref_etat_conservation',
-                                                                                                        'values' => ['', sort {$conservation_status->{$a} cmp $conservation_status->{$b}} keys(%{$conservation_status})],
-                                                                                                        'labels' => $conservation_status,
-                                                                                                        'addurl' => 'generique.pl?table=etats_conservation'
-                                                                                                }, {
-                                                                                                        'type' => 'internal',
-                                                                                                        'title' => 'Number of specimens',
-                                                                                                        'id'   => 'quantite',
-                                                                                                        'length' => 3
-                                                                                                }
-                                                                                        ],
-                                                                        'obligatory' => ['lieux_depot', 'ref_lieux_depot'],
-                                                                        'foreign_fields' => ['ld.nom'],
-                                                                        'foreign_joins' => 'LEFT JOIN lieux_depot AS ld ON ld.index = tx.ref_lieux_depot',
-                                                                        'order' => 'ORDER BY ld.nom'
-                                                },
-
-                                                'taxons_x_vernaculaires' => {
-                                                                        'title' => 'Taxon x vernacular name',
-                                                                        'ordre' => 99,
-                                                                        'definition' => [
-                                                                                                {       'type'  => 'foreign',
-                                                                                                        'title' => 'Vernacular name',
-                                                                                                        'id'    => 'vernaculaire',
-                                                                                                        'ref'   => 'ref_vernaculaire',
-                                                                                                        'thesaurus' => 'vernaculaires',
-                                                                                                        'addurl' => 'generique.pl?table=noms_vernaculaires',
-                                                                                                        'class' => 'name',
-                                                                                                        'card' => 'name'
-                                                                                                }, {
-                                                                                                        'type' => 'pub',
-                                                                                                        'title' => 'Original publication',
-                                                                                                        'id'   => 'ref_pub',
-                                                                                                }, {
-                                                                                                        'type' => 'internal',
-                                                                                                        'title' => 'Original citation page',
-                                                                                                        'id'   => 'page',
-                                                                                                        'length' => 1
-                                                                                                }
-                                                                                        ],
-                                                                        'obligatory' => ['nom', 'ref_nom'],
-                                                                        'foreign_fields' => ['nv.nom', 'nv.transliteration'],
-                                                                        'foreign_joins' => 'LEFT JOIN noms_vernaculaires AS nv ON nv.index = tx.ref_vernaculaire',
-                                                                        'order' => 'ORDER BY nom, transliteration'
-                                                }
-                        };
-
-                        $dbc->disconnect;
-                }
-
                 # appel de la routine qui génère la carte. Les résultats sont envoyés sur STDOUT et récupérés par le module appelant.
                 my $argus = $card eq 'associate' || $card eq 'associates' ? 'associate'
                           : $card eq 'subgenera'                          ? 'subgenus'
@@ -1292,12 +666,8 @@ sub families_list {
                 #$fa_list .= end_ul();
                 $fa_list = table($fa_list);
 
-                my $prevnext;
-                if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
-                                        $prevnext,
                                         div({-class=>'titre'}, ucfirst($trans->{"familys"}->{$lang})), p,
                                         $fa_list
                                 );
@@ -1360,12 +730,8 @@ sub subfamilies_list {
                 #$fa_list .= end_ul();
                 $fa_list = table($fa_list);
 
-                my $prevnext;
-                if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
-                                        $prevnext,
                                         div({-class=>'titre'}, ucfirst($trans->{"subfamilys"}->{$lang})), p,
                                         $fa_list
                                 );
@@ -1428,12 +794,8 @@ sub tribes_list {
                 #$fa_list .= end_ul();
                 $fa_list = table($fa_list);
 
-                my $prevnext;
-                if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
-                                        $prevnext,
                                         div({-class=>'titre'}, ucfirst($trans->{"subfamilys"}->{$lang})), p,
                                         $fa_list
                                 );
@@ -1477,11 +839,8 @@ sub keys_list {
 
                 my $prevnext;
 
-                if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
-                                        $prevnext,
                                         div({-class=>'titre'}, ucfirst($trans->{'id_keys'}->{$lang})),
                                         $key_list
                                 );
@@ -1523,12 +882,8 @@ sub morphcards_list {
                 }
                 $key_list = table($key_list);
 
-                my $prevnext;
-                if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
-                                        $prevnext,
                                         div({-class=>'titre'}, ucfirst($trans->{'morphcards'}->{$lang})),
                                         $key_list
                                 );
@@ -1677,12 +1032,8 @@ sub genera_list {
 
                 $ge_list = table({-style=>'margin: 0; padding: 0;'}, $ge_list);
 
-                my $prevnext;
-                if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
-                                        $prevnext,
                                         table({-style=>'width: 100%;'},
                                                 Tr(
                                                         td( div({-class=>'titre'}, ucfirst($trans->{$title}->{$lang})) ),
@@ -1838,12 +1189,8 @@ sub species_list {
 
                 $sp_list = table({-style=>'margin: 0; padding: 0;'}, $sp_list);
 
-                my $prevnext;
-                if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
-                                        $prevnext,
                                         table({-style=>'width: 100%;'},
                                                 Tr(
                                                         td( div({-class=>'titre'}, ucfirst($trans->{$title}->{$lang}))),
@@ -2085,12 +1432,8 @@ sub fossils_list {
                         }
                 }
 
-                my $prevnext;
-                if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
-                                        $prevnext,
                                         table(
                                                 Tr(
                                                         td( div({-class=>'titre'}, ucfirst($trans->{"fossils"}->{$lang}) . "&nbsp; " . span({-style=>"font-size: 0.8em;"}, $trans->{'sortedby'}->{$lang}. ":") ) ),
@@ -2330,12 +1673,8 @@ sub names_list {
                 }
                 $html .= table({-style=>'margin: 0; padding: 0;'},  $list);
 
-                my $prevnext;
-                if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
-                                        $prevnext,
                                         $html
                                 );
 
@@ -2344,16 +1683,12 @@ sub names_list {
                 $dbc->disconnect;
         }
         else {
-                my $prevnext;
-                if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-
                 my $style;
                 if ($alphab) { $style = 'width: 100%;' }
                 else { $style = 'width: 28%;' }
 
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
-                                        $prevnext,
                                         table({-style=>$style},
                                                 Tr(
                                                         td( div({-class=>'titre'}, ucfirst($trans->{"names"}->{$lang}))),
@@ -2459,12 +1794,8 @@ sub authors_list {
 
                 my $authors_list = table({-style=>'margin: 0; padding: 0;'},  $list);
 
-                my $prevnext;
-                if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
-                                        $prevnext,
                                         table({-style=>'width: 100%;'},
                                                 Tr(
                                                         td( div({-class=>'titre'}, ucfirst($trans->{"authors"}->{$lang}))),
@@ -2564,9 +1895,6 @@ sub publications_list {
 
                 $publist .= end_ul();
 
-                my $prevnext;
-                if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-
                 my $table;
                 if ($dbase ne 'cool') {
                         $table = Tr(
@@ -2585,7 +1913,6 @@ sub publications_list {
 
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
-                                        $prevnext,
                                         table({-style=>'width: 100%;'},
                                                 $table
                                         ), br,
@@ -2775,12 +2102,8 @@ sub countries_list {
                         $countries_list .= div({-class=>'cellAsLi'}, a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=country&id=$row->[0]"}, $row->[1] ) );
                 }
 
-                my $prevnext;
-                if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
-                                        $prevnext,
                                         table({-style=>'width: 100%;'},
                                                 Tr(
                                                         td( div({-class=>'titre'}, ucfirst($trans->{"geodistribution"}->{$lang})) ),
@@ -3031,12 +2354,8 @@ sub vernaculars {
                 }
                 $list .= end_ul();
 
-                my $prevnext;
-                if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
-                                        $prevnext,
                                         table(
                                                 Tr(
                                                         td( div({-class=>'titre'}, ucfirst($trans->{'vernacular(s)'}->{$lang}) . "&nbsp; " . span({-style=>"font-size: 0.8em;"}, $trans->{'sortedby'}->{$lang}. ":")) ),
@@ -3069,9 +2388,6 @@ sub types_list {
                         $types_tab .= li(a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=type&id=$row->[0]"}, $row->[1] ) );
                 }
                 $types_tab .= end_ul();
-
-                my $prevnext;
-                if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
 
                 $fullhtml =     div({-class=>'content'},
                                         div({-class=>'titre'}, ucfirst($trans->{"TY_list"}->{$lang})),
@@ -3110,9 +2426,6 @@ sub repositories_list {
                 }
                 $de_tab .= end_ul();
 
-                my $prevnext;
-                if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-
                 $fullhtml =     div({-class=>'content'},
                                         div({-class=>'titre'}, ucfirst($trans->{"repositories"}->{$lang})),
                                         $de_tab
@@ -3146,9 +2459,6 @@ sub eras_list {
                 }
                 $eras_list .= end_ul();
 
-                my $prevnext;
-                if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-
                 $fullhtml =     div({-class=>'content'},
                                         div({-class=>'titre'}, ucfirst($trans->{"eras"}->{$lang})),
                                         $eras_list
@@ -3180,9 +2490,6 @@ sub regions_list {
                         $re_tab .= li(a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=region&id=$row->[0]"}, $row->[1] ) );
                 }
                 $re_tab .= end_ul();
-
-                my $prevnext;
-                if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
 
                 $fullhtml =     div({-class=>'content'},
                                         div({-class=>'titre'}, ucfirst($trans->{"regions"}->{$lang})),
@@ -3219,9 +2526,6 @@ sub agents_list {
                 }
                 $a_tab .= end_ul();
 
-                my $prevnext;
-                if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-
                 $fullhtml =     div({-class=>'content'},
                                         div({-class=>'titre'}, ucfirst($trans->{"A_list"}->{$lang})),
                                         div({-class=>'titre'}, "$a_numb->[0] $trans->{'agents'}->{$lang}"),
@@ -3252,9 +2556,6 @@ sub editions_list {
                         $ed_tab .= li(a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=edition&id=$edition->[0]"}, i("$edition->[1]") ) . " $edition->[2], $edition->[3]" );
                 }
                 $ed_tab .= end_ul();
-
-                my $prevnext;
-                if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
 
                 $fullhtml =     div({-class=>'content'},
                                         div({-class=>'titre'}, ucfirst($trans->{"ED_list"}->{$lang})),
@@ -3287,9 +2588,6 @@ sub habitats_list {
                         $ha_tab .= li(a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=habitat&id=$habitat->[0]"}, "$habitat->[1]" ) );
                 }
                 $ha_tab .= end_ul();
-
-                my $prevnext;
-                if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
 
                 $fullhtml =     div({-class=>'content'},
                                         div({-class=>'titre'}, ucfirst($trans->{"habitat(s)"}->{$lang})),
@@ -3326,9 +2624,6 @@ sub localities_list {
                 }
                 $lo_tab .= end_ul();
 
-                my $prevnext;
-                if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
-
                 $fullhtml =     div({-class=>'content'},
                                         div({-class=>'titre'}, ucfirst($trans->{"LO_list"}->{$lang})),
                                         div({-class=>'titre'}, "$lo_numb->[0] $trans->{'localities'}->{$lang}"),
@@ -3359,9 +2654,6 @@ sub captures_list {
                         $ca_tab .= li(a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=capture&id=$capture->[0]"}, "$capture->[1]" ) );
                 }
                 $ca_tab .= end_ul();
-
-                my $prevnext;
-                if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
 
                 $fullhtml =     div({-class=>'content'},
                                         div({-class=>'titre'}, ucfirst($trans->{"CA_list"}->{$lang})),
@@ -3559,7 +2851,6 @@ sub board {
                 my $prevnext;
                 my $sup;
                 if (scalar(@{$rows}) >= 1) {
-                        if ($dbase eq 'cipa') { $prevnext = prev_next_topic($card); }
                         if ($nbfam == 1) {
                                 if($nbsubfam) { $sup = 'subfamilys'; }
                                 else { $rows->[0][7] = $pub_numb->[0]; $sup = 'family'; }
@@ -6272,11 +5563,6 @@ sub taxon_card {
                 }
 
 
-                my $cross;
-                if ($dbase eq 'cipa') {
-                        $cross = display_cross_tables($id, $dbc);
-                }
-
                 my $elements;
                 foreach my $key (sort {$a <=> $b} keys(%orderedElements)) {
                         $elements .= $orderedElements{$key};
@@ -6301,7 +5587,6 @@ sub taxon_card {
                                                         ),
                                                         div({-id=>'periDiv'},
                                                                 $elements,
-                                                                $cross,
                                                                 span({-id=>'testDiv', -style=>'color: grey;'}, $test)
                                                         )
                                                 )
