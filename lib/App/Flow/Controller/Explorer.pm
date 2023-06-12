@@ -266,9 +266,6 @@ sub build_card {
 sub getPDF {
   my ($index) = @_;
 
-  warn "CHECK PDF ".$glob_self->root_dir."/www/html/Documents/$pdfdir/$index.pdf\n";
-
-
   if ($index && -f ($glob_self->root_dir."/www/html/Documents/$pdfdir/$index.pdf")) {
     return ' ' . a({-href=>"/$pdfdir/$index.pdf", -target=>"_blank" }, img({-style=>'border: 0; height: 12px;', -src=>"/explorerdocs/pdflogo.jpg"}));
   }
@@ -1531,6 +1528,7 @@ sub authors_list {
 
                 foreach my $author ( @{$authors} ){
                         unless ($i < $seuil) { $i = 0; $j++; }
+                        no warnings 'uninitialized';
                         $auteurs{$i}{$j} = td({-class=>'cellAsLi', -style=>'padding-right: 10px;', -width=>int(1000/$nbcols)}, a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=author&id=$author->[0]"}, "$author->[1] $author->[2]" ) );
                         $i++;
                 }
@@ -1571,7 +1569,7 @@ sub publications_list {
 
                 my %display_modes = %{request_hash("SELECT * FROM display_modes WHERE card = 'publications';", $dbc, 'element')};
                 my %attributes;
-                my @attribs = split('#', $display_modes{list}{attributes});
+                my @attribs = split('#', ($display_modes{list}{attributes} // ''));
                 foreach (@attribs) {
                         my ($key, $val) = split(':', $_);
                         $attributes{$key} = $val;
@@ -1605,7 +1603,8 @@ sub publications_list {
                                 if ($limit > $default or ($offset + $limit) >= $nbpubs) {
                                         if ($substr ne $cut) { $cut .= " - " . $substr }
                                         my $active;
-                                        if ($offset == $from) {
+
+                                        if ($offset == ($from // 0)) {
                                                 $cut = span({-class=>'xsection', -style=>"font-size: 12px;"}, $cut);
                                                 $pubids = request_tab(" SELECT p.index FROM publications AS p
                                                                         LEFT JOIN auteurs_x_publications AS axp ON p.index = axp.ref_publication
@@ -5428,7 +5427,7 @@ sub name_card {
                         my $taxa_tab;
                         my @chresos;
                         my %done;
-                        my $origin;
+                        my $origin = '';
                         foreach my $taxon ( @{$taxa} ){
 
                                 if ($taxon->[12] == $name_id) { $origin = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[18]) . " $taxon->[19]" )." "; }
@@ -6092,7 +6091,7 @@ sub publication_card {
                         my %attributes;
                         my @attribs;
                         my ($nb_neo) = @{request_tab("SELECT count(*) FROM taxons_x_noms WHERE ref_statut = 11 AND ref_publication_denonciation = $pub_id;", $dbc, 1)};
-                        @attribs = split('#', $display_modes{neonyms}{attributes});
+                        @attribs = split('#', ($display_modes{neonyms}{attributes} // ''));
                         foreach (@attribs) {
                                 my ($key, $val) = split(':', $_);
                                 $attributes{$key} = $val;
@@ -6245,7 +6244,7 @@ sub publication_card {
                         my %attributes;
                         my @attribs;
                         my ($nb_emend) = @{request_tab("SELECT count(*) FROM taxons_x_noms WHERE ref_statut = 15 AND ref_publication_denonciation = $pub_id;", $dbc, 1)};
-                        @attribs = split('#', $display_modes{emendations}{attributes});
+                        @attribs = split('#', ($display_modes{emendations}{attributes} // ''));
                         foreach (@attribs) {
                                 my ($key, $val) = split(':', $_);
                                 $attributes{$key} = $val;
@@ -8492,6 +8491,7 @@ sub parent_taxon {
 ############################################################################################
 sub synonymy {
         my ( $global, $male, $female ) = @_;
+        $_ //= '' for $global, $male, $female;
         my $synonymy = "";
         if ( $global eq '' or $male eq '' or $female eq '' ){
                 if ( $global eq '' and $male eq '' and $female eq '' ){
@@ -8538,6 +8538,7 @@ sub synonymy {
 ############################################################################################
 sub completeness {
         my ( $global, $male, $female ) = @_;
+        $_ //= '' for $global, $male, $female;
         my $completeness = "";
         if ( $global eq '' or $male eq '' or $female eq '' ){
                 if ( $global eq '' and $male eq '' and $female eq '' ){
@@ -8718,8 +8719,10 @@ sub pub_formating {
                         push(@authors,"$pub->{$index}->{'auteurs'}->{$position}->{'nom'} $pub->{$index}->{'auteurs'}->{$position}->{'prenom'}");
                         $position++;
                 }
+                no warnings 'uninitialized';
                 $author_str = span({-class=>'pubAuteurs'},join(',&nbsp;',@authors)."&nbsp;&&nbsp;$pub->{$index}->{'auteurs'}->{$nb_authors}->{'nom'}&nbsp;$pub->{$index}->{'auteurs'}->{$nb_authors}->{'prenom'}");
         } else {
+                no warnings 'uninitialized';
                 $author_str = span({-class=>'pubAuteurs'},"$pub->{$index}->{'auteurs'}->{$nb_authors}->{'nom'}&nbsp;$pub->{$index}->{'auteurs'}->{$nb_authors}->{'prenom'}");
         }
 
@@ -8837,6 +8840,7 @@ sub pub_formating {
                         }
                         $book_author_str = span({-class=>'pubAuteurs'},join(',&nbsp;',@authors_livre)."&nbsp;&&nbsp;$pub->{$index}->{'auteurslivre'}->{$nb_authors_livre}->{'nom'}&nbsp;$pub->{$index}->{'auteurslivre'}->{$nb_authors_livre}->{'prenom'}");
                 } else {
+                        no warnings 'uninitialized';
                         $book_author_str = span({-class=>'pubAuteurs'},"$pub->{$index}->{'auteurslivre'}->{$nb_authors_livre}->{'nom'}&nbsp;$pub->{$index}->{'auteurslivre'}->{$nb_authors_livre}->{'prenom'}");
                 }
 
