@@ -148,9 +148,9 @@ sub new {
 
 
 # simple accessors or proxy methods
-sub dbh_for {shift->{controller}->dbh_for(@_)}
-sub new_uri {shift->{req_context}->new_uri(@_)}
-sub etc_dir {shift->{etc_dir}}
+sub dbh_for  {shift->{controller}->dbh_for(@_)}
+sub new_uri  {shift->{req_context}->new_uri(@_)}
+sub root_dir {shift->{root_dir}}
 
 
 #======================================================================
@@ -224,7 +224,7 @@ sub build_card {
   unless ( scalar @msg ) {
 
         # read config file
-        if ( open my $config_fh, "<", $self->etc_dir.$config_file) {
+        if ( open my $config_fh, "<", $self->root_dir.$config_file) {
                 while (<$config_fh>) {
                         chomp;                 # no newline
                         s/#.*//;               # no comments
@@ -264,14 +264,17 @@ sub build_card {
 ############# Functions ############################################################################################################################################
 
 sub getPDF {
-        my ($index) = @_;
+  my ($index) = @_;
 
-        if ($index && -f "/var/www/html/Documents/$pdfdir/$index.pdf") {
-                return ' ' . a({-href=>"/$pdfdir/$index.pdf", -target=>"_blank" }, img({-style=>'border: 0; height: 12px;', -src=>"/explorerdocs/pdflogo.jpg"}));
-        }
-        else {
-                return '';
-        }
+  warn "CHECK PDF ".$glob_self->root_dir."/www/html/Documents/$pdfdir/$index.pdf\n";
+
+
+  if ($index && -f ($glob_self->root_dir."/www/html/Documents/$pdfdir/$index.pdf")) {
+    return ' ' . a({-href=>"/$pdfdir/$index.pdf", -target=>"_blank" }, img({-style=>'border: 0; height: 12px;', -src=>"/explorerdocs/pdflogo.jpg"}));
+  }
+  else {
+    return '';
+  }
 
 }
 
@@ -2426,7 +2429,7 @@ sub makeboard {
         }
         else {
                 my $config2 = {};
-                if ( open my $config_fh, "<", $glob_self->etc_dir.$synop_conf) {
+                if ( open my $config_fh, "<", $glob_self->root_dir.$synop_conf) {
                         while (<$config_fh>) {
                                 chomp; s/#.*//; s/^\s+//; s/\s+$//; next unless length;
                                 my ($option, $value) = split(/\s*=\s*/, $_, 2);
@@ -5864,7 +5867,7 @@ sub author_card {
 # Publication card
 #################################################################
 sub publication_card {
-        if ( my $dbc = db_connection($config) ) {
+        if ( my $dbc = $glob_self->dbh_for($config->{DEFAULT_DB}) ) {
 
                 my $pub_id = $id;
                 my @pub = publication( $pub_id, 1, 0, $dbc );

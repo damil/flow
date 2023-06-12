@@ -55,7 +55,7 @@ sub respond {
   # le contenu 'explorer' est déporté dans un module séparé
   if ($c->stash->{xpage} eq 'explorer') {
     my $sub_html = capture_stdout {
-      my $explorer = App::Flow::Controller::Explorer->new(controller => $self, req_context => $c, etc_dir => $self->root_dir);
+      my $explorer = App::Flow::Controller::Explorer->new(controller => $self, req_context => $c, root_dir => $self->root_dir);
       my %card_args = map {($_ => $c->param($_))} qw/db card id lang alph from to rank mode privacy limit/;
       $explorer->build_card($c->stash->%*, %card_args);
     };
