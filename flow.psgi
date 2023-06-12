@@ -20,10 +20,10 @@ my $crud_config = YAML::XS::LoadFile("$Bin/crud_conf.yaml");
 
 
 my $app = builder {
-  mount "/flowdocs/search_flow.js" => App::Flow::Controller::SearchJs->new(config => $flow_config)             ->to_app;
-  mount "/flow"                    => App::Flow::Controller::Root->new(config => $flow_config, etc_dir => $Bin)->to_app;
-  mount "/crud"                    => App::AutoCRUD->new(config => $crud_config)                               ->to_app;
-  mount "/"                        => Plack::App::File->new(root => "$Bin/www/html/Documents")                 ->to_app;
+  mount "/flowdocs/search_flow.js" => App::Flow::Controller::SearchJs->new(config => $flow_config)              ->to_app;
+  mount "/flow"                    => App::Flow::Controller::Root->new(config => $flow_config, root_dir => $Bin)->to_app;
+  mount "/crud"                    => App::AutoCRUD->new(config => $crud_config)                                ->to_app;
+  mount "/"                        => Plack::App::File->new(root => "$Bin/www/html/Documents")                  ->to_app;
 };
 
 
