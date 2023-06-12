@@ -135,7 +135,6 @@ sub compute_icon_descriptions { # icônes centrales en haut de page
     [molecular     => molecular_data => 'Molecular data'            => 'molecule_flow.png'  ],
    );
 
-
   # ajout des hyperliens
   $_->{href} = $c->new_uri(page => 'explorer', card => $_->{name}) foreach @icon_descriptions;
 

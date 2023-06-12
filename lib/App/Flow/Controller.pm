@@ -13,7 +13,7 @@ sub call { # entry point for Plack::Component
   my ($self, $env) = @_;
 
   my $req = Plack::Request->new($env);
-  my $c   = App::Flow::Context->new(req => $req, stash => {});
+  my $c   = App::Flow::Context->new(req => $req, stash => {}, config => $self->config);
 
   $self->respond($c);
 }

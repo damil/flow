@@ -12,6 +12,11 @@ databases:
       - pgadmin
       - { pg_enable_utf8: 1 }
 
+# UNCOMMENT to run on a server
+# base_href:
+#   scheme: https
+#   authority: flow-hemiptera-databases.fly.dev
+
 photos_carrousel:
   - Tropiduchidae
   - Tropiduchidae 2

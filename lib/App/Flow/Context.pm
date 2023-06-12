@@ -3,7 +3,7 @@ use utf8;
 use strict;
 use warnings;
 use URI::QueryParam;
-use Plack::Util::Accessor qw(req stash);
+use Plack::Util::Accessor qw(req stash config);
 
 sub new {
   my ($class, @args) = @_;
@@ -11,7 +11,7 @@ sub new {
   my $self = bless {@args}, $class;
   defined $self->{req} && $self->{req}->isa('Plack::Request')
     or die __PACKAGE__ . "->new(req => ...) : req should be a Plack::Request object";
-  $self->{stash} //= {};
+  $self->{$_} //= {} for qw/stash config/;
   return $self;
 }
 
@@ -26,9 +26,15 @@ sub new_uri {
   # query params : may be given either as a hash or as a hashref (esp. when called from Template Toolkit)
   my $query_params = ref $_[0] ? $_[0] : {@_};
 
+  # override scheme and authority if config requires it
   my $uri = $self->req->uri;
+  $_ and $uri->scheme($_)    for $self->config->{base_href}{scheme};
+  $_ and $uri->authority($_) for $self->config->{base_href}{authority};
+
+  # override query params
   $uri->query_param($_ => [])                  foreach qw/rank id alph/;
   $uri->query_param($_ => $query_params->{$_}) foreach keys %$query_params;
+
   return $uri->as_string;
 }
 
