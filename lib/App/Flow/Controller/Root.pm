@@ -223,9 +223,6 @@ sub contact_href {
 
 
 
-
-
-
 #======================================================================
 # FONCTIONS UTILITAIRES (pas des méthodes!)
 #======================================================================
@@ -236,132 +233,7 @@ sub list_of_records {
 }
 
 
-
 1;
-
-__END__
-
-
-
-
-
-
-
-
-
-my $search_id  = ucfirst($traduction->{search}->{$xlang});
-
-
-my $typdef = $searchtable;
-
-my %attributes = (
-	'noms_complets' => {'class'=>'searchOption'},
-	'auteurs'       => {'class'=>'searchOption'},
-	'pays'          => {'class'=>'searchOption'},
-);
-
-my $search = url_param('search') || '';
-for (my $i = 1; $i < scalar(keys(%types)) + 1; $i++) {
-	my $schstr = param("search$i");
-	if (ucfirst($schstr) ne ucfirst($traduction->{search}->{$xlang})) { $search = $schstr; }
-}
-
-
-
-
-
-  [% IF xpage == 'explorer' and not url_param('loading') %]
-     <div class='contentContainer'>
-       Explorer content : NOT IMPLEMENTED YET (needs external call to explorer20.pl)
-       [%# ============================================
-
-
-
-          $activepage = url_param('card') eq 'board' ? "Synopsis" : $traduction->{'flow_db'}->{$xlang};
-
-
-          $pagetitle = get_title($dbc, $xbase, $card, $id, $search, $xlang, 'NULL', $alph, $traduction);
-
-          $script = join " ", "/var/www/html/perl/explorer20.pl", @script_args;
-
-          system $script;
-       %]
-     </div>
-  [% END; # IF xpage == 'explorer' & !url_param('loading' %]
-
-
-
-
-
-
-
-
-
-sub classification {
-	my $conf = get_connection_params("$ENV{FLOW_CONFDIR}/flow/classif.conf");
-	my $dbh = db_connection($conf);
-	my $trans = read_lang($conf);
-	my $order = request_tab("SELECT n.index, orthographe, fossil FROM noms AS n LEFT JOIN rangs AS r ON n.ref_rang = r.index WHERE r.en = 'order';", $dbh, 2);
-	my $classif .= span({-style=>'margin-left: 20px;'},$order->[0][1]) . br;
-	my $suborders = request_tab("SELECT n.index, orthographe, fossil FROM noms AS n LEFT JOIN rangs AS r ON n.ref_rang = r.index WHERE n.ref_nom_parent = $order->[0][0] ORDER BY orthographe;", $dbh, 2);
-
-	foreach my $suborder (@{$suborders}) {
-		my $nom = $suborder->[1];
-		if ($suborder->[2]) { $nom .= 'Â†' }
-		$classif .= span({-style=>'margin-left: 40px;'},$nom) . br;
-		my $infraorders = request_tab("SELECT n.index, orthographe, fossil, r.en FROM noms AS n LEFT JOIN rangs AS r ON n.ref_rang = r.index WHERE n.ref_nom_parent = $suborder->[0] ORDER BY orthographe;", $dbh, 2);
-
-		foreach my $infraorder (@{$infraorders}) {
-			if ($infraorder->[3] eq 'infraorder') {
-				$nom = $infraorder->[1];
-				if ($infraorder->[2]) { $nom .= 'Â†' }
-				$classif .= span({-style=>'margin-left: 60px;'},$nom) . br;
-				my $sons = request_tab("SELECT n.index, orthographe, fossil, r.en FROM noms AS n LEFT JOIN rangs AS r ON n.ref_rang = r.index WHERE n.ref_nom_parent = $infraorder->[0] ORDER BY orthographe;", $dbh, 2);
-				foreach my $son (@{$sons}) {
-					if ($son->[3] eq 'super family') {
-						$nom = $son->[1];
-						if ($son->[2]) { $nom .= 'Â†' }
-						$classif .=span({-style=>'margin-left: 80px;'},$nom) . br;
-						my $families = request_tab("SELECT n.index, orthographe, fossil, r.en FROM noms AS n LEFT JOIN rangs AS r ON n.ref_rang = r.index WHERE n.ref_nom_parent = $son->[0] ORDER BY orthographe;", $dbh, 2);
-						foreach my $family (@{$families}) {
-							$nom = $family->[1];
-							if ($family->[2]) { $nom .= 'Â†' }
-							$classif .= span({-style=>'margin-left: 100px;'},$nom) . br;
-						}
-					}
-					elsif ($son->[3] eq 'family') {
-						$nom = $son->[1];
-						if ($son->[2]) { $nom .= 'Â†' }
-						$classif .= span({-style=>'margin-left: 100px;'},$nom) . br;
-					}
-				}
-			}
-			elsif ($infraorder->[3] eq 'super family') {
-				$nom = $infraorder->[1];
-				if ($infraorder->[2]) { $nom .= 'Â†' }
-				$classif .= span({-style=>'margin-left: 80px;'},$nom) . br;
-				my $families = request_tab("SELECT n.index, orthographe, fossil, r.en FROM noms AS n LEFT JOIN rangs AS r ON n.ref_rang = r.index WHERE n.ref_nom_parent = $infraorder->[0] ORDER BY orthographe;", $dbh, 2);
-				foreach my $family (@{$families}) {
-					$nom = $family->[1];
-					if ($family->[2]) { $nom .= 'Â†' }
-					$classif .= span({-style=>'margin-left: 100px;'},$nom) . br;
-				}
-			}
-		}
-	}
-
-	$classif .= p . span({-style=>'margin-left: 20px;'},"Incertae sedis") . br;
-	my $incertae = request_tab("SELECT n.index, orthographe, fossil FROM noms AS n LEFT JOIN rangs AS r ON n.ref_rang = r.index WHERE r.en = 'incertae sedis' ORDER BY orthographe;", $dbh, 2);
-
-	foreach my $insed (@{$incertae}) {
-		my $nom = $insed->[1];
-		if ($insed->[2]) { $nom .= 'Â†' }
-		$classif .= span({-style=>'margin-left: 40px;'},$nom) . br;
-	}
-
-	my $content = h2({-style=>'margin-left: 20px'}, "Hemiptera classification"). br. $classif;
-}
-
 
 __END__
 
