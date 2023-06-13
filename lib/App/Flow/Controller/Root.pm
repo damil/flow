@@ -69,6 +69,9 @@ sub respond {
   $tmpl->process("root.tt2", {c => $c, $c->stash->%*}, \my $html)
     or die $tmpl->error;
 
+  # suppression des éventuels liens absolus vers le serveur d'origine (par ex. en DB dans la table 'images')
+  $html =~ s[https?://\w+\.hemiptera-databases\.org][]g;
+
   # renvoi de la réponse
   $res->body(encode_utf8($html));
   return $res->finalize;
