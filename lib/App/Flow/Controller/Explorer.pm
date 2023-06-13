@@ -3561,15 +3561,11 @@ sub taxon_card {
 
                                 my $ascendant = request_tab($req, $dbc, 2);
                                 if($ascendant->[0]) {
-                                        #$test .= $parent." IS A $ascendant->[0][1]<br>";
                                         while ($ascendant->[0][1] ne $sons_ranks->[$rank_pos] and $rank_pos < scalar(@{$sons_ranks})) {
-                                                #$test .= "$ascendant->[0][1] VS $sons_ranks->[$rank_pos] <br>";
                                                 push(@phpcols, "empty");
                                                 $rank_pos++;
-                                                #$test .= "void ADDED <br>";
                                         }
                                         if($rank_pos < scalar(@{$sons_ranks})) {
-                                            #http://flow.hemiptera.infosyslab.fr
                                                 push(@phpcols, "$ascendant->[0][2] ++ $ascendant->[0][3] ++ /flow/?page=explorer&db=flow&lang=en&card=taxon&rank=$ascendant->[0][1]&id=$parent");
                                                 $rank_pos++;
                                                 $parent = $ascendant->[0][0];
