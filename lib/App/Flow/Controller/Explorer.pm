@@ -151,7 +151,7 @@ sub new {
 sub dbh_for  {shift->{controller}->dbh_for(@_)}
 sub new_uri  {shift->{req_context}->new_uri(@_)}
 sub root_dir {shift->{root_dir}}
-
+sub traduc   {$glob_self->{req_context}->stash->{traduc}->(@_)}
 
 #======================================================================
 # MAIN ENTRY POINT
@@ -242,17 +242,15 @@ sub build_card {
         @topics = split(' ', $config->{DEFAULT_TOPICS});
         unless(scalar(@topics)) { @topics = split(' ', $config->{EXPLORER_TOPICS}); }
 
-        unless ( $trans = read_lang($config) ) { error_msg( "lang = $lang" ); }
-        else {
 
-                # appel de la routine qui génère la carte. Les résultats sont envoyés sur STDOUT et récupérés par le module appelant.
-                my $argus = $card eq 'associate' || $card eq 'associates' ? 'associate'
-                          : $card eq 'subgenera'                          ? 'subgenus'
-                          : $card eq 'subspeciess'                        ? 'subspecies'
-                          :                                                 undef;
-                $glob_self = $self; # hack en attendant un refactoring de toutes les subroutines
-                $states{$card}->($argus);
-        }
+        # appel de la routine qui génère la carte. Les résultats sont envoyés sur STDOUT et récupérés par le module appelant.
+        my $argus = $card eq 'associate' || $card eq 'associates' ? 'associate'
+                  : $card eq 'subgenera'                          ? 'subgenus'
+                  : $card eq 'subspeciess'                        ? 'subspecies'
+                  :                                                 undef;
+        $glob_self = $self; # hack en attendant un refactoring de toutes les subroutines
+        $states{$card}->($argus);
+
   }
   else { error_msg( join(br, @msg) );}
 
@@ -279,7 +277,7 @@ sub getPDF {
 #################################################################
 sub error_msg {
         my ($msg) = @_;
-        my $error = $trans->{'UNK_P'}->{$lang} || 'Unknown parameter';
+        my $error = traduc('UNK_P') || 'Unknown parameter';
         $fullhtml =     div({-class=>'content'},
                                 div({-class=>'subject'}, $error),
                                 $msg
@@ -330,7 +328,7 @@ sub topics_list {
                 else { $bg = 'transparent'; }
                 foreach (@topics) {
                         my $href = "$scripts{$dbase}db=$dbase&lang=$lang&card=$_";
-                        push(@{$topics{$row}}, a({-href=>$href, -class=>'topicItem'},  ucfirst($trans->{$_}->{$lang})));
+                        push(@{$topics{$row}}, a({-href=>$href, -class=>'topicItem'},  ucfirst(traduc($_))));
                         $wrap++;
                 }
                 foreach (sort {$a<=>$b} keys(%topics)) {
@@ -348,12 +346,12 @@ sub topics_list {
                         my $label;
                         if ($_ eq 'plants' and $dbase eq 'cool') { $label = 'plants_associated' }
                         else { $label = $_; }
-                        $topics_list .= li({-class=>'exploli'}, a({-class=>'exploa', -href=>$href}, ucfirst($trans->{$label}->{$lang}) ) );
+                        $topics_list .= li({-class=>'exploli'}, a({-class=>'exploa', -href=>$href}, ucfirst(traduc($label)) ) );
                 }
                 $topics_list .= end_ul();
 
                 my $toptitle;
-                if ($dbase ne 'cool') { $toptitle = h2({-class=>'exploh2'},  $trans->{"topics"}->{$lang}); }
+                if ($dbase ne 'cool') { $toptitle = h2({-class=>'exploh2'},  traduc("topics")); }
 
                 $fullhtml = div({-class=>'explocontent', -id=>'topiclist'},
                                         div({-class=>'carddiv'},
@@ -410,7 +408,7 @@ sub families_list {
                 my $fa_list = '';
                 while ( $sth->fetch() ){
                         if ($doclogo) { $doclogo = '&nbsp;' . img({-src=>$doclogo, -style=>'width: 14px; border: 0; margin: 0; padding: 0;'}); }
-                        if ($docid) { $docid = a({-style=>'margin-left: 20px;', -href=>$docid, -target=>'_blank'}, $doclogo . " $trans->{'id_key'}->{$lang} "); }
+                        if ($docid) { $docid = a({-style=>'margin-left: 20px;', -href=>$docid, -target=>'_blank'}, $doclogo . " ".traduc('id_key')." "); }
                         $fa_list .= Tr(td({-class=>'cellAsLi'}, a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=family&id=$taxonid&loading=1"}, i("$name") . " $autority")), td({-class=>'cellAsLi'}, $docid));
                 }
 
@@ -418,7 +416,7 @@ sub families_list {
 
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
-                                        div({-class=>'titre'}, ucfirst($trans->{"familys"}->{$lang})), p,
+                                        div({-class=>'titre'}, ucfirst(traduc("familys"))), p,
                                         $fa_list
                                 );
 
@@ -473,14 +471,14 @@ sub subfamilies_list {
                 my $fa_list = '';
                 while ( $sth->fetch() ){
                         if ($doclogo) { $doclogo = '&nbsp;' . img({-src=>$doclogo, -style=>'width: 14px; border: 0; margin: 0; padding: 0;'}); }
-                        if ($docid) { $docid = a({-style=>'margin-left: 20px;', -href=>$docid, -target=>'_blank'}, $doclogo . " $trans->{'id_key'}->{$lang} "); }
+                        if ($docid) { $docid = a({-style=>'margin-left: 20px;', -href=>$docid, -target=>'_blank'}, $doclogo . " ".traduc('id_key')." "); }
                         $fa_list .= Tr(td({-class=>'cellAsLi'}, a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$rank&id=$taxonid"}, i("$name") . " $autority")), td({-class=>'cellAsLi'}, $docid));
                 }
                 $fa_list = table($fa_list);
 
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
-                                        div({-class=>'titre'}, ucfirst($trans->{"subfamilys"}->{$lang})), p,
+                                        div({-class=>'titre'}, ucfirst(traduc("subfamilys"))), p,
                                         $fa_list
                                 );
 
@@ -536,7 +534,7 @@ sub tribes_list {
                 my $fa_list;
                 while ( $sth->fetch() ){
                         if ($doclogo) { $doclogo = '&nbsp;' . img({-src=>$doclogo, -style=>'width: 14px; border: 0; margin: 0; padding: 0;'}); }
-                        if ($docid) { $docid = a({-style=>'margin-left: 20px;', -href=>$docid, -target=>'_blank'}, $doclogo . " $trans->{'id_key'}->{$lang} "); }
+                        if ($docid) { $docid = a({-style=>'margin-left: 20px;', -href=>$docid, -target=>'_blank'}, $doclogo . " ".traduc('id_key')." "); }
                         $fa_list .= Tr(td({-class=>'cellAsLi'}, a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$rank&id=$taxonid"}, i("$name") . " $autority")), td({-class=>'cellAsLi'}, $docid));
                 }
                 #$fa_list .= end_ul();
@@ -544,7 +542,7 @@ sub tribes_list {
 
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
-                                        div({-class=>'titre'}, ucfirst($trans->{"subfamilys"}->{$lang})), p,
+                                        div({-class=>'titre'}, ucfirst(traduc("subfamilys"))), p,
                                         $fa_list
                                 );
 
@@ -589,7 +587,7 @@ sub keys_list {
 
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
-                                        div({-class=>'titre'}, ucfirst($trans->{'id_keys'}->{$lang})),
+                                        div({-class=>'titre'}, ucfirst(traduc('id_keys'))),
                                         $key_list
                                 );
 
@@ -632,7 +630,7 @@ sub morphcards_list {
 
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
-                                        div({-class=>'titre'}, ucfirst($trans->{'morphcards'}->{$lang})),
+                                        div({-class=>'titre'}, ucfirst(traduc('morphcards'))),
                                         $key_list
                                 );
 
@@ -784,7 +782,7 @@ sub genera_list {
                                         $totop,
                                         table({-style=>'width: 100%;'},
                                                 Tr(
-                                                        td( div({-class=>'titre'}, ucfirst($trans->{$title}->{$lang})) ),
+                                                        td( div({-class=>'titre'}, ucfirst(traduc($title))) ),
                                                         td({-style=>'text-align: center;'}, $alphabet )
                                                 )
                                         ),
@@ -941,7 +939,7 @@ sub species_list {
                                         $totop,
                                         table({-style=>'width: 100%;'},
                                                 Tr(
-                                                        td( div({-class=>'titre'}, ucfirst($trans->{$title}->{$lang}))),
+                                                        td( div({-class=>'titre'}, ucfirst(traduc($title)))),
                                                         td({-style=>'text-align: center;'}, $alphabet )
                                                 )
                                         ),
@@ -966,8 +964,8 @@ sub fossils_list {
                 my ($alphabet, $alphabetic, $time, $sp_list);
 
                 if ($mode eq 'alpha' or !$mode) {
-                        $time = a({-class=>'section', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=fossils&mode=time"},  ucfirst($trans->{'geoltime'}->{$lang}));
-                        $alphabetic = span({-class=>'xsection'},  ucfirst($trans->{'alphabetic'}->{$lang}));
+                        $time = a({-class=>'section', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=fossils&mode=time"},  ucfirst(traduc('geoltime')));
+                        $alphabetic = span({-class=>'xsection'},  ucfirst(traduc('alphabetic')));
 
                         # Get the number of species to build up the list
                         my $sp_numb;
@@ -1107,8 +1105,8 @@ sub fossils_list {
                         $sp_list = table({-style=>'margin: 0; padding: 0;'}, $sp_list);
                 }
                 else {
-                        $alphabetic = a({-class=>'section', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=fossils&mode=alpha"}, ucfirst($trans->{'alphabetic'}->{$lang}));
-                        $time = span({-class=>'xsection'},  ucfirst($trans->{'geoltime'}->{$lang}));
+                        $alphabetic = a({-class=>'section', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=fossils&mode=alpha"}, ucfirst(traduc('alphabetic')));
+                        $time = span({-class=>'xsection'},  ucfirst(traduc('geoltime')));
 
                         my $req = "     SELECT DISTINCT t.index, nc.orthographe, nc.autorite, p.$lang, p.debut, p.fin, p.parent, p.niveau, substring(nc.orthographe from 1 for char_length(nc.orthographe)-1), t.family
                                         FROM taxons AS t
@@ -1152,7 +1150,7 @@ sub fossils_list {
                                 }
                                 else {
                                         unless (exists($fossils{'not_dated'})) {
-                                                push(@{$fossils{'not_dated'}{hierarchie}}, ucfirst($trans->{"not_dated"}->{$lang}));
+                                                push(@{$fossils{'not_dated'}{hierarchie}}, ucfirst(traduc("not_dated")));
                                                 $fossils{'not_dated'}{start} = 10**30;
                                         }
                                         $family = $family ? " ($family)" : undef;
@@ -1184,7 +1182,7 @@ sub fossils_list {
                                         $totop,
                                         table(
                                                 Tr(
-                                                        td( div({-class=>'titre'}, ucfirst($trans->{"fossils"}->{$lang}) . "&nbsp; " . span({-style=>"font-size: 0.8em;"}, $trans->{'sortedby'}->{$lang}. ":") ) ),
+                                                        td( div({-class=>'titre'}, ucfirst(traduc("fossils")) . "&nbsp; " . span({-style=>"font-size: 0.8em;"}, traduc('sortedby'). ":") ) ),
                                                         td( '&nbsp;&nbsp;' . $alphabetic . '&nbsp;&nbsp;' . $time ),
                                                         td({-style=>'text-align: center;'}, $alphabet )
                                                 )
@@ -1205,7 +1203,7 @@ sub fossils_list {
 sub names_list {
 
         my $alphab = '';
-        my ($ordstr, $famstr, $genstr, $spestr) = ($trans->{'ord_key'}->{$lang}, $trans->{'familys'}->{$lang}, $trans->{'genuss'}->{$lang}, $trans->{'speciess'}->{$lang});
+        my ($ordstr, $famstr, $genstr, $spestr) = (traduc('ord_key'), traduc('familys'), traduc('genuss'), traduc('speciess'));
 
         unless($rank) { $rank = 'species' }
 
@@ -1365,7 +1363,7 @@ sub names_list {
                 if ($dbase ne 'cool') {
                         $html .=        table({-style=>$style},
                                                         Tr(
-                                                                td( div({-class=>'titre'}, ucfirst($trans->{"names"}->{$lang}))),
+                                                                td( div({-class=>'titre'}, ucfirst(traduc("names")))),
                                                                 td({-style=>'text-align: center;'}, '&nbsp;&nbsp;' . join('&nbsp;&nbsp;', @rankselect) ),
                                                                 td({-style=>'text-align: center;'}, join('&nbsp;&nbsp;', $alphab) )
                                                         )
@@ -1374,7 +1372,7 @@ sub names_list {
                 else {
                         $html .=        table({-style=>$style},
                                                         Tr(
-                                                                td( div({-class=>'titre'}, ucfirst($trans->{"names"}->{$lang}))),
+                                                                td( div({-class=>'titre'}, ucfirst(traduc("names")))),
                                                                 td({-style=>'text-align: left;'}, '&nbsp;&nbsp;' . join('&nbsp;', @rankselect) )
                                                         ),
                                                         Tr(
@@ -1439,7 +1437,7 @@ sub names_list {
                                         $totop,
                                         table({-style=>$style},
                                                 Tr(
-                                                        td( div({-class=>'titre'}, ucfirst($trans->{"names"}->{$lang}))),
+                                                        td( div({-class=>'titre'}, ucfirst(traduc("names")))),
                                                         td({-style=>'text-align: center;'}, join('&nbsp;', @rankselect) )
                                                 )
                                         ),
@@ -1547,7 +1545,7 @@ sub authors_list {
                                         $totop,
                                         table({-style=>'width: 100%;'},
                                                 Tr(
-                                                        td( div({-class=>'titre'}, ucfirst($trans->{"authors"}->{$lang}))),
+                                                        td( div({-class=>'titre'}, ucfirst(traduc("authors")))),
                                                         td({-style=>'text-align: center;'}, join('&nbsp;&nbsp;', $alphabet) )
                                                 )
                                         ),
@@ -1648,13 +1646,13 @@ sub publications_list {
                 my $table;
                 if ($dbase ne 'cool') {
                         $table = Tr(
-                                        td( div({-class=>'titre'}, ucfirst($trans->{"publications"}->{$lang}))),
+                                        td( div({-class=>'titre'}, ucfirst(traduc("publications")))),
                                         td({-style=>'text-align: center;'}, join('&nbsp;',@{$sections}) )
                                 );
                 }
                 else {
                         $table = Tr(
-                                        td( div({-class=>'titre'}, ucfirst($trans->{"publications"}->{$lang})))
+                                        td( div({-class=>'titre'}, ucfirst(traduc("publications"))))
                                 ).
                                 Tr(
                                         td({-style=>'text-align: left;'}, join('&nbsp;',@{$sections}) )
@@ -1744,8 +1742,8 @@ sub associations {
                                 my ($max, $dm) = (0, 'none');
                                 if (!$mode and 0) {
 
-                                        $alphaord = span({-class=>'xsection'},  ucfirst($trans->{'alphabetic'}->{$lang}));
-                                        $hierarkord = a({-class=>'section', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=$card"."s&mode=taxonomic"},  ucfirst($trans->{'taxonomic'}->{$lang}));
+                                        $alphaord = span({-class=>'xsection'},  ucfirst(traduc('alphabetic')));
+                                        $hierarkord = a({-class=>'section', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=$card"."s&mode=taxonomic"},  ucfirst(traduc('taxonomic')));
 
                                         $associations .= br;
                                         foreach my $key (sort {$assocs{$a}{label} cmp $assocs{$b}{label}} keys(%assocs)) {
@@ -1754,8 +1752,8 @@ sub associations {
                                 }
                                 elsif ($mode eq 'taxonomic' or 1) {
 
-                                        $hierarkord = span({-class=>'xsection'},  ucfirst($trans->{'taxonomic'}->{$lang}));
-                                        $alphaord = a({-class=>'section', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=$card"."s"},  ucfirst($trans->{'alphabetic'}->{$lang}));
+                                        $hierarkord = span({-class=>'xsection'},  ucfirst(traduc('taxonomic')));
+                                        $alphaord = a({-class=>'section', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=$card"."s"},  ucfirst(traduc('alphabetic')));
 
                                         my $liste;
                                         my $ordkey;
@@ -1801,7 +1799,7 @@ sub associations {
 
                 $dbc->disconnect;
 
-                print div({-class=>'content'}, div({-class=>'titre'}, ucfirst($trans->{'bioInteract'}->{$lang})) . $fullhtml);
+                print div({-class=>'content'}, div({-class=>'titre'}, ucfirst(traduc('bioInteract'))) . $fullhtml);
         }
         else {}
 }
@@ -1856,7 +1854,7 @@ sub countries_list {
                                         $totop,
                                         table({-style=>'width: 100%;'},
                                                 Tr(
-                                                        td( div({-class=>'titre'}, ucfirst($trans->{"geodistribution"}->{$lang})) ),
+                                                        td( div({-class=>'titre'}, ucfirst(traduc("geodistribution"))) ),
                                                         td({-style=>'text-align: center;'}, join('&nbsp;&nbsp;', $alphabet) )
                                                 )
                                         ),
@@ -1912,7 +1910,7 @@ sub images_list {
                                 $imgs .= div({-style=>'clear: both;'}) . br;
 
                                 $imgs = Tr( td({-colspan=>2, -class=>'imgTypeMagicCell magicCell', -style=>"display: none;"}, $imgs ) );
-                                $html .= makeRetractableArray ('imgsTitle', 'imgTypeMagicCell magicCell', ucfirst($trans->{"type_img(s)"}->{$lang}), $imgs, 'arrowRight', 'arrowDown', 1, 'none', 'true');
+                                $html .= makeRetractableArray ('imgsTitle', 'imgTypeMagicCell magicCell', ucfirst(traduc("type_img(s)")), $imgs, 'arrowRight', 'arrowDown', 1, 'none', 'true');
                         }
 
                         $req = "SELECT i.index, i.icone_url, txi.ref_taxon, nc.index, nc.orthographe, nc.autorite, i.url, r.en
@@ -1951,7 +1949,7 @@ sub images_list {
                                 $imgs .= div({-style=>'clear: both;'}) . br;
 
                                 $imgs = Tr( td({-colspan=>2, -class=>'imgColMagicCell magicCell', -style=>"display: none;"}, $imgs ) );
-                                $html .= makeRetractableArray ('imgsTitle', 'imgColMagicCell magicCell', ucfirst($trans->{"specincol"}->{$lang}), $imgs, 'arrowRight', 'arrowDown', 1, 'none', 'true');
+                                $html .= makeRetractableArray ('imgsTitle', 'imgColMagicCell magicCell', ucfirst(traduc("specincol")), $imgs, 'arrowRight', 'arrowDown', 1, 'none', 'true');
                         }
 
                         $req = "SELECT i.index, i.icone_url, txi.ref_taxon, nc.index, nc.orthographe, nc.autorite, i.url, r.en
@@ -1990,7 +1988,7 @@ sub images_list {
                                 $imgs .= div({-style=>'clear: both;'}) . br;
 
                                 $imgs = Tr( td({-colspan=>2, -class=>'imgNatMagicCell magicCell', -style=>"display: none;"}, $imgs ) );
-                                $html .= makeRetractableArray ('imgsTitle', 'imgNatMagicCell magicCell', ucfirst($trans->{"specinnatura"}->{$lang}), $imgs, 'arrowRight', 'arrowDown', 1, 'none', 'true');
+                                $html .= makeRetractableArray ('imgsTitle', 'imgNatMagicCell magicCell', ucfirst(traduc("specinnatura")), $imgs, 'arrowRight', 'arrowDown', 1, 'none', 'true');
                         }
 
                         my $fullhtml =  div({-class=>'content'}, $html);
@@ -2026,16 +2024,16 @@ sub vernaculars {
                         my $order;
                         my $mode2;
                         if ($mode eq 'country') {
-                                $langord = a({-class=>'section', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=vernaculars&mode=language"},  ucfirst($trans->{'langage'}->{$lang}));
-                                $alphord = a({-class=>'section', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=vernaculars"},  ucfirst($trans->{'alphabetic'}->{$lang}));
-                                $paysord = span({-class=>'xsection'},  ucfirst($trans->{'country'}->{$lang}));
+                                $langord = a({-class=>'section', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=vernaculars&mode=language"},  ucfirst(traduc('langage')));
+                                $alphord = a({-class=>'section', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=vernaculars"},  ucfirst(traduc('alphabetic')));
+                                $paysord = span({-class=>'xsection'},  ucfirst(traduc('country')));
                                 $order = 'p.en, reencodage(v.nom), l.langage';
                                 $mode2 = 1;
                         }
                         elsif ($mode eq 'language') {
-                                $paysord = a({-class=>'section', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=vernaculars&mode=country"},  ucfirst($trans->{'country'}->{$lang}));
-                                $alphord = a({-class=>'section', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=vernaculars"},  ucfirst($trans->{'alphabetic'}->{$lang}));
-                                $langord = span({-class=>'xsection'},  ucfirst($trans->{'langage'}->{$lang}));
+                                $paysord = a({-class=>'section', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=vernaculars&mode=country"},  ucfirst(traduc('country')));
+                                $alphord = a({-class=>'section', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=vernaculars"},  ucfirst(traduc('alphabetic')));
+                                $langord = span({-class=>'xsection'},  ucfirst(traduc('langage')));
                                 $order = 'l.langage, reencodage(v.nom), p.en';
                                 $mode2 = 0;
                         }
@@ -2061,7 +2059,7 @@ sub vernaculars {
                                                 elsif ($pays ne $current) { $list .= li(br . div({-class=>'soustitre'}, $pays)); $current = $pays; }
                                         }
                                         else {
-                                                if ($current ne 'others') { $list .= li(br . div({-class=>'soustitre'}, $trans->{'unassigned'}->{$lang})); $current = 'others'; }
+                                                if ($current ne 'others') { $list .= li(br . div({-class=>'soustitre'}, traduc('unassigned'))); $current = 'others'; }
                                         }
                                 }
                                 else {
@@ -2098,9 +2096,9 @@ sub vernaculars {
                                                                 a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$rk&id=$taxid"}, "$tax $aut" ) );
                         }
 
-                        $langord = a({-class=>'section', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=vernaculars&mode=language"},  ucfirst($trans->{'langage'}->{$lang}));
-                        $paysord = a({-class=>'section', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=vernaculars&mode=country"},  ucfirst($trans->{'country'}->{$lang}));
-                        $alphord = span({-class=>'xsection'},  ucfirst($trans->{'alphabetic'}->{$lang}));
+                        $langord = a({-class=>'section', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=vernaculars&mode=language"},  ucfirst(traduc('langage')));
+                        $paysord = a({-class=>'section', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=vernaculars&mode=country"},  ucfirst(traduc('country')));
+                        $alphord = span({-class=>'xsection'},  ucfirst(traduc('alphabetic')));
                 }
                 $list .= end_ul();
 
@@ -2108,7 +2106,7 @@ sub vernaculars {
                                         $totop,
                                         table(
                                                 Tr(
-                                                        td( div({-class=>'titre'}, ucfirst($trans->{'vernacular(s)'}->{$lang}) . "&nbsp; " . span({-style=>"font-size: 0.8em;"}, $trans->{'sortedby'}->{$lang}. ":")) ),
+                                                        td( div({-class=>'titre'}, ucfirst(traduc('vernacular(s)')) . "&nbsp; " . span({-style=>"font-size: 0.8em;"}, traduc('sortedby'). ":")) ),
                                                         td("&nbsp;&nbsp; " . $alphord . '&nbsp;&nbsp;' . $paysord . '&nbsp;&nbsp;' . $langord )
                                                 )
                                         ), p,
@@ -2140,8 +2138,8 @@ sub types_list {
                 $types_tab .= end_ul();
 
                 $fullhtml =     div({-class=>'content'},
-                                        div({-class=>'titre'}, ucfirst($trans->{"TY_list"}->{$lang})),
-                                        div({-class=>'titre'}, "$tc_numb->[0] $trans->{'type_cat'}->{$lang}"),
+                                        div({-class=>'titre'}, ucfirst(traduc("TY_list"))),
+                                        div({-class=>'titre'}, "$tc_numb->[0] traduc('type_cat')"),
                                         $types_tab
                                 );
 
@@ -2177,7 +2175,7 @@ sub repositories_list {
                 $de_tab .= end_ul();
 
                 $fullhtml =     div({-class=>'content'},
-                                        div({-class=>'titre'}, ucfirst($trans->{"repositories"}->{$lang})),
+                                        div({-class=>'titre'}, ucfirst(traduc("repositories"))),
                                         $de_tab
                                 );
 
@@ -2210,7 +2208,7 @@ sub eras_list {
                 $eras_list .= end_ul();
 
                 $fullhtml =     div({-class=>'content'},
-                                        div({-class=>'titre'}, ucfirst($trans->{"eras"}->{$lang})),
+                                        div({-class=>'titre'}, ucfirst(traduc("eras"))),
                                         $eras_list
                                 );
 
@@ -2242,8 +2240,8 @@ sub regions_list {
                 $re_tab .= end_ul();
 
                 $fullhtml =     div({-class=>'content'},
-                                        div({-class=>'titre'}, ucfirst($trans->{"regions"}->{$lang})),
-                                        div({-class=>'titre'}, "$re_numb->[0] $trans->{'regions'}->{$lang}"),
+                                        div({-class=>'titre'}, ucfirst(traduc("regions"))),
+                                        div({-class=>'titre'}, "$re_numb->[0] traduc('regions')"),
                                         $re_tab
                                 );
 
@@ -2277,8 +2275,8 @@ sub agents_list {
                 $a_tab .= end_ul();
 
                 $fullhtml =     div({-class=>'content'},
-                                        div({-class=>'titre'}, ucfirst($trans->{"A_list"}->{$lang})),
-                                        div({-class=>'titre'}, "$a_numb->[0] $trans->{'agents'}->{$lang}"),
+                                        div({-class=>'titre'}, ucfirst(traduc("A_list"))),
+                                        div({-class=>'titre'}, "$a_numb->[0] ".traduc('agents')),
                                         $a_tab
                                 );
 
@@ -2308,8 +2306,8 @@ sub editions_list {
                 $ed_tab .= end_ul();
 
                 $fullhtml =     div({-class=>'content'},
-                                        div({-class=>'titre'}, ucfirst($trans->{"ED_list"}->{$lang})),
-                                        div({-class=>'titre'}, "$ed_numb->[0] $trans->{'editions'}->{$lang}"),
+                                        div({-class=>'titre'}, ucfirst(traduc("ED_list"))),
+                                        div({-class=>'titre'}, "$ed_numb->[0] ".traduc('editions')),
                                         $ed_tab
                                 );
 
@@ -2340,8 +2338,8 @@ sub habitats_list {
                 $ha_tab .= end_ul();
 
                 $fullhtml =     div({-class=>'content'},
-                                        div({-class=>'titre'}, ucfirst($trans->{"habitat(s)"}->{$lang})),
-                                        div({-class=>'titre'}, "$ha_numb->[0] $trans->{'habitats'}->{$lang}"),
+                                        div({-class=>'titre'}, ucfirst(traduc("habitat(s)"))),
+                                        div({-class=>'titre'}, "$ha_numb->[0] ".traduc('habitats')),
                                         $ha_tab
                                 );
 
@@ -2375,8 +2373,8 @@ sub localities_list {
                 $lo_tab .= end_ul();
 
                 $fullhtml =     div({-class=>'content'},
-                                        div({-class=>'titre'}, ucfirst($trans->{"LO_list"}->{$lang})),
-                                        div({-class=>'titre'}, "$lo_numb->[0] $trans->{'localities'}->{$lang}"),
+                                        div({-class=>'titre'}, ucfirst(traduc("LO_list"))),
+                                        div({-class=>'titre'}, "$lo_numb->[0] ".traduc('localities')),
                                         $lo_tab
                                 );
 
@@ -2406,8 +2404,8 @@ sub captures_list {
                 $ca_tab .= end_ul();
 
                 $fullhtml =     div({-class=>'content'},
-                                        div({-class=>'titre'}, ucfirst($trans->{"CA_list"}->{$lang})),
-                                        div({-class=>'titre'}, "$ca_numb->[0] $trans->{'captures'}->{$lang}"),
+                                        div({-class=>'titre'}, ucfirst(traduc("CA_list"))),
+                                        div({-class=>'titre'}, "$ca_numb->[0] ".traduc('captures')),
                                         $ca_tab
                                 );
 
@@ -2610,20 +2608,20 @@ sub board {
                         }
 
                         my ($ptit, $prow, $ptot, $imglbl, $imgtot);
-                        $ptit = td({-style=>'width: 100px;'}, b(ucfirst($trans->{'associated_taxa'}->{$lang})));
+                        $ptit = td({-style=>'width: 100px;'}, b(ucfirst(traduc('associated_taxa'))));
                         $ptot = $counts->[3] ? td({-style=>'width: 100px;'}, b(ucfirst($counts->[3]))) : td({-style=>'width: 100px;'}, b('-'));
-                        $imglbl = td({-style=>'width: 100px;'}, b(ucfirst($trans->{'images'}->{$lang})));
+                        $imglbl = td({-style=>'width: 100px;'}, b(ucfirst(traduc('images'))));
                         $imgtot = $counts->[5] ? td({-style=>'width: 100px;'}, b(ucfirst($counts->[5]))) : td({-style=>'width: 100px;'}, b('-'));
 
                         $content .=     Tr({-class=>'synodiv'},
-                                                td({-style=>'width: 150px; padding-bottom: 5px;'}, b(ucfirst($trans->{"$sup"}->{$lang}))),
-                                                td({-style=>'width: 100px; padding-bottom: 5px;'}, b(ucfirst($trans->{'genera'}->{$lang}))),
-                                                td({-style=>'width: 100px; padding-bottom: 5px;'}, b(ucfirst($trans->{'speciess'}->{$lang}))),
-                                                td({-style=>'width: 100px; padding-bottom: 5px;'}, b(ucfirst($trans->{'names'}->{$lang}))),
-                                                td({-style=>'width: 100px; padding-bottom: 5px;'}, b(ucfirst($trans->{'countries'}->{$lang}))),
+                                                td({-style=>'width: 150px; padding-bottom: 5px;'}, b(ucfirst(traduc("$sup")))),
+                                                td({-style=>'width: 100px; padding-bottom: 5px;'}, b(ucfirst(traduc('genera')))),
+                                                td({-style=>'width: 100px; padding-bottom: 5px;'}, b(ucfirst(traduc('speciess')))),
+                                                td({-style=>'width: 100px; padding-bottom: 5px;'}, b(ucfirst(traduc('names')))),
+                                                td({-style=>'width: 100px; padding-bottom: 5px;'}, b(ucfirst(traduc('countries')))),
                                                 $ptit,
                                                 $imglbl,
-                                                td({-style=>'width: 100px; padding-bottom: 5px;'}, b(ucfirst($trans->{'publications'}->{$lang})))
+                                                td({-style=>'width: 100px; padding-bottom: 5px;'}, b(ucfirst(traduc('publications'))))
                                         );
 
                         my ($ord, $subord, $supfam) = ($rows->[0][0], $rows->[0][1], $rows->[0][2]);
@@ -2668,7 +2666,7 @@ sub board {
                                 $content .=     Tr(
                                                         td({-style=>'height: 20px;'})).
                                                 Tr(
-                                                        td({-style=>'width: 150px;'}, b(ucfirst($trans->{'total'}->{$lang}))),
+                                                        td({-style=>'width: 150px;'}, b(ucfirst(traduc('total')))),
                                                         td({-style=>'width: 100px;'}, b($counts->[0])),
                                                         td({-style=>'width: 100px;'}, b($counts->[1])),
                                                         td({-style=>'width: 100px;'}, b($counts->[2])),
@@ -2680,9 +2678,9 @@ sub board {
                         }
                 }
                 my $maj;
-                if($mode eq 'full'){ $maj = a({-style=>'margin-left: 25px;', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=makeboard"}, "$trans->{'uptodate'}->{$lang}"); }
+                if($mode eq 'full'){ $maj = a({-style=>'margin-left: 25px;', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=makeboard"}, traduc('uptodate')); }
                 $maj =  div({-class=>'synodiv'},
-                                $trans->{'dmaj'}->{$lang}." : $last ",
+                                traduc('dmaj')." : $last ",
                                 $maj
                         );
 
@@ -2690,7 +2688,7 @@ sub board {
                 $fullhtml =     br.div({-class=>'content card'},
                                         $totop,
                                         $prevnext,
-                                        div({-class=>'titre board'}, ucfirst($trans->{"board"}->{$lang})), br,
+                                        div({-class=>'titre board'}, ucfirst(traduc("board"))), br,
                                         table({-class=>'board', -border=>0}, $content),
                                         br,
                                         div({-class=>'board'}, $maj),
@@ -2751,7 +2749,7 @@ sub get_vernaculars {
                         $commons .= Tr( td({-colspan=>2, -class=>'verMagicCell magicCell', -style=>"display: $display;"}, $list) );
                 }
 
-                $commons = makeRetractableArray ('verTitle', 'verMagicCell magicCell', ucfirst($trans->{"vernacular(s)"}->{$lang}), $commons, 'arrowRight', 'arrowDown', 1, $display, 'true');
+                $commons = makeRetractableArray ('verTitle', 'verMagicCell magicCell', ucfirst(traduc("vernacular(s)")), $commons, 'arrowRight', 'arrowDown', 1, $display, 'true');
         }
 
         return $commons;
@@ -2952,7 +2950,7 @@ sub taxon_card {
 
                 if ($valid_name->[11] != $rktest) { print $fullhtml = "URL forbiden"; return; }
 
-                my $tsp = $valid_name->[13] ? span({-class=>'typeSpecies'}, " &nbsp; " . $trans->{"type$rank"}->{$lang}) : '';
+                my $tsp = $valid_name->[13] ? span({-class=>'typeSpecies'}, " &nbsp; " . traduc("type$rank")) : '';
 
                 if ($valid_name->[14]) {
                         $tsp .= span({-class=>'typeSpecies'}, " $valid_name->[15]");
@@ -2961,7 +2959,7 @@ sub taxon_card {
                                 if ($pub[1]) {
                                         my $page;
                                         if ($valid_name->[17]) { $page = ":&nbsp;$valid_name->[17]" }
-                                        $tsp .= span({-class=>'typeSpecies'}, "&nbsp;$trans->{'dansin'}->{$lang}&nbsp;");
+                                        $tsp .= span({-class=>'typeSpecies'}, "&nbsp;".traduc('dansin')."&nbsp;");
                                         $tsp .= a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$valid_name->[16]"}, "$pub[1]$page" );
                                         $tsp .= getPDF($valid_name->[16]);
                                 }
@@ -2975,7 +2973,7 @@ sub taxon_card {
                 # Fetch taxon princeps publication
                 my $publication;
                 if ( $valid_name->[3] ) {
-                        $publication = div({-class=>'titre'}, ucfirst($trans->{"ori_pub"}->{$lang}));
+                        $publication = div({-class=>'titre'}, ucfirst(traduc("ori_pub")));
                         my $pub = pub_formating($valid_name->[3], $dbc, $valid_name->[7] );
                         $publication .= table( Tr( td(
                                                 a({-href=>$scripts{$dbase}."db=$dbase&lang=$lang&card=publication&id=$valid_name->[3]"}, "$pub") . getPDF($valid_name->[3])
@@ -3131,7 +3129,7 @@ sub taxon_card {
                                 if ($_->[1] eq 'genus' || $_->[1] eq 'species') { $nbtaxa{$_->[1]} += $_->[2]; }
                                 $total += $_->[2];
                         }
-                        my $nbtaxastr = join(', ', map { $nbtaxa{$_}." ".$trans->{$_.'s'}->{$lang} } keys(%nbtaxa) );
+                        my $nbtaxastr = join(', ', map { $nbtaxa{$_}." ".traduc($_.'s') } keys(%nbtaxa) );
 
                         if ($limit eq 'none') {
 
@@ -3288,7 +3286,7 @@ sub taxon_card {
                                         $hierarchy{$superkey}{rank} = $rken;
 
                                         my $typestr;
-                                        if ($xtype) { $typestr = span({-class=>'typeSpecies'}, "&nbsp;  ".$trans->{"type$rken"}->{$lang}) }
+                                        if ($xtype) { $typestr = span({-class=>'typeSpecies'}, "&nbsp;  ".traduc("type$rken")) }
                                         $hierarchy{$superkey}{name} = $fname;
                                         $typestr //= '';
                                         $hierarchy{$superkey}{body} = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$xrank&id=$xid"}, i($xname) . " $xauthority" . $typestr);
@@ -3418,7 +3416,7 @@ sub taxon_card {
                         elsif (scalar(@{$ranks}) > 0) {
                                 my $label = $lowers->[0][9];
                                 if (scalar(@{$lowers}) > 1) { $label .= 's'; }
-                                $sons_title = scalar(@{$lowers}) . " $trans->{$label}->{$lang}";
+                                $sons_title = scalar(@{$lowers}) . " ".traduc($label);
                                 my $i = 0;
                                 foreach (@{$lowers}) {
                                         my $xid = $_->[0];
@@ -3431,7 +3429,7 @@ sub taxon_card {
                                         push(@sons_ids, $xid);
 
                                         my $typestr;
-                                        if ($xtype) { $typestr = span({-class=>'typeSpecies'}, "&nbsp;  ".$trans->{"type$rken"}->{$lang}) }
+                                        if ($xtype) { $typestr = span({-class=>'typeSpecies'}, "&nbsp;  ".traduc("type$rken")) }
                                         $descendants .= Tr(
                                                                 td({-colspan=>2, -class=>'sonsMagicCell magicCell', -style=>"display: $dm;"}, a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$xrank&id=$xid"}, i($xname) . " $xauthority" . $typestr ))
                                                         );
@@ -3443,7 +3441,7 @@ sub taxon_card {
                         my $minimum = 0;
                         if (scalar(keys(%sons_ranks)) > 1) {
                                 if ($limit eq 'none') {
-                                        $sons_title = "$total $trans->{taxons}->{$lang} ($nbtaxastr)";
+                                        $sons_title = "$total ".traduc('taxons')." ($nbtaxastr)";
                                         $childs = makeRetractableArray ('sonsTitle', 'sonsMagicCell', $sons_title, $descendants, 'arrowRight', 'arrowDown', $max, $dm, 'true');
                                 }
                                 else {
@@ -3452,7 +3450,7 @@ sub taxon_card {
                                                                         a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$rank&id=$id&limit=none"}, div({-class=>'arrowRight', -style=>'height: 1em; width: 10px;'}, '&nbsp;'))
                                                                 ),
                                                                 td(
-                                                                        a({-class=>'titreReactif', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$rank&id=$id&limit=none"}, "$total $trans->{taxons}->{$lang} ($nbtaxastr)")
+                                                                        a({-class=>'titreReactif', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$rank&id=$id&limit=none"}, "$total ".traduc('taxons')." ($nbtaxastr)")
                                                                 )
                                                         )
                                                 );
@@ -3469,7 +3467,7 @@ sub taxon_card {
                                                 $childs .= table({-style=>"padding: 0 0 0 ".($decalage * $i)."px;"},
                                                                 Tr(     td({-class=>'arrowRight', -style=>"cursor: pointer;", -onclick=>"location.href='$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$rank&id=$id&limit=$sons_ranks{$key}{nom}'"}, '&nbsp;'),
                                                                         td(
-                                                                                a({-class=>'titreReactif', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$rank&id=$id&limit=".$sons_ranks{$key}{nom}}, "$sons_ranks{$key}{valeur} $trans->{$label}->{$lang}")
+                                                                                a({-class=>'titreReactif', -href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$rank&id=$id&limit=".$sons_ranks{$key}{nom}}, "$sons_ranks{$key}{valeur} ".traduc($label))
                                                                         )
                                                                 )
                                                         );
@@ -3477,8 +3475,8 @@ sub taxon_card {
                                         elsif ($sons_ranks{$key}{nom} eq $limit) {
                                                 my $bool = $childs ? 'false' : 'true';
                                                 $sons_title = $sons_ranks{$limitOrder}{valeur}." ";
-                                                if ($sons_ranks{$limitOrder}{valeur} > 1) { $sons_title .= $trans->{$limit.'s'}->{$lang}; }
-                                                else { $sons_title .= $trans->{$limit}->{$lang}; }
+                                                if ($sons_ranks{$limitOrder}{valeur} > 1) { $sons_title .= traduc($limit.'s'); }
+                                                else { $sons_title .= traduc($limit); }
                                                 $descendants = makeRetractableArray ('sonsTitle', 'sonsMagicCell', $sons_title, $descendants, 'arrowRight', 'arrowDown', $max, $dm, $bool);
                                                 $childs .= div({-style=>"margin-left: ".($decalage * $i)."px;"}, $descendants);
                                         }
@@ -3732,12 +3730,12 @@ sub taxon_card {
                                                 my @pub_den = publication($syn->[5], 0, 1, $dbc );
                                                 my $sl = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[0]"}, i($syn->[1]) . "&nbsp;$syn->[2]" );
                                                 $sl = $syn->[27] ? $sl . " $syn->[27]" : $sl;
-                                                $sl .= "&nbsp;$syn->[17]&nbsp;$syn->[29]$trans->{'of'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[14]"}, i($syn->[15]) . "&nbsp;$syn->[16]");
+                                                $sl .= "&nbsp;$syn->[17]&nbsp;$syn->[29]".traduc('of')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[14]"}, i($syn->[15]) . "&nbsp;$syn->[16]");
                                                 $sl = $syn->[28] ? $sl . " $syn->[28]" : $sl;
                                                 if ($pub_den[1]) {
                                                         my $page;
                                                         if ($syn->[21]) { $page = ":&nbsp;$syn->[21]" }
-                                                        $sl .= " $trans->{'segun'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[5]"}, "$pub_den[1]$page" );
+                                                        $sl .= " ".traduc('segun')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[5]"}, "$pub_den[1]$page" );
                                                         $sl .= getPDF($syn->[5]);
                                                 }
                                                 if ($display_modes{remarks}) { $sl = $syn->[26] ? $sl . " ($syn->[26])" : $sl; }
@@ -3757,18 +3755,18 @@ sub taxon_card {
                                                 my @pub_den = publication($syn->[5], 0, 1, $dbc );
                                                 my $wsl = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[0]"}, i($syn->[1]) . "&nbsp;$syn->[2]" );
                                                 $wsl = $syn->[27] ? $wsl . " $syn->[27]" : $wsl;
-                                                $wsl .= "&nbsp;$syn->[17]&nbsp;$trans->{'of'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[14]"}, i($syn->[15]) . "&nbsp;$syn->[16]");
+                                                $wsl .= "&nbsp;$syn->[17]&nbsp;".traduc('of')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[14]"}, i($syn->[15]) . "&nbsp;$syn->[16]");
                                                 $wsl = $syn->[28] ? $wsl . " $syn->[28]" : $wsl;
                                                 if ($pub_use[1]) {
                                                         my $page;
                                                         if ($syn->[20]) { $page = ":&nbsp;$syn->[20]" }
-                                                        $wsl .= " $trans->{'dansin'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[4]"}, "$pub_use[1]$page" );
+                                                        $wsl .= " ".traduc('dansin')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[4]"}, "$pub_use[1]$page" );
                                                         $wsl .= getPDF($syn->[4]);
                                                 }
                                                 if ($pub_den[1]) {
                                                         my $page;
                                                         if ($syn->[21]) { $page = ":&nbsp;$syn->[21]" }
-                                                        $wsl .= " $trans->{'corrby'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[5]"}, "$pub_den[1]$page" );
+                                                        $wsl .= " ".traduc('corrby')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[5]"}, "$pub_den[1]$page" );
                                                         $wsl .= getPDF($syn->[5]);
                                                 }
                                                 if ($display_modes{remarks}) { $wsl = $syn->[26] ? $wsl . " ($syn->[26])" : $wsl; }
@@ -3787,20 +3785,20 @@ sub taxon_card {
                                                         $tl = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[0]"}, i($syn->[1]) . "&nbsp;$syn->[2]");
                                                         $tl = $parent != $parent2 ? $tl . "&nbsp;[$parent]" : $tl;
                                                         $tl = $syn->[27] ? $tl . " $syn->[27]" : $tl;
-                                                        $tl .= "&nbsp;$syn->[17]&nbsp;$trans->{'of'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[14]"}, i($syn->[15]) . "&nbsp;$syn->[16]");
+                                                        $tl .= "&nbsp;$syn->[17]&nbsp;".traduc('of')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[14]"}, i($syn->[15]) . "&nbsp;$syn->[16]");
                                                         $tl = $parent != $parent2 ? $tl . "&nbsp;[$parent2]" : $tl;
                                                         $tl = $syn->[28] ? $tl . " $syn->[28]" : $tl;
                                                 }
                                                 else {
                                                         $tl = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[0]"}, i($syn->[1]) . "&nbsp;$syn->[2]");
                                                         $tl = $syn->[27] ? $tl . " $syn->[27]" : $tl;
-                                                        $tl .= "&nbsp;$trans->{'transferfrom'}->{$lang}&nbsp;[$parent]".br."&nbsp;&nbsp;&nbsp;&nbsp;$trans->{'tovers'}->{$lang}&nbsp;[$parent2]";
+                                                        $tl .= "&nbsp;".traduc('transferfrom')."&nbsp;[$parent]".br."&nbsp;&nbsp;&nbsp;&nbsp;".traduc('tovers')."&nbsp;[$parent2]";
                                                         $tl = $syn->[28] ? $tl . " $syn->[28]" : $tl;
                                                 }
                                                 if ($pub_den[1]) {
                                                         my $page;
                                                         if ($syn->[21]) { $page = ":&nbsp;$syn->[21]" }
-                                                        $tl .= " $trans->{'segun'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[5]"}, "$pub_den[1]$page" );
+                                                        $tl .= " ".traduc('segun')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[5]"}, "$pub_den[1]$page" );
                                                         $tl .= getPDF($syn->[5]);
                                                 }
                                                 if ($display_modes{remarks}) { $tl = $syn->[26] ? $tl . " ($syn->[26])" : $tl; }
@@ -3818,13 +3816,13 @@ sub taxon_card {
                                                 $tl = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[0]"}, i($syn->[1]) . "&nbsp;$syn->[2]");
                                                 $tl .= $parent ? " ($parent)" : '';
                                                 $tl = $syn->[27] ? $tl . " $syn->[27]" : $tl;
-                                                $tl .= "&nbsp;$syn->[17]&nbsp;$trans->{'of'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[14]"}, i($syn->[15]) . "&nbsp;$syn->[16]");
+                                                $tl .= "&nbsp;$syn->[17]&nbsp;".traduc('of')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[14]"}, i($syn->[15]) . "&nbsp;$syn->[16]");
                                                 $tl = $syn->[28] ? $tl . " $syn->[28]" : $tl;
                                                 $tl .= $parent2 ? " ($parent2)" : '';
                                                 if ($pub_den[1]) {
                                                         my $page;
                                                         if ($syn->[21]) { $page = ":&nbsp;$syn->[21]" }
-                                                        $tl .= " $trans->{'segun'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[5]"}, "$pub_den[1]$page" );
+                                                        $tl .= " ".traduc('segun')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[5]"}, "$pub_den[1]$page" );
                                                         $tl .= getPDF($syn->[5]);
                                                 }
                                                 if ($display_modes{remarks}) { $tl = $syn->[26] ? $tl . " ($syn->[26])" : $tl; }
@@ -3842,13 +3840,13 @@ sub taxon_card {
                                                 if ($pub_use[1]) {
                                                         my $page;
                                                         if ($syn->[20]) { $page = ":&nbsp;$syn->[20]" }
-                                                        $mil .= " $trans->{'dansin'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[4]"}, "$pub_use[1]$page" );
+                                                        $mil .= " ".traduc('dansin')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[4]"}, "$pub_use[1]$page" );
                                                         $mil .= getPDF($syn->[4]);
                                                 }
                                                 if ($pub_den[1]) {
                                                         my $page;
                                                         if ($syn->[21]) { $page = ":&nbsp;$syn->[21]" }
-                                                                $mil .= " $trans->{'segun'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[5]"}, "$pub_den[1]$page" );
+                                                                $mil .= " ".traduc('segun')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[5]"}, "$pub_den[1]$page" );
                                                         $mil .= getPDF($syn->[5]);
                                                 }
                                                 if ($display_modes{remarks}) { $mil = $syn->[26] ? $mil . " ($syn->[26])" : $mil; }
@@ -3862,18 +3860,18 @@ sub taxon_card {
                                                 my @pub_den = publication($syn->[5], 0, 1, $dbc );
                                                 my $pil .= a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[0]"}, i($syn->[1]) . "&nbsp;$syn->[2]" );
                                                 $pil = $syn->[27] ? $pil . " $syn->[27]" : $pil;
-                                                $pil .= " $trans->{'misid'}->{$lang}&nbsp;$trans->{'of'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[14]"}, i($syn->[15]) . "&nbsp;$syn->[16]");
+                                                $pil .= " ".traduc('misid')."&nbsp;".traduc('of')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[14]"}, i($syn->[15]) . "&nbsp;$syn->[16]");
                                                 $pil = $syn->[28] ? $pil . " $syn->[28]" : $pil;
                                                 if ($pub_use[1]) {
                                                         my $page;
                                                         if ($syn->[20]) { $page = ":&nbsp;$syn->[20]" }
-                                                        $pil .= " $trans->{'dansin'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[4]"}, "$pub_use[1]$page" );
+                                                        $pil .= " ".traduc('dansin')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[4]"}, "$pub_use[1]$page" );
                                                         $pil .= getPDF($syn->[4]);
                                                 }
                                                 if ($pub_den[1]) {
                                                         my $page;
                                                         if ($syn->[21]) { $page = ":&nbsp;$syn->[21]" }
-                                                        $pil .= " $trans->{'segun'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[5]"}, "$pub_den[1]$page" );
+                                                        $pil .= " ".traduc('segun')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[5]"}, "$pub_den[1]$page" );
                                                         $pil .= getPDF($syn->[5]);
                                                 }
                                                 if ($display_modes{remarks}) { $pil = $syn->[26] ? $pil . " ($syn->[26])" : $pil; }
@@ -3885,12 +3883,12 @@ sub taxon_card {
                                                 my @pub_den = publication($syn->[5], 0, 1, $dbc );
                                                 my $iol = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[0]"}, i($syn->[1]) . "&nbsp;$syn->[2]" );
                                                 $iol = $syn->[27] ? $iol . " $syn->[27]" : $iol;
-                                                $iol .= "&nbsp;$syn->[17]&nbsp;$trans->{'of'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[14]"}, i($syn->[15]) . "&nbsp;$syn->[16]");
+                                                $iol .= "&nbsp;$syn->[17]&nbsp;".traduc('of')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[14]"}, i($syn->[15]) . "&nbsp;$syn->[16]");
                                                 $iol = $syn->[28] ? $iol . " $syn->[28]" : $iol;
                                                 if ($pub_den[1]) {
                                                         my $page;
                                                         if ($syn->[21]) { $page = ":&nbsp;$syn->[21]" }
-                                                        $iol .= " $trans->{'emended'}->{$lang}&nbsp;$trans->{'BY'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[5]"}, "$pub_den[1]$page" );
+                                                        $iol .= " ".traduc('emended')."&nbsp;".traduc('BY')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[5]"}, "$pub_den[1]$page" );
                                                         $iol .= getPDF($syn->[5]);
                                                 }
                                                 if ($display_modes{remarks}) { $iol = $syn->[26] ? $iol . " ($syn->[26])" : $iol; }
@@ -3903,18 +3901,18 @@ sub taxon_card {
                                                 my @pub_den = publication($syn->[5], 0, 1, $dbc );
                                                 my $iel = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[0]"}, i($syn->[1]) . "&nbsp;$syn->[2]" );
                                                 $iel = $syn->[27] ? $iel . " $syn->[27]" : $iel;
-                                                $iel .= "&nbsp;$syn->[17]&nbsp;$trans->{'of'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[14]"}, i($syn->[15]) . "&nbsp;$syn->[16]");
+                                                $iel .= "&nbsp;$syn->[17]&nbsp;".traduc('of')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[14]"}, i($syn->[15]) . "&nbsp;$syn->[16]");
                                                 $iel = $syn->[28] ? $iel . " $syn->[28]" : $iel;
                                                 if ($pub_use[1]) {
                                                         my $page;
                                                         if ($syn->[20]) { $page = ":&nbsp;$syn->[20]" }
-                                                        $iel .= " $trans->{'dansin'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[4]"}, "$pub_use[1]$page" );
+                                                        $iel .= " ".traduc('dansin')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[4]"}, "$pub_use[1]$page" );
                                                         $iel .= getPDF($syn->[4]);
                                                 }
                                                 if ($pub_den[1]) {
                                                         my $page;
                                                         if ($syn->[21]) { $page = ":&nbsp;$syn->[21]" }
-                                                        $iel .= " $trans->{'corrby'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[5]"}, "$pub_den[1]$page" );
+                                                        $iel .= " ".traduc('corrby')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[5]"}, "$pub_den[1]$page" );
                                                         $iel .= getPDF($syn->[5]);
                                                 }
                                                 if ($display_modes{remarks}) { $iel = $syn->[26] ? $iel . " ($syn->[26])" : $iel; }
@@ -3928,7 +3926,7 @@ sub taxon_card {
 
                                                 unless (exists $chresonyms{$syn->[0]}) {
                                                         $chresonyms{$syn->[0]} = {};
-                                                        $chresonyms{$syn->[0]}{'label'} = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[0]"}, i($syn->[1]) . "&nbsp;$syn->[2]" ) . "&nbsp;$trans->{'cited_in'}->{$lang}&nbsp;";
+                                                        $chresonyms{$syn->[0]}{'label'} = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[0]"}, i($syn->[1]) . "&nbsp;$syn->[2]" ) . "&nbsp;".traduc('cited_in')."&nbsp;";
 
                                                         my $page;
                                                         if ($syn->[20]) { $page = ":&nbsp;$syn->[20]" }
@@ -3947,12 +3945,12 @@ sub taxon_card {
                                                 my @pub_den = publication($syn->[5], 0, 1, $dbc );
                                                 my $hl = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[0]"}, i($syn->[1]) . "&nbsp;$syn->[2]" );
                                                 $hl = $syn->[27] ? $hl . " $syn->[27]" : $hl;
-                                                $hl .= "&nbsp;$syn->[17]&nbsp;$trans->{'of'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[14]"}, i($syn->[15]) . "&nbsp;$syn->[16]");
+                                                $hl .= "&nbsp;$syn->[17]&nbsp;".traduc('of')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[14]"}, i($syn->[15]) . "&nbsp;$syn->[16]");
                                                 $hl = $syn->[28] ? $hl . " $syn->[28]" : $hl;
                                                 if ($pub_den[1]) {
                                                         my $page;
                                                         if ($syn->[21]) { $page = ":&nbsp;$syn->[21]" }
-                                                        $hl .= " $trans->{'segun'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[5]"}, "$pub_den[1]$page" );
+                                                        $hl .= " ".traduc('segun')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[5]"}, "$pub_den[1]$page" );
                                                         $hl .= getPDF($syn->[5]);
                                                 }
                                                 if ($display_modes{remarks}) { $hl = $syn->[26] ? $hl . " ($syn->[26])" : $hl; }
@@ -3977,12 +3975,12 @@ sub taxon_card {
                                                 my @pub_den = publication($syn->[5], 0, 1, $dbc );
                                                 my $nl = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[0]"}, i($syn->[1]) . "&nbsp;$syn->[2]" );
                                                 $nl = $syn->[27] ? $nl . " $syn->[27]" : $nl;
-                                                $nl .=  "&nbsp;" . i($syn->[17]) . "&nbsp;$trans->{'of'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[14]"}, i($syn->[15]) . "&nbsp;$syn->[16]");
+                                                $nl .=  "&nbsp;" . i($syn->[17]) . "&nbsp;".traduc('of')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[14]"}, i($syn->[15]) . "&nbsp;$syn->[16]");
                                                 $nl = $syn->[28] ? $nl . " $syn->[28]" : $nl;
                                                 if ($pub_den[1]) {
                                                         my $page;
                                                         if ($syn->[21]) { $page = ":&nbsp;$syn->[21]" }
-                                                        $nl .= " $trans->{'segun'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[5]"}, "$pub_den[1]$page" );
+                                                        $nl .= " ".traduc('segun')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[5]"}, "$pub_den[1]$page" );
                                                         $nl .= getPDF($syn->[5]);
                                                 }
                                                 if ($display_modes{remarks}) { $nl = $syn->[26] ? $nl . " ($syn->[26])" : $nl; }
@@ -3998,13 +3996,13 @@ sub taxon_card {
                                                 my $nl = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[0]"}, i($syn->[1]) . "&nbsp;$syn->[2]" );
                                                 $nl = $syn->[27] ? $nl . " $syn->[27]" : $nl;
                                                 $nl .=  "&nbsp;";
-                                                if (($syn->[15] and $syn->[1] ne $syn->[15]) or ($syn->[16] && $syn->[2] ne $syn->[16])) { $nl .= "&nbsp;$trans->{'ori_com'}->{$lang}&nbsp;$trans->{'of'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[14]"}, i($syn->[15]) . "&nbsp;$syn->[16]")." ".i($syn->[17]); }
+                                                if (($syn->[15] and $syn->[1] ne $syn->[15]) or ($syn->[16] && $syn->[2] ne $syn->[16])) { $nl .= "&nbsp;".traduc('ori_com')."&nbsp;".traduc('of')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[14]"}, i($syn->[15]) . "&nbsp;$syn->[16]")." ".i($syn->[17]); }
                                                 else { $nl .= "&nbsp;".i($syn->[17]); }
                                                 #if ($syn->[3] eq 'combinatio revivisco' or ($syn->[3] eq 'status revivisco' and $syn->[1] eq $syn->[15])) { $nl .= " ".i($syn->[17]) }
                                                 if ($pub_den[1]) {
                                                         my $page;
                                                         if ($syn->[21]) { $page = ":&nbsp;$syn->[21]" }
-                                                        $nl .= " $trans->{'segun'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[5]"}, "$pub_den[1]$page" );
+                                                        $nl .= " ".traduc('segun')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[5]"}, "$pub_den[1]$page" );
                                                         $nl .= getPDF($syn->[5]);
                                                 }
                                                 if ($display_modes{remarks}) { $nl = $syn->[26] ? $nl . " ($syn->[26])" : $nl; }
@@ -4022,7 +4020,7 @@ sub taxon_card {
                                                 if ($pub_den[1]) {
                                                         my $page;
                                                         if ($syn->[21]) { $page = ":&nbsp;$syn->[21]" }
-                                                        $nl .= " $trans->{'segun'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[5]"}, "$pub_den[1]$page" );
+                                                        $nl .= " ".traduc('segun')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[5]"}, "$pub_den[1]$page" );
                                                         $nl .= getPDF($syn->[5]);
                                                 }
                                                 if ($display_modes{remarks}) { $nl = $syn->[26] ? $nl . " ($syn->[26])" : $nl; }
@@ -4035,12 +4033,12 @@ sub taxon_card {
                                                 my @pub_den = publication($syn->[5], 0, 1, $dbc );
                                                 my $npl = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[0]"}, i($syn->[1]) . "&nbsp;$syn->[2]" );
                                                 $npl = $syn->[27] ? $npl . " $syn->[27]" : $npl;
-                                                $npl .= "&nbsp;" . i($syn->[17]) . "&nbsp;$trans->{'fromto'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[14]"}, i($syn->[15]) . "&nbsp;$syn->[16]") . "&nbsp;" . i($trans->{'nnov'}->{$lang});
+                                                $npl .= "&nbsp;" . i($syn->[17]) . "&nbsp;".traduc('fromto')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[14]"}, i($syn->[15]) . "&nbsp;$syn->[16]") . "&nbsp;" . i(traduc('nnov'));
                                                 $npl = $syn->[28] ? $npl . " $syn->[28]" : $npl;
                                                 if ($pub_den[1]) {
                                                         my $page;
                                                         if ($syn->[21]) { $page = ":&nbsp;$syn->[21]" }
-                                                        $npl .= ", $trans->{'segun'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[5]"}, "$pub_den[1]$page" );
+                                                        $npl .= ", ".traduc('segun')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[5]"}, "$pub_den[1]$page" );
                                                         $npl .= getPDF($syn->[5]);
                                                 }
                                                 if ($display_modes{remarks}) { $npl = $syn->[26] ? $npl . " ($syn->[26])" : $npl; }
@@ -4053,12 +4051,12 @@ sub taxon_card {
                                                 my @pub_den = publication($syn->[5], 0, 1, $dbc );
                                                 my $npl = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[0]"}, i($syn->[1]) . "&nbsp;$syn->[2]" );
                                                 $npl = $syn->[27] ? $npl . " $syn->[27]" : $npl;
-                                                $npl .= "&nbsp;" . i($syn->[17]) . ", $trans->{'synonym'}->{$lang}&nbsp;$trans->{'of'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[14]"}, i($syn->[15]) . "&nbsp;$syn->[16]") . "&nbsp;" . i($trans->{'nprotect'}->{$lang});
+                                                $npl .= "&nbsp;" . i($syn->[17]) . ", ".traduc('synonym')."&nbsp;".traduc('of')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[14]"}, i($syn->[15]) . "&nbsp;$syn->[16]") . "&nbsp;" . i(traduc('nprotect'));
                                                 $npl = $syn->[28] ? $npl . " $syn->[28]" : $npl;
                                                 if ($pub_den[1]) {
                                                         my $page;
                                                         if ($syn->[21]) { $page = ":&nbsp;$syn->[21]" }
-                                                        $npl .= ", $trans->{'segun'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[5]"}, "$pub_den[1]$page" );
+                                                        $npl .= ", ".traduc('segun')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[5]"}, "$pub_den[1]$page" );
                                                         $npl .= getPDF($syn->[5]);
                                                 }
                                                 if ($display_modes{remarks}) { $npl = $syn->[26] ? $npl . " ($syn->[26])" : $npl; }
@@ -4074,13 +4072,13 @@ sub taxon_card {
                                                 $parent2 =~ s/<br>/, /g;
                                                 $ukl = $parent ne $parent2 ? $ukl . "&nbsp;[$parent]" : $ukl;
                                                 $ukl = $syn->[27] ? $ukl . " $syn->[27]" : $ukl;
-                                                $ukl .= $syn->[15] ? "&nbsp;$syn->[17]&nbsp;$trans->{'of'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[14]"}, i($syn->[15]) . "&nbsp;$syn->[16]") : "&nbsp;$syn->[17]";
+                                                $ukl .= $syn->[15] ? "&nbsp;$syn->[17]&nbsp;".traduc('of')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[14]"}, i($syn->[15]) . "&nbsp;$syn->[16]") : "&nbsp;$syn->[17]";
                                                 $ukl = $parent ne $parent2 ? $ukl . "&nbsp;[$parent2]" : $ukl;
                                                 $ukl = $syn->[28] ? $ukl . " $syn->[28]" : $ukl;
                                                 if ($pub_den[1]) {
                                                         my $page;
                                                         if ($syn->[21]) { $page = ":&nbsp;$syn->[21]" }
-                                                        $ukl .= " $trans->{'segun'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[5]"}, "$pub_den[1]$page" );
+                                                        $ukl .= " ".traduc('segun')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$syn->[5]"}, "$pub_den[1]$page" );
                                                         $ukl .= getPDF($syn->[5]);
                                                 }
                                                 if ($display_modes{remarks}) { $ukl = $syn->[26] ? $ukl . " ($syn->[26])" : $ukl; }
@@ -4181,7 +4179,7 @@ sub taxon_card {
                                                                         </NOBR>"
                                                                         ));
 
-                                        $legend = makeRetractableArray ('legTitle', 'legMagicCell magicCell', ucfirst($trans->{'legend'}->{$lang}), $legend, 'arrowRight', 'arrowDown', 1, 'none', 'true');
+                                        $legend = makeRetractableArray ('legTitle', 'legMagicCell magicCell', ucfirst(traduc('legend')), $legend, 'arrowRight', 'arrowDown', 1, 'none', 'true');
 
                                         #$test = join('<br>',@statuses);
                                         if ($dbase eq 'cool') {
@@ -4197,7 +4195,7 @@ sub taxon_card {
                                                                         table({-cellpadding=>0, -cellspacing=>0, -style=>'width: 100%; border: 0px solid #666666;'},
                                                                                 Tr(
                                                                                         td({-onMouseOver=>"this.style.cursor='pointer';", -onClick=>"window.open('','graphFrame','toolbar=0, location=0, scrollbars=1, directories=0, status=0, resizable=1, width=1050, height=520'); document.forms['graphForm'].submit();", -style=>'vertical-align: middle; width: 10px;'}, div({-class=>'arrowRight'}, '')),
-                                                                                        td({-onMouseOver=>"this.style.cursor='pointer';", -onClick=>"window.open('','graphFrame','toolbar=0, location=0, scrollbars=1, directories=0, status=0, resizable=1, width=1050, height=520'); document.forms['graphForm'].submit();", -style=>'vertical-align: middle; text-align: left;'}, div({-class=>'titreReactif'}, $trans->{'graphDisplay'}->{$lang}))
+                                                                                        td({-onMouseOver=>"this.style.cursor='pointer';", -onClick=>"window.open('','graphFrame','toolbar=0, location=0, scrollbars=1, directories=0, status=0, resizable=1, width=1050, height=520'); document.forms['graphForm'].submit();", -style=>'vertical-align: middle; text-align: left;'}, div({-class=>'titreReactif'}, traduc('graphDisplay')))
                                                                                 )
                                                                         )
                                                                 )
@@ -4459,10 +4457,10 @@ sub taxon_card {
                                                 ));
 
                                                 if ($dbase =~ m/flow/) {
-                                                        $graphic = makeRetractableGraph ('graphTitle', 'graphMagicCell magicCell', i($valid_name->[1]).' '.$valid_name->[2].' '.($trans->{'graphdisp'}->{$lang}), $graphic, 'arrowRight', 'arrowDown', 1, 'none', 'true');
+                                                        $graphic = makeRetractableGraph ('graphTitle', 'graphMagicCell magicCell', i($valid_name->[1]).' '.$valid_name->[2].' '.(traduc('graphdisp')), $graphic, 'arrowRight', 'arrowDown', 1, 'none', 'true');
                                                 }
                                                 else {
-                                                        $graphic = makeRetractableGraph ('graphTitle', 'graphMagicCell magicCell', $trans->{'graphDisplay'}->{$lang}, $graphic, 'arrowRight', 'arrowDown', 1, 'none', 'true');
+                                                        $graphic = makeRetractableGraph ('graphTitle', 'graphMagicCell magicCell', traduc('graphDisplay'), $graphic, 'arrowRight', 'arrowDown', 1, 'none', 'true');
                                                 }
                                         }
 
@@ -4472,7 +4470,7 @@ sub taxon_card {
 
                                 unless ($display_modes{synonymy}{skip} and $mode ne 'full') {
                                         if ($synonyms) {
-                                                $synonymy = makeRetractableArray ('synsTitle', 'synsMagicCell magicCell', ucfirst($trans->{'synonymie'}->{$lang}), $synonyms, 'arrowRight', 'arrowDown', 1, $dms, 'true');
+                                                $synonymy = makeRetractableArray ('synsTitle', 'synsMagicCell magicCell', ucfirst(traduc('synonymie')), $synonyms, 'arrowRight', 'arrowDown', 1, $dms, 'true');
                                                 my $pos = $display_modes{synonymy}{position} || $default_order{synonymy};
                                                 $orderedElements{$pos} = $synonymy;
                                         }
@@ -4484,7 +4482,7 @@ sub taxon_card {
                                                         if ($chresonyms{$_}{'refs'}) { $cl .= join (', ', @{$chresonyms{$_}{'refs'}}); }
                                                         $chresonymy .= Tr(td({-colspan=>2, -class=>'usesMagicCell magicCell', -style=>"display: $dmc;"}, $cl) );
                                                 }
-                                                $chresonymy = makeRetractableArray ('usesTitle', 'usesMagicCell magicCell', ucfirst($trans->{'Chresonym(s)'}->{$lang}), $chresonymy, 'arrowRight', 'arrowDown', 1, $dmc, 'true');
+                                                $chresonymy = makeRetractableArray ('usesTitle', 'usesMagicCell magicCell', ucfirst(traduc('Chresonym(s)')), $chresonymy, 'arrowRight', 'arrowDown', 1, $dmc, 'true');
                                                 my $pos = $display_modes{chresonymy}{position} || $default_order{chresonymy};
                                                 $orderedElements{$pos} = $chresonymy;
                                         }
@@ -4526,7 +4524,7 @@ sub taxon_card {
                                         my $gdisp;
                                         if ($row->[0] ne $curr_g) {
                                                 if ($curr_g) {
-                                                        if (scalar(@pubs_g)) { $str_g .= "&nbsp;$trans->{'segun'}->{$lang}&nbsp;" . join(', ', @pubs_g);  }
+                                                        if (scalar(@pubs_g)) { $str_g .= "&nbsp;".traduc('segun')."&nbsp;" . join(', ', @pubs_g);  }
                                                         $geologic .= Tr( td({-colspan=>2, -class=>'geolMagicCell magicCell', -style=>"display: $dmg;"}, "$str_g") );
                                                 }
                                                 $curr_g = "$row->[0]";;
@@ -4544,11 +4542,11 @@ sub taxon_card {
                                 }
 
                                 if ($str_g) {
-                                        if (scalar(@pubs_g)) { $str_g .= "&nbsp;$trans->{'segun'}->{$lang}&nbsp;" . join(', ', @pubs_g);  }
+                                        if (scalar(@pubs_g)) { $str_g .= "&nbsp;".traduc('segun')."&nbsp;" . join(', ', @pubs_g);  }
                                         $geologic .= Tr( td({-colspan=>2, -class=>'geolMagicCell magicCell', -style=>"display: $dmg;"}, $str_g) );
                                 }
 
-                                $geologic = makeRetractableArray ('geolTitle', 'geolMagicCell magicCell', ucfirst($trans->{geoldating}->{$lang}), $geologic, 'arrowRight', 'arrowDown', 1, $dmg, 'true');
+                                $geologic = makeRetractableArray ('geolTitle', 'geolMagicCell magicCell', ucfirst(traduc('geoldating')), $geologic, 'arrowRight', 'arrowDown', 1, $dmg, 'true');
                                 my $pos = $display_modes{geological}{position} || $default_order{geological};
                                 $orderedElements{$pos} = $geologic;
                         }
@@ -4632,7 +4630,7 @@ sub taxon_card {
                                 $current_id //= 0;
                                 if ($country_id != $current_id or $precision ne $precis) {
                                         if ($current_id) {
-                                                if (scalar(@pubs)) { $string .= "&nbsp; $trans->{'segun'}->{$lang} &nbsp;" . join(', ', @pubs);  }
+                                                if (scalar(@pubs)) { $string .= "&nbsp; ".traduc('segun')." &nbsp;" . join(', ', @pubs);  }
                                                 if ($sup and $current_name ne $sup ) { $string = p({-style=>'margin: 0; padding: 0 0 0 1em;'}, $string); }
                                                 $countries_list .= Tr( td({-colspan=>2, -class=>'geoMagicCell magicCell', -style=>"display: $dmt;"}, $string) );
                                         }
@@ -4659,7 +4657,7 @@ sub taxon_card {
                                                 my $pmaj;
                                                 if ($page_maj) { $pmaj = "$p2[1]:&nbsp;$page_maj" }
                                                 else { $pmaj = $p2[1] }
-                                                $denonce = " $trans->{'denounced'}->{$lang} $trans->{'BY'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$ref_pub_maj"}, $pmaj);
+                                                $denonce = " ".traduc('denounced')." ".traduc('BY')." " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$ref_pub_maj"}, $pmaj);
                                         }
                                         $page //= '';
                                         push(@pubs, a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$ref_pub_ori"}, "$p[1]$page") . getPDF($ref_pub_ori) . $denonce . getPDF($ref_pub_maj));
@@ -4733,7 +4731,7 @@ sub taxon_card {
                                         }
                                 }
                         }
-                        if (scalar(@pubs)) { $string .= "&nbsp; $trans->{'segun'}->{$lang} &nbsp;" . join(', ', @pubs); }
+                        if (scalar(@pubs)) { $string .= "&nbsp; ".traduc('segun')." &nbsp;" . join(', ', @pubs); }
                         if ($sup and $current_name ne $sup) { $string = p({-style=>'margin: 0; padding: 0 0 0 1em;'}, $string); }
                         $countries_list .= $string ? Tr( td({-colspan=>2, -class=>'geoMagicCell magicCell', -style=>"display: $dmt;"}, $string) ) : '';
                         $sth5->finish();
@@ -4741,11 +4739,11 @@ sub taxon_card {
 
                         my $areas;
                         my $areasF;
-                        if (($dbase eq 'psylles' or $dbase eq 'cool') and !$valid_name->[9]) { $partial = "&nbsp;&nbsp;($trans->{partial}->{$lang})"; }
+                        if (($dbase eq 'psylles' or $dbase eq 'cool') and !$valid_name->[9]) { $partial = "&nbsp;&nbsp;(".traduc('partial').")"; }
                         if ( $countries_list ) {
 
                                 unless ($display_modes{tdwg}{skip} and $mode ne 'full') {
-                                        $countries_list = makeRetractableArray ('geoTitle', 'geoMagicCell magicCell', ucfirst($trans->{"geodistribution"}->{$lang}) . $partial, $countries_list, 'arrowRight', 'arrowDown', 1, $dmt, 'true');
+                                        $countries_list = makeRetractableArray ('geoTitle', 'geoMagicCell magicCell', ucfirst(traduc("geodistribution")) . $partial, $countries_list, 'arrowRight', 'arrowDown', 1, $dmt, 'true');
                                         my $pos = $display_modes{tdwg}{position} || $default_order{tdwg};
                                         $orderedElements{$pos} = $countries_list;
                                 }
@@ -4891,12 +4889,12 @@ sub taxon_card {
                                                 if($area_color_np ne $area_color and scalar(keys(%tdwg123))) {
                                                         $lgnd .= table({-style=>'margin-top: 5px;'},
                                                                         Tr(
-                                                                                td({-style=>"padding: 3px; font-size: 10px;"}, ucfirst($trans->{"data_accuracy"}->{$lang})),
+                                                                                td({-style=>"padding: 3px; font-size: 10px;"}, ucfirst(traduc("data_accuracy"))),
                                                                                 td({-style=>"padding: 3px; font-size: 10px;"}, div({-style=>"height: 15px; width: 30px; background-color: #$area_color;"})),
-                                                                                td({-style=>"padding: 3px; font-size: 10px;"}, ucfirst($trans->{"precise_data"}->{$lang})),
+                                                                                td({-style=>"padding: 3px; font-size: 10px;"}, ucfirst(traduc("precise_data"))),
                                                                                 td({-style=>"padding: 3px; font-size: 10px;"}, div({-style=>"height: 15px; width: 30px; background-color: #$area_color_np;"})),
-                                                                                td({-style=>"padding: 3px; font-size: 10px;"}, ucfirst($trans->{"unprecise_data"}->{$lang})),
-                                                                                td({-style=>"padding: 3px; font-size: 10px;"}, '('.ucfirst($trans->{"tdwg_standard"}->{$lang}).')'),
+                                                                                td({-style=>"padding: 3px; font-size: 10px;"}, ucfirst(traduc("unprecise_data"))),
+                                                                                td({-style=>"padding: 3px; font-size: 10px;"}, '('.ucfirst(traduc("tdwg_standard")).')'),
                                                                                 td({-style=>"padding: 3px; font-size: 10px;"}, img({-src=>"/explorerdocs/GBIFoccs.png", -style=>'border: 0; margin: 0;'})),
                                                                                 td({-style=>"padding: 3px; font-size: 10px;"}, 'GBIF occurrences')
                                                                         )
@@ -4904,7 +4902,7 @@ sub taxon_card {
                                                 }
 
                                                 $map = Tr( td({-colspan=>2, -class=>'mapMagicCell magicCell', -style=>"display: $dmm;"}, $map . $lgnd ) );
-                                                $map = makeRetractableArray ('mapTitle', 'mapMagicCell magicCell', ucfirst($trans->{"geomap"}->{$lang}.': '.$trans->{'extant_taxa'}->{$lang}), $map, 'arrowRight', 'arrowDown', 1, $dmm, 'true');
+                                                $map = makeRetractableArray ('mapTitle', 'mapMagicCell magicCell', ucfirst(traduc("geomap").': '.traduc('extant_taxa')), $map, 'arrowRight', 'arrowDown', 1, $dmm, 'true');
                                                 my $pos = $display_modes{map}{position} || $default_order{map};
                                                 $orderedElements{$pos} .= $map;
                                         }
@@ -4945,18 +4943,18 @@ sub taxon_card {
                                                 if($area_color_fsl ne $area_color_fsl_np and scalar(keys(%tdwgF123))) {
                                                         $lgnd .= table({-style=>'margin-top: 5px;'},
                                                                         Tr(
-                                                                                td({-style=>"padding: 3px; font-size: 10px;"}, ucfirst($trans->{"data_accuracy"}->{$lang})),
+                                                                                td({-style=>"padding: 3px; font-size: 10px;"}, ucfirst(traduc("data_accuracy"))),
                                                                                 td({-style=>"padding: 3px; font-size: 10px;"}, div({-style=>"height: 15px; width: 30px; background-color: #$area_color_fsl;"})),
-                                                                                td({-style=>"padding: 3px; font-size: 10px;"}, ucfirst($trans->{"precise_data"}->{$lang})),
+                                                                                td({-style=>"padding: 3px; font-size: 10px;"}, ucfirst(traduc("precise_data"))),
                                                                                 td({-style=>"padding: 3px; font-size: 10px;"}, div({-style=>"height: 15px; width: 30px; background-color: #$area_color_fsl_np;"})),
-                                                                                td({-style=>"padding: 3px; font-size: 10px;"}, ucfirst($trans->{"unprecise_data"}->{$lang})),
-                                                                                td({-style=>"padding: 3px; font-size: 10px;"}, '('.ucfirst($trans->{"tdwg_standard"}->{$lang}).')')
+                                                                                td({-style=>"padding: 3px; font-size: 10px;"}, ucfirst(traduc("unprecise_data"))),
+                                                                                td({-style=>"padding: 3px; font-size: 10px;"}, '('.ucfirst(traduc("tdwg_standard")).')')
                                                                         )
                                                                 );
                                                 }
 
                                                 $map = Tr( td({-colspan=>2, -class=>'mapFMagicCell magicCell', -style=>"display: $dmm;"}, $map . $lgnd ) );
-                                                $map = makeRetractableArray ('mapFTitle', 'mapFMagicCell magicCell', ucfirst($trans->{"geomap"}->{$lang}.': '.$trans->{'extinct_taxa'}->{$lang}), $map, 'arrowRight', 'arrowDown', 1, $dmm, 'true');
+                                                $map = makeRetractableArray ('mapFTitle', 'mapFMagicCell magicCell', ucfirst(traduc("geomap").': '.traduc('extinct_taxa')), $map, 'arrowRight', 'arrowDown', 1, $dmm, 'true');
                                                 my $pos = $display_modes{map}{position} || $default_order{map};
                                                 $orderedElements{$pos} .= $map;
                                         }
@@ -5011,7 +5009,7 @@ sub taxon_card {
                                 foreach my $row ( @{$assocs} ){
                                         if ("$row->[0]" ne $curr_ta) {
                                                 if ($curr_ta) {
-                                                        if (scalar(@pubs_ta)) { $str_ta .= "&nbsp;$trans->{'segun'}->{$lang}&nbsp;" . join(', ', @pubs_ta);  }
+                                                        if (scalar(@pubs_ta)) { $str_ta .= "&nbsp;".traduc('segun')."&nbsp;" . join(', ', @pubs_ta);  }
                                                         $ss_grp .= Tr( td({-colspan=>2, -class=>'ssgrp'.$curr_ty.'_'.'MagicCell magicCell', -style=>"display: $dmh;"}, $str_ta.$confirm) );
                                                 }
                                                 if ($row->[11] ne $curr_ty) {
@@ -5054,12 +5052,12 @@ sub taxon_card {
                                                 push(@pubs_ta, a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$row->[7]"}, "$p[1]$page") . getPDF($row->[7]));
                                         }
 
-                                        if ($row->[16] eq 'uncertain') { $confirm = "&nbsp; [&nbsp;$trans->{'doubtful'}->{$lang}&nbsp;]"; }
-                                        elsif ($row->[16] eq 'certain') { $confirm = "&nbsp; [&nbsp;$trans->{'confirmed'}->{$lang}&nbsp;]"; }
+                                        if ($row->[16] eq 'uncertain') { $confirm = "&nbsp; [&nbsp;".traduc('doubtful')."&nbsp;]"; }
+                                        elsif ($row->[16] eq 'certain') { $confirm = "&nbsp; [&nbsp;".traduc('confirmed')."&nbsp;]"; }
 
                                 }
 
-                                if (scalar(@pubs_ta)) { $str_ta .= "&nbsp;$trans->{'segun'}->{$lang}&nbsp;" . join(', ', @pubs_ta);  }
+                                if (scalar(@pubs_ta)) { $str_ta .= "&nbsp;".traduc('segun')."&nbsp;" . join(', ', @pubs_ta);  }
                                 $ss_grp .= Tr( td({-colspan=>2, -class=>'ssgrp'.$curr_ty.'_'.'MagicCell magicCell', -style=>"display: $dmh;"}, $str_ta.$confirm) );
                                 $ss_grp = makeRetractableArray ("ssgrpTitle_$curr_ty", 'ssgrp'.$curr_ty.'_'.'MagicCell magicCell', ucfirst($curr_tystr), $ss_grp, 'arrowRight', 'arrowDown', 1, $dmh, 'true');
                                 $associates .= Tr( td({-colspan=>2, -class=>'assocMagicCell magicCell', -style=>"display: $dmh;"}, "$ss_grp" ) );
@@ -5067,7 +5065,7 @@ sub taxon_card {
                         }
 
                         if ($associates) {
-                                $associates = makeRetractableArray ('assocTitle', 'assocMagicCell magicCell', ucfirst($trans->{"bioInteract"}->{$lang}), $associates, 'arrowRight', 'arrowDown', 1, $dmh, 'true', undef, 'none');
+                                $associates = makeRetractableArray ('assocTitle', 'assocMagicCell magicCell', ucfirst(traduc("bioInteract")), $associates, 'arrowRight', 'arrowDown', 1, $dmh, 'true', undef, 'none');
                                 my $pos = $display_modes{associates}{position} || $default_order{associates};
                                 $orderedElements{$pos} = $associates;
                         }
@@ -5143,7 +5141,7 @@ sub taxon_card {
                                 foreach my $row ( @{$locals} ){
                                         if ($curr ne "$row->[0]") {
                                                 if ($curr) {
-                                                        #if (scalar(@pubs)) { $str .= "&nbsp;$trans->{'segun'}->{$lang}&nbsp;" . join(', ', @pubs);  }
+                                                        #if (scalar(@pubs)) { $str .= "&nbsp;".traduc('segun')."&nbsp;" . join(', ', @pubs);  }
                                                         if (scalar(@pubs)) { $str .= "Publication: " . join(', ', @pubs);  }
                                                         $localities .= Tr( td({-colspan=>2, -class=>'locMagicCell magicCell', -style=>"display: $dmh;"}, $str ) );
                                                 }
@@ -5163,13 +5161,13 @@ sub taxon_card {
                                         }
                                 }
 
-                                #if (scalar(@pubs)) { $str .= "&nbsp;$trans->{'segun'}->{$lang}&nbsp;" . join(', ', @pubs);  }
+                                #if (scalar(@pubs)) { $str .= "&nbsp;".traduc('segun')."&nbsp;" . join(', ', @pubs);  }
                                 if (scalar(@pubs)) { $str .= "Publication: " . join(', ', @pubs);  }
                                 $localities .= Tr( td({-colspan=>2, -class=>'locMagicCell magicCell', -style=>"display: $dmh;"}, $str ) );
                         }
 
                         if ($localities) {
-                                $localities = makeRetractableArray ('locTitle', 'locMagicCell magicCell', ucfirst($trans->{"fossilSites"}->{$lang}), $localities, 'arrowRight', 'arrowDown', 1, $dmh, 'true', undef, 'none');
+                                $localities = makeRetractableArray ('locTitle', 'locMagicCell magicCell', ucfirst(traduc("fossilSites")), $localities, 'arrowRight', 'arrowDown', 1, $dmh, 'true', undef, 'none');
                                 my $pos = $display_modes{localities}{position} || $default_order{localities};
                                 $orderedElements{$pos} = $localities;
                         }
@@ -5248,7 +5246,7 @@ sub taxon_card {
 
                                 $images = Tr( td({-colspan=>2, -class=>'imgMagicCell magicCell', -style=>"display: $dmi;"}, $images ) );
 
-                                $images = makeRetractableArray ('imgsTitle', 'imgMagicCell magicCell', ucfirst($trans->{"images"}->{$lang}), $images, 'arrowRight', 'arrowDown', 1, $dmi, 'true');
+                                $images = makeRetractableArray ('imgsTitle', 'imgMagicCell magicCell', ucfirst(traduc("images")), $images, 'arrowRight', 'arrowDown', 1, $dmi, 'true');
 
                                 my $pos = $display_modes{images}{position} || $default_order{images};
                                 $orderedElements{$pos} = $images;
@@ -5282,10 +5280,10 @@ sub taxon_card {
                                 my $pluriel;
                                 if($type->[3] > 1) {
                                         $pluriel = 's';
-                                        $lien = $trans->{'deposited_in(s)'}->{$lang};
+                                        $lien = traduc('deposited_in(s)');
                                 }
                                 else {
-                                        $lien = $trans->{deposited_in}->{$lang};
+                                        $lien = traduc('deposited_in');
                                 }
 
                                 my $source;
@@ -5294,18 +5292,18 @@ sub taxon_card {
                                         my $pmaj;
                                         if ($type->[10]) { $pmaj = "$p[1]:&nbsp;$type->[10]" }
                                         else { $pmaj = $p[1] }
-                                        $source = " $trans->{'segun'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$type->[9]"}, $pmaj) . getPDF($type->[9]);
+                                        $source = " ".traduc('segun')." " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$type->[9]"}, $pmaj) . getPDF($type->[9]);
                                 }
 
                                 $types .= Tr( td({-colspan=>2, -class=>'typesMagicCell magicCell', -style=>"display: $dmt;"},
-                                                        "$type->[3] $type->[4]$pluriel " . join(', ',@more) . " $trans->{of}->{$lang} " . i($type->[1]) . " $type->[2]" .
+                                                        "$type->[3] $type->[4]$pluriel " . join(', ',@more) . " ".traduc('of')." " . i($type->[1]) . " $type->[2]" .
                                                         " $lien " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=repository&id=$type->[7]"}, $type->[8]) . $source . " $type->[11]" ) );
 
                                 $sum += $type->[3] || 1;
                         }
 
                         if ($types) {
-                                my $subtitle = "$sum " . ucfirst($trans->{'type(s)'}->{$lang});
+                                my $subtitle = "$sum " . ucfirst(traduc('type(s)'));
                                 $types = makeRetractableArray ('typesTitle', 'typesMagicCell magicCell', $subtitle, $types, 'arrowRight', 'arrowDown', 1, $dmt, 'true');
                                 my $pos = $display_modes{types}{position} || $default_order{types};
                                 $orderedElements{$pos} = $types;
@@ -5331,7 +5329,7 @@ sub taxon_card {
                                                 div({-id=>'mainCardDiv'},
                                                         div({-id=>'subjectDiv'},
                                                                 $stats,
-                                                                div({-class=>'titre'}, ucfirst($trans->{$rank}->{$lang})),
+                                                                div({-class=>'titre'}, ucfirst(traduc($rank))),
                                                                 div({-class=>'subject', -style=>'display: inline;'}, $formated_name ) . $tsp,
                                                                 $publication
                                                         ),
@@ -5416,12 +5414,9 @@ sub name_card {
                         # Fetch princeps publication of the name
                         my $ori_pub;
                         if ( $name->[2] ) {
-                                $ori_pub = div({-class=>'titre'}, ucfirst($trans->{'ori_pub'}->{$lang}));
+                                $ori_pub = div({-class=>'titre'}, ucfirst(traduc('ori_pub')));
                                 my $pub = pub_formating($name->[2], $dbc, $name->[3]);
                                 $ori_pub .= ul( li(a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$name->[2]"}, "$pub") . getPDF($name->[2])));
-                        }
-                        else {
-                                #$ori_pub = ul( li($trans->{"UNK"}->{$lang}));
                         }
 
                         my $taxa_tab;
@@ -5436,11 +5431,11 @@ sub name_card {
                                         my $ambiguous = synonymy( $taxon->[4], $taxon->[6], $taxon->[8] );
                                         my $complete = completeness( $taxon->[5], $taxon->[7], $taxon->[9] );
 
-                                        my $tt = "$taxon->[13] $trans->{'of'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22]" );
+                                        my $tt = "$taxon->[13] ".traduc('of')." " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22]" );
                                         my @pub_den = publication($taxon->[3], 0, 1, $dbc );
                                         if ($pub_den[1]) {
                                                 if ($taxon->[16]) { $taxon->[16] = ": ".$taxon->[16]; }
-                                                $tt .= " $trans->{'segun'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[3]"}, "$pub_den[1]".$taxon->[16] );
+                                                $tt .= " ".traduc('segun')." " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[3]"}, "$pub_den[1]".$taxon->[16] );
                                                 $tt .= getPDF($taxon->[3]);
                                         }
 
@@ -5450,15 +5445,15 @@ sub name_card {
 
                                         my @pub_use = publication($taxon->[2], 0, 1, $dbc );
                                         my @pub_den = publication($taxon->[3], 0, 1, $dbc );
-                                        my $tt = "$taxon->[13] $trans->{'of'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22]" );
+                                        my $tt = "$taxon->[13] ".traduc('of')." " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22]" );
                                         if ($pub_use[1]) {
                                                 if ($taxon->[17]) { $taxon->[17] = ": ".$taxon->[17]; }
-                                                $tt .= " $trans->{'dansin'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[2]"}, "$pub_use[1]".$taxon->[17] );
+                                                $tt .= " ".traduc('dansin')." " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[2]"}, "$pub_use[1]".$taxon->[17] );
                                                 $tt .= getPDF($taxon->[2]);
                                         }
                                         if ($pub_den[1]) {
                                                 if ($taxon->[16]) { $taxon->[16] = ": ".$taxon->[16]; }
-                                                $tt .= " $trans->{'segun'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[3]"}, "$pub_den[1]".$taxon->[16] );
+                                                $tt .= " ".traduc('segun')." " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[3]"}, "$pub_den[1]".$taxon->[16] );
                                                 $tt .= getPDF($taxon->[3]);
                                         }
                                         $taxa_tab .= li($origin.$tt);
@@ -5467,15 +5462,15 @@ sub name_card {
 
                                         my @pub_use = publication($taxon->[2], 0, 1, $dbc );
                                         my @pub_den = publication($taxon->[3], 0, 1, $dbc );
-                                        my $tt = "$trans->{'misid'}->{$lang} $trans->{'of'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22]" );
+                                        my $tt = traduc('misid')." ".traduc('of')." " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22]" );
                                         if ($pub_use[1]) {
                                                 if ($taxon->[17]) { $taxon->[17] = ": ".$taxon->[17]; }
-                                                $tt .= " $trans->{'dansin'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[2]"}, "$pub_use[1]".$taxon->[17] );
+                                                $tt .= " ".traduc('dansin')." " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[2]"}, "$pub_use[1]".$taxon->[17] );
                                                 $tt .= getPDF($taxon->[2]);
                                         }
                                         if ($pub_den[1]) {
                                                 if ($taxon->[16]) { $taxon->[16] = ": ".$taxon->[16]; }
-                                                $tt .= " $trans->{'segun'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[3]"}, "$pub_den[1]".$taxon->[16] );
+                                                $tt .= " ".traduc('segun')." " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[3]"}, "$pub_den[1]".$taxon->[16] );
                                                 $tt .= getPDF($taxon->[3]);
                                         }
                                         $taxa_tab .= li($origin.$tt);
@@ -5484,12 +5479,12 @@ sub name_card {
 
                                         my @pub_den = publication($taxon->[3], 0, 1, $dbc );
 
-                                        my $tt = $name->[4] ? "$taxon->[13] $trans->{'of'}->{$lang}" : $trans->{'prevtaxpos'}->{$lang};
+                                        my $tt = $name->[4] ? "$taxon->[13] ".traduc('of') : traduc('prevtaxpos');
                                         $tt .= " " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22]" );
                                         if ($taxon->[21].$taxon->[22] eq $taxon->[18].$taxon->[19]) { $tt .= " ($taxon->[23])"; }
                                         if ($pub_den[1]) {
                                                 if ($taxon->[16]) { $taxon->[16] = ": ".$taxon->[16]; }
-                                                $tt .= " $trans->{'segun'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[3]"}, "$pub_den[1]".$taxon->[16] );
+                                                $tt .= " ".traduc('segun')." " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[3]"}, "$pub_den[1]".$taxon->[16] );
                                                 $tt .= getPDF($taxon->[3]);
                                         }
                                         $taxa_tab .= li($origin.$tt);
@@ -5505,33 +5500,33 @@ sub name_card {
                                                 my $tt = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, "$taxon->[13]" );
                                                 if ($pub_use[1]) {
                                                         if ($taxon->[17]) { $taxon->[17] = ": ".$taxon->[17]; }
-                                                        $tt .= " $trans->{'dansin'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[2]"}, "$pub_use[1]".$taxon->[17] );
+                                                        $tt .= " ".traduc('dansin')." " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[2]"}, "$pub_use[1]".$taxon->[17] );
                                                         $tt .= getPDF($taxon->[2]);
                                                 }
                                                 if ($pub_den[1]) {
                                                         if ($taxon->[16]) { $taxon->[16] = ": ".$taxon->[16]; }
-                                                        $tt .= " $trans->{'segun'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[3]"}, "$pub_den[1]".$taxon->[16] );
+                                                        $tt .= " ".traduc('segun')." " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[3]"}, "$pub_den[1]".$taxon->[16] );
                                                         $tt .= getPDF($taxon->[3]);
                                                 }
                                                 $taxa_tab .= li($origin.$tt);
                                         }
                                 }
                                 elsif ( $taxon->[1] eq 'valid' ){
-                                        $taxa_tab = li(" $trans->{'valid'}->{$lang} $trans->{'of'}->{$lang} " .a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[15]&id=$taxon->[0]"}, i($name->[0]) . " $name->[1]")) . $taxa_tab;
+                                        $taxa_tab = li(" ".traduc('valid')." ".traduc('of')." " .a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[15]&id=$taxon->[0]"}, i($name->[0]) . " $name->[1]")) . $taxa_tab;
                                 }
                                 elsif ( $taxon->[1] eq 'incorrect original spelling' or $taxon->[1] eq 'incorrect subsequent spelling' ){
 
                                         my @pub_use = publication($taxon->[2], 0, 1, $dbc );
                                         my @pub_den = publication($taxon->[3], 0, 1, $dbc );
-                                        my $tt = "$taxon->[13] $trans->{'of'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22]" );
+                                        my $tt = "$taxon->[13] ".traduc('of')." " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22]" );
                                         if ($pub_use[1]) {
                                                 if ($taxon->[17]) { $taxon->[17] = ": ".$taxon->[17]; }
-                                                $tt .= " $trans->{'dansin'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[2]"}, "$pub_use[1]".$taxon->[17] );
+                                                $tt .= " ".traduc('dansin')." " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[2]"}, "$pub_use[1]".$taxon->[17] );
                                                 $tt .= getPDF($taxon->[2]);
                                         }
                                         if ($pub_den[1]) {
                                                 if ($taxon->[16]) { $taxon->[16] = ": ".$taxon->[16]; }
-                                                $tt .= " $trans->{'emended'}->{$lang}&nbsp;$trans->{'BY'}->{$lang}&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[3]"}, "$pub_den[1]".$taxon->[16] );
+                                                $tt .= " ".traduc('emended')."&nbsp;".traduc('BY')."&nbsp;" . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[3]"}, "$pub_den[1]".$taxon->[16] );
                                                 $tt .= getPDF($taxon->[3]);
                                         }
                                         $taxa_tab = li($origin.$tt);
@@ -5541,10 +5536,10 @@ sub name_card {
                                         $done{$taxon->[12]} = 1;
 
                                         my @pub_den = publication($taxon->[3], 0, 1, $dbc );
-                                        my $tt = "$taxon->[13] $trans->{'of'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22]" );
+                                        my $tt = "$taxon->[13] ".traduc('of')." " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22]" );
                                         if ($pub_den[1]) {
                                                 if ($taxon->[16]) { $taxon->[16] = ": ".$taxon->[16]; }
-                                                $tt .= " $trans->{'segun'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[3]"}, "$pub_den[1]".$taxon->[16] );
+                                                $tt .= " ".traduc('segun')." " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[3]"}, "$pub_den[1]".$taxon->[16] );
                                                 $tt .= getPDF($taxon->[3]);
                                         }
                                         $taxa_tab .= li($origin.$tt);
@@ -5554,11 +5549,11 @@ sub name_card {
                                         my @pub_den = publication($taxon->[3], 0, 1, $dbc );
                                         my $tt = i($taxon->[13]);
                                         if ($taxon->[22]) {
-                                                $tt .= " $trans->{'of'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22]" );
+                                                $tt .= " ".traduc('of')." " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22]" );
                                         }
                                         if ($pub_den[1]) {
                                                 if ($taxon->[16]) { $taxon->[16] = ": ".$taxon->[16]; }
-                                                $tt .= " $trans->{'segun'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[3]"}, "$pub_den[1]".$taxon->[16] );
+                                                $tt .= " ".traduc('segun')." " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[3]"}, "$pub_den[1]".$taxon->[16] );
                                                 $tt .= getPDF($taxon->[3]);
                                         }
                                         $taxa_tab .= li($origin.$tt);
@@ -5568,12 +5563,12 @@ sub name_card {
                                         my @pub_den = publication($taxon->[3], 0, 1, $dbc );
                                         my $tt;
                                         if ($taxon->[12] != $id) {
-                                                $tt .= " $trans->{'fromto'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22] ". i($taxon->[1]) );
+                                                $tt .= " ".traduc('fromto')." " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22] ". i($taxon->[1]) );
                                         }
                                         else { $tt .= " ". i($taxon->[1]); }
                                         if ($pub_den[1]) {
                                                 if ($taxon->[16]) { $taxon->[16] = ": ".$taxon->[16]; }
-                                                $tt .= " $trans->{'segun'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[3]"}, "$pub_den[1]".$taxon->[16] );
+                                                $tt .= " ".traduc('segun')." " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[3]"}, "$pub_den[1]".$taxon->[16] );
                                                 $tt .= getPDF($taxon->[3]);
                                         }
                                         $taxa_tab .= li($origin.$tt);
@@ -5581,10 +5576,10 @@ sub name_card {
                                 elsif ( $taxon->[1] eq 'nomen praeoccupatum'){
 
                                         my @pub_den = publication($taxon->[3], 0, 1, $dbc );
-                                        my $tt = i($taxon->[13]) . " $trans->{'fromto'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22]" ) . ' ' . i($trans->{'nnov'}->{$lang});
+                                        my $tt = i($taxon->[13]) . " ".traduc('fromto')." " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22]" ) . ' ' . i(traduc('nnov'));
                                         if ($pub_den[1]) {
                                                 if ($taxon->[16]) { $taxon->[16] = ": ".$taxon->[16]; }
-                                                $tt .= ", $trans->{'segun'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[3]"}, "$pub_den[1]".$taxon->[16] );
+                                                $tt .= ", ".traduc('segun')." " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[3]"}, "$pub_den[1]".$taxon->[16] );
                                                 $tt .= getPDF($taxon->[3]);
                                         }
                                         $taxa_tab .= li($origin.$tt);
@@ -5592,10 +5587,10 @@ sub name_card {
                                 elsif ( $taxon->[1] eq 'nomen oblitum'){
 
                                         my @pub_den = publication($taxon->[3], 0, 1, $dbc );
-                                        my $tt = i($taxon->[13]) . ", $trans->{'synonym'}->{$lang} $trans->{'of'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22]" ) . ' ' . i($trans->{'nprotect'}->{$lang});
+                                        my $tt = i($taxon->[13]) . ", ".traduc('synonym')." ".traduc('of')." " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22]" ) . ' ' . i(traduc('nprotect'));
                                         if ($pub_den[1]) {
                                                 if ($taxon->[16]) { $taxon->[16] = ": ".$taxon->[16]; }
-                                                $tt .= ", $trans->{'segun'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[3]"}, "$pub_den[1]".$taxon->[16] );
+                                                $tt .= ", ".traduc('segun')." " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[3]"}, "$pub_den[1]".$taxon->[16] );
                                                 $tt .= getPDF($taxon->[3]);
                                         }
                                         $taxa_tab .= li($origin.$tt);
@@ -5609,16 +5604,16 @@ sub name_card {
 
                                         my $tt = $taxon->[13];
                                         if ($taxon->[22]) {
-                                                $tt .= " $trans->{'relatedto'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22]" );
+                                                $tt .= " ".traduc('relatedto')." " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22]" );
                                         }
                                         $taxa_tab .= li($origin.$tt);
                                 }
                                 elsif (!exists($done{$taxon->[12]})) {
-                                        my $tt = "$trans->{'other_name'}->{$lang} $trans->{'of'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22]" );
+                                        my $tt = traduc('other_name')." ".traduc('of')." " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$taxon->[14]&id=$taxon->[0]"}, i($taxon->[21]) . " $taxon->[22]" );
                                         my @pub_den = publication($taxon->[3], 0, 1, $dbc );
                                         if ($pub_den[1]) {
                                                 if ($taxon->[16]) { $taxon->[16] = ": ".$taxon->[16]; }
-                                                $tt .= " $trans->{'segun'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[3]"}, "$pub_den[1]".$taxon->[16] );
+                                                $tt .= " ".traduc('segun')." " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$taxon->[3]"}, "$pub_den[1]".$taxon->[16] );
                                                 $tt .= getPDF($taxon->[3]);
                                         }
                                         $taxa_tab .= li($origin.$tt);
@@ -5627,7 +5622,7 @@ sub name_card {
 
                         my $chr;
                         if (scalar @chresos) {
-                                $chr = div({-class=>'titre'}, ucfirst($trans->{'Chresonym(s)'}->{$lang}));
+                                $chr = div({-class=>'titre'}, ucfirst(traduc('Chresonym(s)')));
                                 $chr .= start_ul({});
                                 foreach (@chresos) {
                                         $chr .= li($_);
@@ -5637,8 +5632,8 @@ sub name_card {
 
                         my ($cardtitle, $usage);
 
-                        $cardtitle = $trans->{'name'}->{$lang};
-                        $usage = div({-class=>'titre'}, ucfirst("$trans->{'statu(s)'}->{$lang}")) . ul( $taxa_tab);
+                        $cardtitle = traduc('name');
+                        $usage = div({-class=>'titre'}, ucfirst(traduc('statu(s)'))) . ul( $taxa_tab);
 
                         my $drvreq = "  SELECT nc.index, nc.orthographe, nc.autorite, nc.gen_type, r.en
                                         FROM noms_complets AS nc
@@ -5650,11 +5645,11 @@ sub name_card {
 
                         my $drvnames;
                         if (scalar @{$derives}) {
-                                $drvnames = div({-class=>'titre'}, ucfirst($trans->{'drvname(s)'}->{$lang}));
+                                $drvnames = div({-class=>'titre'}, ucfirst(traduc('drvname(s)')));
                                 $drvnames .= start_ul({});
                                 foreach ( @{$derives} ) {
                                         my $typestr;
-                                        if ($_->[3]) { $typestr = span({-class=>'typeSpecies'}, "&nbsp;  ".$trans->{"type".$_->[4]}->{$lang}) }
+                                        if ($_->[3]) { $typestr = span({-class=>'typeSpecies'}, "&nbsp;  ".traduc("type".$_->[4])) }
                                         $drvnames .= li( a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$_->[0]"}, "$_->[1] $_->[2]") . $typestr);
                                 }
                                 $drvnames .= end_ul();
@@ -5780,7 +5775,7 @@ sub author_card {
                         foreach my $sp ( @{$sp_list} ){
                                 if ($current ne $sp->[6]) {
                                         unless ($current eq $sp_list->[0][6]) { $sp_tab .= br; }
-                                        my $sbt = $trans->{$current."(s)"}->{$lang} || $curlang;
+                                        my $sbt = traduc($current."(s)") || $curlang;
                                         $sp_tab .= li(div({-class=>'titre'}, "$count $sbt"));
                                         $sp_tab .= $tmp_tab;
 
@@ -5792,7 +5787,7 @@ sub author_card {
                                 $tmp_tab .= li(a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$sp->[6]&id=$sp->[0]"}, i("$sp->[1]") . " $sp->[2]" ) );
                                 $count++;
                         }
-                        my $sbt = $trans->{$current."(s)"}->{$lang} || $curlang;
+                        my $sbt = traduc($current."(s)") || $curlang;
                         if ($size != $count) { $sp_tab .= div({-class=>'titre'}, ''); }
                         $sp_tab .= li(div({-class=>'titre'}, "$count $sbt"));
                         $sp_tab .= $tmp_tab;
@@ -5812,7 +5807,7 @@ sub author_card {
                 my @pubids;
                 if ( scalar @{$pub_list}){
                         my $size = scalar @{$pub_list};
-                        $pub_tab .= div({-class=>'titre'}, "$size $trans->{'publi(s)'}->{$lang}");
+                        $pub_tab .= div({-class=>'titre'}, "$size ".traduc('publi(s)'));
                         $pub_tab .= start_ul({});
                         foreach my $pub_id ( @{$pub_list} ){
                                 my $pub = pub_formating($pub_id->[0], $dbc );
@@ -5838,7 +5833,7 @@ sub author_card {
                 my $na_tab;
                 if ( scalar @{$na_list} != 0){
                         my $size = scalar @{$na_list};
-                        $na_tab .= div({-class=>'titre'}, "$size $trans->{'name(s)'}->{$lang}");
+                        $na_tab .= div({-class=>'titre'}, "$size ".traduc('name(s)'));
                         $na_tab .= start_ul({});
                         foreach my $na ( @{$na_list} ){
                                 $na_tab .= li(a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$na->[0]"}, i("$na->[1]") . " $na->[2]") . " $na->[3]" );
@@ -5848,7 +5843,7 @@ sub author_card {
 
                 $fullhtml =     div({-class=>'content'},
                                         div({-id=>'mainCardDiv'},
-                                                div({-class=>'titre'}, ucfirst($trans->{'author'}->{$lang})),
+                                                div({-class=>'titre'}, ucfirst(traduc('author'))),
                                                 $subject,
                                                 $sp_tab,
                                                 $na_tab,
@@ -5924,12 +5919,12 @@ sub publication_card {
                                         $done{$name->[1].'/'.$name->[4]} = 1;
                                         $princeps .= Tr( td({-colspan=>2, -class=>'prcpsMagicCell magicCell', -style=>"display: $dmp;"},
                                                         a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$name->[1]"}, i($name->[2]) . " $name->[3]" ) .
-                                                        " $name->[8] $trans->{'of'}->{$lang} " .
+                                                        " $name->[8] ".traduc('of')." " .
                                                         a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$validrank&id=$name->[0]"}, i($name->[5]) . " $name->[6]" ) ) );
                                 }
                         }
                         if ( $princeps ){
-                                $princeps = makeRetractableArray ('prcpsTitle', 'prcpsMagicCell magicCell', ucfirst($trans->{'descr_prin'}->{$lang}), $princeps, 'arrowRight', 'arrowDown', 1, $dmp, 'true');
+                                $princeps = makeRetractableArray ('prcpsTitle', 'prcpsMagicCell magicCell', ucfirst(traduc('descr_prin')), $princeps, 'arrowRight', 'arrowDown', 1, $dmp, 'true');
                                 my $pos = $display_modes{princeps}{position} || 1;
                                 $orderedElements{$pos} = $princeps;
                         }
@@ -5969,12 +5964,12 @@ sub publication_card {
                                 my $complete = completeness( $completude, $completude_male, $completude_femelle );
                                 $synonyms .= Tr( td({-colspan=>2, -class=>'synsMagicCell magicCell', -style=>"display: $dms;"},
                                                 a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$ref_nom"}, i($orthographe) . " $autorite" ) .
-                                                " $trans->{'synonym'}->{$lang} $trans->{'of'}->{$lang} " .
+                                                " ".traduc('synonym')." ".traduc('of')." " .
                                                 a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$validrank&id=$ref_taxon"}, i($tax_name) . " $tax_autorite" ) ) );
                         }
                         $sth->finish(); # finalize the request
                         if ( $synonyms ){
-                                $synonyms = makeRetractableArray ('synsTitle', 'synsMagicCell magicCell', ucfirst($trans->{'descr_syn'}->{$lang}), $synonyms, 'arrowRight', 'arrowDown', 1, $dms, 'true');
+                                $synonyms = makeRetractableArray ('synsTitle', 'synsMagicCell magicCell', ucfirst(traduc('descr_syn')), $synonyms, 'arrowRight', 'arrowDown', 1, $dms, 'true');
                                 my $pos = $display_modes{synonyms}{position} || 2;
                                 $orderedElements{$pos} = $synonyms;
                         }
@@ -6014,19 +6009,19 @@ sub publication_card {
                                 if ($orthographe.$autorite ne $tax_name.$tax_autorite) {
                                         $transfers .= Tr( td({-colspan=>2, -class=>'transMagicCell magicCell', -style=>"display: $dmt;"},
                                         a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$validrank&id=$ref_taxon"}, i($tax_name) . " $tax_autorite" ) .
-                                        " $trans->{'new_comb'}->{$lang} $trans->{'of'}->{$lang} " .
+                                        " ".traduc('new_comb')." ".traduc('of')." " .
                                         a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$ref_nom"}, i($orthographe) . " $autorite" ) ) );
                                 }
                                 else {
                                         $transfers .= Tr( td({-colspan=>2, -class=>'transMagicCell magicCell', -style=>"display: $dmt;"},
                                         a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$validrank&id=$ref_taxon"}, i($tax_name) . " $tax_autorite" ) .
-                                        "&nbsp;$trans->{'transferfrom'}->{$lang}&nbsp;$oriFam&nbsp;$trans->{'tovers'}->{$lang}&nbsp;$tgtFam") );
+                                        "&nbsp;".traduc('transferfrom')."&nbsp;$oriFam&nbsp;".traduc('tovers')."&nbsp;$tgtFam") );
                                 }
                         }
                         $sth->finish();
 
                         if ( $transfers ){
-                                $transfers = makeRetractableArray ('transTitle', 'transMagicCell magicCell', ucfirst($trans->{'transfer(s)'}->{$lang}), $transfers, 'arrowRight', 'arrowDown', 1, $dmt, 'true');
+                                $transfers = makeRetractableArray ('transTitle', 'transMagicCell magicCell', ucfirst(traduc('transfer(s)')), $transfers, 'arrowRight', 'arrowDown', 1, $dmt, 'true');
                                 my $pos = $display_modes{transfers}{position} || 3;
                                 $orderedElements{$pos} = $transfers;
                         }
@@ -6066,19 +6061,19 @@ sub publication_card {
                                 if ($orthographe.$autorite ne $tax_name.$tax_autorite) {
                                         $newnames .= Tr( td({-colspan=>2, -class=>'transMagicCell magicCell', -style=>"display: $dmt;"},
                                         a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$validrank&id=$ref_taxon"}, i($tax_name) . " $tax_autorite" ) .
-                                        " $trans->{'new_comb'}->{$lang} $trans->{'of'}->{$lang} " .
+                                        " ".traduc('new_comb')." ".traduc('of')." " .
                                         a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$ref_nom"}, i($orthographe) . " $autorite" ) ) );
                                 }
                                 else {
                                         $newnames .= Tr( td({-colspan=>2, -class=>'transMagicCell magicCell', -style=>"display: $dmt;"},
                                         a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$validrank&id=$ref_taxon"}, i($tax_name) . " $tax_autorite" ) .
-                                        "&nbsp;$trans->{'transferfrom'}->{$lang}&nbsp;$oriFam&nbsp;$trans->{'tovers'}->{$lang}&nbsp;$tgtFam") );
+                                        "&nbsp;".traduc('transferfrom')."&nbsp;$oriFam&nbsp;".traduc('tovers')."&nbsp;$tgtFam") );
                                 }
                         }
                         $sth->finish();
 
                         if ( $newnames ){
-                                $newnames = makeRetractableArray ('transTitle', 'transMagicCell magicCell', ucfirst($trans->{'transfer(s)'}->{$lang}), $newnames, 'arrowRight', 'arrowDown', 1, $dmt, 'true');
+                                $newnames = makeRetractableArray ('transTitle', 'transMagicCell magicCell', ucfirst(traduc('transfer(s)')), $newnames, 'arrowRight', 'arrowDown', 1, $dmt, 'true');
                                 my $pos = $display_modes{newnames}{position} || 100;
                                 $orderedElements{$pos} = $newnames;
                         }
@@ -6118,14 +6113,14 @@ sub publication_card {
 
                                 $neonyms .= Tr( td({-colspan=>2, -class=>'neoMagicCell magicCell', -style=>"display: $dmn;"},
                                                         a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$ref_nom"}, i($orthographe) . " $autorite" ) .
-                                                        " $trans->{'Nomen_praeoccupatum'}->{$lang} $trans->{'fromto'}->{$lang} " .
+                                                        " ".traduc('Nomen_praeoccupatum')." ".traduc('fromto')." " .
                                                         a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$validrank&id=$ref_taxon"}, i($tax_name) . " $tax_autorite" )
                                                 ) );
                         }
                         $sth->finish();
 
                         if ( $neonyms ){
-                                $neonyms = makeRetractableArray ('neoTitle', 'neoMagicCell magicCell', ucfirst($trans->{'Homonym(s)'}->{$lang}), $neonyms, 'arrowRight', 'arrowDown', 1, $dmn, 'true');
+                                $neonyms = makeRetractableArray ('neoTitle', 'neoMagicCell magicCell', ucfirst(traduc('Homonym(s)')), $neonyms, 'arrowRight', 'arrowDown', 1, $dmn, 'true');
                                 my $pos = $display_modes{neonyms}{position} || 4;
                                 $orderedElements{$pos} = $neonyms;
                         }
@@ -6166,19 +6161,19 @@ sub publication_card {
                                         my $complete = completeness( $completude, $completude_male, $completude_femelle );
                                         my @pub_use = publication($ref_publication_utilisant, 0, 1, $dbc );
                                         my @pub_denons = publication($ref_publication_denoncant, 0, 1, $dbc );
-                                        my $target = $tax_name ? " $trans->{'of'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$validrank&id=$ref_taxon"}, i($tax_name) . " $tax_autorite") : undef;
-                                        my $usage = scalar(@pub_use) ? i( " $trans->{'dansin'}->{$lang} " ) . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$ref_publication_utilisant"}, "$pub_use[1]" ) . getPDF($ref_publication_utilisant) : undef;
-                                        my $delation = scalar(@pub_denons) ? i( " $trans->{'segun'}->{$lang} " ) . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$ref_publication_denoncant"}, "$pub_denons[1]" ) . getPDF($ref_publication_denoncant) : undef;
+                                        my $target = $tax_name ? " ".traduc('of')." " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$validrank&id=$ref_taxon"}, i($tax_name) . " $tax_autorite") : undef;
+                                        my $usage = scalar(@pub_use) ? i( " ".traduc('dansin')." " ) . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$ref_publication_utilisant"}, "$pub_use[1]" ) . getPDF($ref_publication_utilisant) : undef;
+                                        my $delation = scalar(@pub_denons) ? i( " ".traduc('segun')." " ) . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$ref_publication_denoncant"}, "$pub_denons[1]" ) . getPDF($ref_publication_denoncant) : undef;
                                         $mspdone{$ref_publication_utilisant .'|'. $ref_publication_denoncant} = 1;
                                         $misidentifications .=  Tr( td({-colspan=>2, -class=>'misidMagicCell magicCell', -style=>"display: $dmm;"},
                                                                 a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$ref_nom"}, i($orthographe) . " $autorite" ) .
-                                                                " $trans->{'id_error'}->{$lang}" . $target . $usage . $delation ) );
+                                                                " ".traduc('id_error') . $target . $usage . $delation ) );
                                 }
                         }
                         $sth->finish();
 
                         if ( $misidentifications ){
-                                $misidentifications = makeRetractableArray ('misidTitle', 'misidMagicCell magicCell', ucfirst($trans->{'id_error'}->{$lang}), $misidentifications, 'arrowRight', 'arrowDown', 1, $dmm, 'true');
+                                $misidentifications = makeRetractableArray ('misidTitle', 'misidMagicCell magicCell', ucfirst(traduc('id_error')), $misidentifications, 'arrowRight', 'arrowDown', 1, $dmm, 'true');
                                 my $pos = $display_modes{misidentifications}{position} || 5;
                                 $orderedElements{$pos} = $misidentifications;
                         }
@@ -6219,19 +6214,19 @@ sub publication_card {
                                         my $complete = completeness( $completude, $completude_male, $completude_femelle );
                                         my @pub_use = publication($ref_publication_utilisant, 0, 1, $dbc );
                                         my @pub_denons = publication($ref_publication_denoncant, 0, 1, $dbc );
-                                        my $target = $tax_name ? " $trans->{'of'}->{$lang} " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$validrank&id=$ref_taxon"}, i($tax_name) . " $tax_autorite") : undef;
-                                        my $usage = scalar(@pub_use) ? i( " $trans->{'dansin'}->{$lang} " ) . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$ref_publication_utilisant"}, "$pub_use[1]" ) . getPDF($ref_publication_utilisant) : undef;
-                                        my $delation = scalar(@pub_denons) ? i( " $trans->{'segun'}->{$lang} " ) . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$ref_publication_denoncant"}, "$pub_denons[1]" ) . getPDF($ref_publication_denoncant) : undef;
+                                        my $target = $tax_name ? " ".traduc('of')." " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$validrank&id=$ref_taxon"}, i($tax_name) . " $tax_autorite") : undef;
+                                        my $usage = scalar(@pub_use) ? i( " ".traduc('dansin')." " ) . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$ref_publication_utilisant"}, "$pub_use[1]" ) . getPDF($ref_publication_utilisant) : undef;
+                                        my $delation = scalar(@pub_denons) ? i( " ".traduc('segun')." " ) . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$ref_publication_denoncant"}, "$pub_denons[1]" ) . getPDF($ref_publication_denoncant) : undef;
                                         $mspdone{$ref_publication_utilisant .'|'. $ref_publication_denoncant} = 1;
                                         $cormis .=  Tr( td({-colspan=>2, -class=>'cormisidMagicCell magicCell', -style=>"display: $dmm;"},
                                                                 a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$ref_nom"}, i($orthographe) . " $autorite" ) .
-                                                                " $trans->{'id_error'}->{$lang}" . $target . $usage . $delation ) );
+                                                                " ".traduc('id_error') . $target . $usage . $delation ) );
                                 }
                         }
                         $sth->finish();
 
                         if ( $cormis ){
-                                $cormis = makeRetractableArray ('cormisidTitle', 'cormisidMagicCell magicCell', ucfirst($trans->{'descr_err'}->{$lang}), $cormis, 'arrowRight', 'arrowDown', 1, $dmm, 'true');
+                                $cormis = makeRetractableArray ('cormisidTitle', 'cormisidMagicCell magicCell', ucfirst(traduc('descr_err')), $cormis, 'arrowRight', 'arrowDown', 1, $dmm, 'true');
                                 my $pos = $display_modes{misidentifications}{position} || 5;
                                 $orderedElements{$pos} .= $cormis;
                         }
@@ -6271,14 +6266,14 @@ sub publication_card {
 
                                 $emendations .= Tr( td({-colspan=>2, -class=>'emendMagicCell magicCell', -style=>"display: $dme;"},
                                                         a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$ref_nom"}, i($orthographe) . " $autorite" ) .
-                                                        " $trans->{'emended'}->{$lang} $trans->{'toen'}->{$lang} " .
+                                                        " ".traduc('emended')." ".traduc('toen')." " .
                                                         a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$validrank&id=$ref_taxon"}, i($tax_name) . " $tax_autorite" )
                                                 ) );
                         }
                         $sth->finish();
 
                         if ( $emendations ){
-                                $emendations = makeRetractableArray ('emendTitle', 'emendMagicCell magicCell', ucfirst($trans->{'emendation(s)'}->{$lang}), $emendations, 'arrowRight', 'arrowDown', 1, $dme, 'true');
+                                $emendations = makeRetractableArray ('emendTitle', 'emendMagicCell magicCell', ucfirst(traduc('emendation(s)')), $emendations, 'arrowRight', 'arrowDown', 1, $dme, 'true');
                                 my $pos = $display_modes{emendations}{position} || 6;
                                 $orderedElements{$pos} = $emendations;
                         }
@@ -6333,13 +6328,13 @@ sub publication_card {
                                 if ($pubden == $pub_id) {
                                         $misspellings_corrections .= Tr( td({-colspan=>2, -class=>'miscorMagicCell magicCell', -style=>"display: $dmmc;"},
                                                                         a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$ref_nom"}, i($orthographe) . " $autorite" ) .
-                                                                        " $statut $trans->{'of'}->{$lang} " .
+                                                                        " $statut ".traduc('of')." " .
                                                                         a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$validrank&id=$ref_taxon"}, i($tax_name) . " $tax_autorite" ) ) );
                                 }
                                 else {
                                         $misspellings .= Tr( td({-colspan=>2, -class=>'misspMagicCell magicCell', -style=>"display: $dmms;"},
                                                                 a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$ref_nom"}, i($orthographe) . " $autorite" ) .
-                                                                " $statut $trans->{'of'}->{$lang} " .
+                                                                " $statut ".traduc('of')." " .
                                                                 a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$validrank&id=$ref_taxon"}, i($tax_name) . " $tax_autorite" ) ) );
                                 }
                         }
@@ -6351,7 +6346,7 @@ sub publication_card {
                                 $orderedElements{$pos} = $misspellings;
                         }
                         if ( $misspellings_corrections and !$display_modes{misspellings_corrections}{skip} ){
-                                $misspellings_corrections = makeRetractableArray ('miscorTitle', 'miscorMagicCell magicCell', ucfirst($trans->{'wrong_spelling_correction'}->{$lang}), $misspellings_corrections, 'arrowRight', 'arrowDown', 1, $dmmc, 'true');
+                                $misspellings_corrections = makeRetractableArray ('miscorTitle', 'miscorMagicCell magicCell', ucfirst(traduc('wrong_spelling_correction')), $misspellings_corrections, 'arrowRight', 'arrowDown', 1, $dmmc, 'true');
                                 my $pos = $display_modes{misspellings_corrections}{position} || 8;
                                 $orderedElements{$pos} = $misspellings_corrections;
                         }
@@ -6440,7 +6435,7 @@ sub publication_card {
                         $sth->finish();
 
                         if ( $distribution ){
-                                $distribution = makeRetractableArray ('distribTitle', 'distribMagicCell magicCell', ucfirst($trans->{'geodistribution'}->{$lang}), $distribution, 'arrowRight', 'arrowDown', 1, $dmd, 'true');
+                                $distribution = makeRetractableArray ('distribTitle', 'distribMagicCell magicCell', ucfirst(traduc('geodistribution')), $distribution, 'arrowRight', 'arrowDown', 1, $dmd, 'true');
                                 my $pos = $display_modes{distribution}{position} || 10;
                                 $orderedElements{$pos} = $distribution;
                         }
@@ -6456,7 +6451,7 @@ sub publication_card {
                 }
 
                 $fullhtml =     div({-class=>'content'},
-                                        div({-class=>'titre'}, ucfirst($trans->{'publication'}->{$lang})),
+                                        div({-class=>'titre'}, ucfirst(traduc('publication'))),
                                         $subject,
                                         span({-class=>'subject'}, a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=publication&id=$pub_id"}, $pub ) ),
                                         $elements
@@ -6551,11 +6546,11 @@ sub get_last_updates {
                 }
 
                 $fullhtml =     div({-class=>'content'},
-                                        div({-class=>'titre'}, ucfirst($trans->{'lastUpdates'}->{$lang})),
-                                        $trans->{'LastModif'}->{$lang}. p .
-                                        $trans->{'sortedby'}->{$lang} . ": " .
-                                        a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=updates"}, $trans->{'date'}->{$lang}) . ' - ' .
-                                        a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=updates&mode=family"}, lcfirst($trans->{'family'}->{$lang})) . '<br><br>' .
+                                        div({-class=>'titre'}, ucfirst(traduc('lastUpdates'))),
+                                        traduc('LastModif'). p .
+                                        traduc('sortedby') . ": " .
+                                        a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=updates"}, traduc('date')) . ' - ' .
+                                        a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=updates&mode=family"}, lcfirst(traduc('family'))) . '<br><br>' .
                                         $display
                                 );
 
@@ -6754,10 +6749,10 @@ sub plant_card {
                         if ($total or scalar @{$species}) {
                                 my $sum = $total + scalar(@{$species});
                                 if ($sum > 1) {
-                                        $display .= div({-class=>'titre'}, $sum . " " . ucfirst($trans->{'associated_taxa'}->{$lang}) );
+                                        $display .= div({-class=>'titre'}, $sum . " " . ucfirst(traduc('associated_taxa')) );
                                 }
                                 else {
-                                        $display .= div({-class=>'titre'}, $sum . " " . ucfirst($trans->{'associated_taxon'}->{$lang}) );
+                                        $display .= div({-class=>'titre'}, $sum . " " . ucfirst(traduc('associated_taxon')) );
                                 }
 
                                 my $label;
@@ -6772,10 +6767,10 @@ sub plant_card {
 
                                         if ($label) {
                                                 if ($nb > 1) {
-                                                        $display .= div({-style=>"margin-left: $marge"."px;"}, $nb . " " . ucfirst($trans->{'associated_taxa'}->{$lang}) . " $trans->{assoc_with}->{$lang} " . $label );
+                                                        $display .= div({-style=>"margin-left: $marge"."px;"}, $nb . " " . ucfirst(traduc('associated_taxa')) . " ".traduc('assoc_with')." " . $label );
                                                 }
                                                 else {
-                                                        $display .= div({-style=>"margin-left: $marge"."px;"}, $nb . " " . ucfirst($trans->{'associated_taxon'}->{$lang}) . " $trans->{assoc_with}->{$lang} " . $label );
+                                                        $display .= div({-style=>"margin-left: $marge"."px;"}, $nb . " " . ucfirst(traduc('associated_taxon')) . " ".traduc('assoc_with')." " . $label );
                                                 }
                                                 my $current;
                                                 foreach my $sp (@{$species}) {
@@ -6841,10 +6836,10 @@ sub plant_card {
                                 }
 
                                 if ($sum > 1) {
-                                        $display .= div({-style=>"margin-left: $xmargin"."px;"}, $sum . " " . ucfirst($trans->{'associated_taxa'}->{$lang}) . " $trans->{assoc_with}->{$lang} " . $label );
+                                        $display .= div({-style=>"margin-left: $xmargin"."px;"}, $sum . " " . ucfirst(traduc('associated_taxa')) . " ".traduc('assoc_with')." " . $label );
                                 }
                                 else {
-                                        $display .= div({-style=>"margin-left: $xmargin"."px;"}, $sum . " " . ucfirst($trans->{'associated_taxon'}->{$lang}) . " $trans->{assoc_with}->{$lang} " . $label );
+                                        $display .= div({-style=>"margin-left: $xmargin"."px;"}, $sum . " " . ucfirst(traduc('associated_taxon')) . " ".traduc('assoc_with')." " . $label );
                                 }
                                 my $current;
                                 foreach my $xtaxon (sort {$a->{family} cmp $b->{family} || $a->{label} cmp $b->{label}} @{$list{$key}{taxa}}) {
@@ -6865,7 +6860,7 @@ sub plant_card {
                                                                 $navigation
                                                 ),
                                                 div({-id=>'mainCardDiv'},
-                                                        div({-class=>'titre'}, ucfirst($trans->{'plant'}->{$lang})),
+                                                        div({-class=>'titre'}, ucfirst(traduc('plant'))),
                                                         div({-class=>'subject'}, $taxon_name),
                                                         div({-class=>'titre'}, ''),
                                                         $display
@@ -6921,7 +6916,7 @@ sub association {
                 my $tab;
                 if ( scalar @{$sp_list} != 0){
                         my $size = scalar @{$sp_list};
-                        $tab = div({-class=>'titre'}, "$size $trans->{'species(s)'}->{$lang}");
+                        $tab = div({-class=>'titre'}, "$size ".traduc('species(s)'));
                         $tab .= start_ul({});
                         foreach my $sp ( @{$sp_list} ){
                                 my $parent_name = [];
@@ -6975,8 +6970,8 @@ sub country_card {
                 if ($taxnameid) {
                         ($taxname, $taxauthor) = @{request_row("SELECT orthographe, autorite FROM noms_complets WHERE index = $taxnameid;",$dbc)};
                         $croise = "AND n.orthographe like '$taxname %'";
-                        $precise = "$trans->{'dansin'}->{$lang} $taxname $taxauthor";
-                        $getall = span('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=country&id=$country_id"}, $trans->{'getAllSpeciesFrom'}->{$lang}));
+                        $precise = traduc('dansin')." $taxname $taxauthor";
+                        $getall = span('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=country&id=$country_id"}, traduc('getAllSpeciesFrom')));
                 }
 
                 my %desc;
@@ -7177,8 +7172,8 @@ sub country_card {
                 $size = scalar(keys(%xtaxa));
 #               if ($size != $nb) {
                 if ($size) {
-                        if ($size > 1) { $title = "$size $trans->{taxons}->{$lang}  $precise"; }
-                        else { $title = "$size $trans->{taxon}->{$lang}  $precise"; }
+                        if ($size > 1) { $title = "$size ".traduc('taxons')."  $precise"; }
+                        else { $title = "$size ".traduc('taxon')."  $precise"; }
 
                         if ($sort ne 'family') {
                                 foreach my $x (sort {$a->{label} cmp $b->{label}} keys(%xtaxa)) {
@@ -7210,8 +7205,8 @@ sub country_card {
 
                         #$decalage = (int($desc{$x}{'level'}) - int($tdwg_level)) || 1;
                         my $sum = scalar(@{$desc{$x}{taxa}});
-                        if ($sum > 1) { $title = $trans->{'taxons'}->{$lang} . " $trans->{located_ins}->{$lang} "; }
-                        else {          $title = $trans->{'taxon'}->{$lang} . " $trans->{located_in}->{$lang} "; }
+                        if ($sum > 1) { $title = traduc('taxons') . " ".traduc('located_ins')." "; }
+                        else {          $title = traduc('taxon') . " ".traduc('located_in')." "; }
                         $title = $sum . " " . $title . "&nbsp;";
                         my $link = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=country&id=$x"}, $desc{$x}{label});
                         my $body;
@@ -7322,7 +7317,7 @@ sub country_card {
 
 
                 $fullhtml = div({-class=>'content'},
-                                        div({-class=>'titre'}, ucfirst($trans->{'geodistribution'}->{$lang})),
+                                        div({-class=>'titre'}, ucfirst(traduc('geodistribution'))),
                                         $subject, $getall,
                     "<script type='text/javascript'>
                     function ImageMax(chemin) {
@@ -7395,7 +7390,7 @@ sub image_card {
                 $subject = trans_navigation($subject, $fields, $table, $where, $order, $sid, $dbc);
 
                 $fullhtml = div({-class=>'content'},
-                                        div({-class=>'titre'}, ucfirst($trans->{'image'}->{$lang})),
+                                        div({-class=>'titre'}, ucfirst(traduc('image'))),
                                         $subject
                                         , br, br,
                                         $comment,
@@ -7474,9 +7469,9 @@ sub vernacular_card {
                 if ($pays) { $xpays = " in " . a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=country&id=".$ref_pays}, $pays); }
 
                 my $fullhtml =  div({-class=>'content'},
-                                        div({-class=>'titre'}, ucfirst($trans->{'vernacular'}->{$lang})),
+                                        div({-class=>'titre'}, ucfirst(traduc('vernacular'))),
                                         div({-class=>'subject', -style=>'display: inline;'}, $nom) . $xpays . " ($langg)",
-                                        div({-class=>'titre'}, ucfirst($trans->{'sciname(s)'}->{$lang})),
+                                        div({-class=>'titre'}, ucfirst(traduc('sciname(s)'))),
                                         $vdisplay
                                 );
 
@@ -7556,7 +7551,7 @@ sub repository_card {
                 }
 
                 if ($types_tab) {
-                        $types_tab = div({-class=>'titre'}, "$sum " . ucfirst($trans->{'type_img(s)'}->{$lang})) . ul($types_tab);
+                        $types_tab = div({-class=>'titre'}, "$sum " . ucfirst(traduc('type_img(s)'))) . ul($types_tab);
                 }
 
                 my $subject = "$repository->[0][0]. $repository->[0][1]";
@@ -7569,7 +7564,7 @@ sub repository_card {
                 $subject = trans_navigation($subject, $fields, $table, $where, $order, $sid, $dbc);
 
                 $fullhtml = div({-class=>'content'},
-                                        div({-class=>'titre'}, ucfirst($trans->{'repository'}->{$lang})),
+                                        div({-class=>'titre'}, ucfirst(traduc('repository'))),
                                         $subject,
                                         $types_tab
                                 );
@@ -7636,19 +7631,16 @@ sub era_card {
 
                 my $sp_tab;
                 if ( scalar @{$sp_list} != 0){
-                        $sp_tab = div({-class=>'titre'}, ucfirst($trans->{"SP_ER"}->{$lang}));
+                        $sp_tab = div({-class=>'titre'}, ucfirst(traduc("SP_ER")));
                         $sp_tab .= start_ul({});
                         foreach my $sp ( @{$sp_list} ){
                                 $sp_tab .= li(a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=species&id=$sp->[2]"}, i($sp->[0]) . " $sp->[1]" ) );
                         }
                         $sp_tab .= end_ul();
                 }
-                else {
-                        #$sp_tab = ul( li($trans->{"UNK"}->{$lang}));
-                }
 
                 $fullhtml = div({-class=>'content'},
-                                        div({-class=>'titre'}, ucfirst($trans->{'era'}->{$lang})),
+                                        div({-class=>'titre'}, ucfirst(traduc('era'))),
                                         div({-class=>'subject'}, $era->[1]),
                                         $sp_tab
                                 );
@@ -7715,23 +7707,20 @@ sub region_card {
                 my $sp_tab;
                 if ( scalar @{$sp_list} != 0){
                         my $size = $sp_numb->[0];
-                        $sp_tab = div({-class=>'titre'}, ucfirst($trans->{"SP_RE"}->{$lang}));
-                        $sp_tab .= div({-class=>'titre'}, "$size $trans->{'species(s)'}->{$lang}");
+                        $sp_tab = div({-class=>'titre'}, ucfirst(traduc("SP_RE")));
+                        $sp_tab .= div({-class=>'titre'}, "$size ".traduc('species(s)'));
                         $sp_tab .= start_ul({});
                         foreach my $sp ( @{$sp_list} ){
                                 $sp_tab .= li(a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=species&id=$sp->[0]"}, i($sp->[1]) . " $sp->[2]" ) . "$sp->[3]" );
                         }
                         $sp_tab .= end_ul();
                 }
-                else {
-                        #$sp_tab = ul( li($trans->{"UNK"}->{$lang}));
-                }
 
                 if ($region->[1]) { $region->[0] .= " ($region->[1])" }
 
 
                 $fullhtml =     div({-class=>'content'},
-                                        div({-class=>'titre'}, ucfirst($trans->{'region'}->{$lang} )),
+                                        div({-class=>'titre'}, ucfirst(traduc('region') )),
                                         div({-class=>'subject'}, $region->[0] ),
                                         $sp_tab
                                 );
@@ -7801,9 +7790,9 @@ sub agent_card {
 
 
                 $fullhtml =     div({-class=>'content'},
-                                        div({-class=>'titre'}, ucfirst($trans->{'agent'}->{$lang})),
+                                        div({-class=>'titre'}, ucfirst(traduc('agent'))),
                                         div({-class=>'subject'}, i( $agent->[0] ) . $agent->[1]),
-                                        div({-class=>'titre'}, ucfirst($trans->{"A_SP"}->{$lang})),
+                                        div({-class=>'titre'}, ucfirst(traduc("A_SP"))),
                                         $sp_tab
                                 );
 
@@ -7865,9 +7854,9 @@ sub edition_card {
                 $pub_tab .= end_ul();
 
                 $fullhtml =     div({-class=>'content'},
-                                        div({-class=>'titre'}, ucfirst($trans->{'edition'}->{$lang})),
+                                        div({-class=>'titre'}, ucfirst(traduc('edition'))),
                                         div({-class=>'subject'}, "$edition->[1], $edition->[2], $edition->[3]" ),
-                                        div({-class=>'titre'}, ucfirst($trans->{"pu_ed"}->{$lang})),
+                                        div({-class=>'titre'}, ucfirst(traduc("pu_ed"))),
                                         $pub_tab
                                 );
 
@@ -7926,9 +7915,9 @@ sub habitat_card {
                 $sp_tab = ul($sp_tab);
 
                 $fullhtml =     div({-class=>'content'},
-                                        div({-class=>'titre'}, ucfirst($trans->{'habitat'}->{$lang})),
+                                        div({-class=>'titre'}, ucfirst(traduc('habitat'))),
                                         div({-class=>'subject'}, $habitat->[0]),
-                                        div({-class=>'titre'}, ucfirst($trans->{"SP_HA"}->{$lang})),
+                                        div({-class=>'titre'}, ucfirst(traduc("SP_HA"))),
                                         $sp_tab
                                 );
 
@@ -7993,9 +7982,9 @@ sub locality_card {
 
 
                 $fullhtml =     div({-class=>'content'},
-                                        div({-class=>'titre'}, ucfirst($trans->{'locality'}->{$lang})),
+                                        div({-class=>'titre'}, ucfirst(traduc('locality'))),
                                         div({-class=>'subject'}, "$locality->[0], $locality->[1], $locality->[2]" ),
-                                        div({-class=>'titre'}, ucfirst($trans->{"SP_LO"}->{$lang})),
+                                        div({-class=>'titre'}, ucfirst(traduc("SP_LO"))),
                                         $sp_tab
                                 );
 
@@ -8053,9 +8042,9 @@ sub capture_card {
                 $sp_tab = ul($sp_tab);
 
                 $fullhtml =     div({-class=>'content'},
-                                        div({-class=>'titre'}, ucfirst($trans->{'capture'}->{$lang})),
+                                        div({-class=>'titre'}, ucfirst(traduc('capture'))),
                                         div({-class=>'subject'}, $capture->[0]),
-                                        div({-class=>'titre'}, ucfirst($trans->{"SP_CA"}->{$lang})),
+                                        div({-class=>'titre'}, ucfirst(traduc("SP_CA"))),
                                         $sp_tab
                                 );
                 print $fullhtml;
@@ -8110,9 +8099,9 @@ sub type_card {
 
 
                 $fullhtml =     div({-class=>'content'},
-                                        div({-class=>'titre'}, ucfirst($trans->{'type'}->{$lang})),
+                                        div({-class=>'titre'}, ucfirst(traduc('type'))),
                                         div({-class=>'subject'}, $type->[0]),
-                                        div({-class=>'titre'}, ucfirst($trans->{'names'}->{$lang})),
+                                        div({-class=>'titre'}, ucfirst(traduc('names'))),
                                         $sp_tab
                                 );
                 print $fullhtml;
@@ -8163,9 +8152,9 @@ sub prev_next_topic { #TODO: make prev_next card optional
 
         $html .= div (
                         #span('< '),
-                        a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=$previous_topic"}, "$trans->{$previous_topic}->{$lang}"),
+                        a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=$previous_topic"}, traduc($previous_topic)),
                         span(' / '),
-                        a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=$next_topic"}, "$trans->{$next_topic}->{$lang}"),
+                        a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=$next_topic"}, traduc($next_topic)),
                         #span(' >')
                 );
 
@@ -8213,32 +8202,6 @@ sub prev_next_card {
         return table({-style=>"margin: $margin; background: transparent;"}, Tr(td({-style=>"vertical-align: top; border: ".$border."px solid black;"}, $bridge), td({-style=>"padding-right: 6px; vertical-align: middle; border: ".$border."px solid black;"}, $prev_card), td({-style=>"vertical-align: middle; border:  ".$border."px solid black;"}, $label), td({-style=>"padding-left: 6px; vertical-align: middle; border:  ".$border."px solid black;"}, $next_card)));
 }
 
-# Read localization from translation DB
-####################################################################
-sub read_lang { #TODO: put the params in a conf file
-        my ( $conf ) = @_;
-        my $tr = {};
-        my $rdbms  = $conf->{TRAD_RDBMS};
-        my $server = $conf->{TRAD_SERVER};
-        my $db     = $conf->{TRAD_DB};
-        my $port   = $conf->{TRAD_PORT};
-        my $login  = $conf->{TRAD_LOGIN};
-        my $pwd    = $conf->{TRAD_PWD};
-        if ( my $dbc = DBI->connect("DBI:$rdbms:dbname=$db;host=$server;port=$port",$login,$pwd) ){
-                $tr = $dbc->selectall_hashref("SELECT id, $lang FROM traductions;", "id");
-                $dbc->disconnect;
-                return $tr;
-        }
-        else { # connection failed
-                my $error_msg .= $DBI::errstr;
-
-                $fullhtml =     div({-class=>'subject'}, "Database connection error");
-
-                print $fullhtml;
-
-                return undef;
-        }
-}
 
 
 # submit query in sql (return a two dimensions array ref)
@@ -8498,35 +8461,35 @@ sub synonymy {
                         $synonymy = "";
                 }
                 elsif ( $global eq '' and $male eq '' and $female ){
-                        $synonymy = " " . $trans->{'non_amb'}->{$lang} . " " . $trans->{'amb_syn_F'}->{$lang};
+                        $synonymy = " " . traduc('non_amb') . " " . traduc('amb_syn_F');
                 }
                 elsif ( $global eq '' and $male and $female eq '' ){
-                        $synonymy = " " . $trans->{'non_amb'}->{$lang} . " " . $trans->{'amb_syn_M'}->{$lang};
+                        $synonymy = " " . traduc('non_amb') . " " . traduc('amb_syn_M');
                 }
                 elsif ( !$global and $male eq '' and $female eq '' ){
-                        $synonymy = " " . $trans->{'amb_syn'}->{$lang};
+                        $synonymy = " " . traduc('amb_syn');
                 }
                 elsif ( !$global and $male eq '' and !$female ){
-                        $synonymy = " " . $trans->{'amb_syn'}->{$lang} . " " . $trans->{'amb_syn_F'}->{$lang};
+                        $synonymy = " " . traduc('amb_syn') . " " . traduc('amb_syn_F');
                 }
                 elsif ( !$global and !$male and $female eq '' ){
-                        $synonymy = " " . $trans->{'amb_syn'}->{$lang} . " " . $trans->{'amb_syn_M'}->{$lang};
+                        $synonymy = " " . traduc('amb_syn') . " " . traduc('amb_syn_M');
                 }
                 else { # There must something wrong !
                 }
         }
         else {
                 if ( $global and $male and $female ){
-                        $synonymy = " " . $trans->{'non_amb'}->{$lang};
+                        $synonymy = " " . traduc('non_amb');
                 }
                 elsif ( !$global and !$male and !$female ){
-                        $synonymy = " " . $trans->{'amb_syn'}->{$lang};
+                        $synonymy = " " . traduc('amb_syn');
                 }
                 elsif ( !$global and !$male and $female ){
-                        $synonymy = " " . $trans->{'amb_syn'}->{$lang} . " " . $trans->{'amb_syn_M'}->{$lang} . " " . $trans->{'non_amb'}->{$lang} . " " . $trans->{'amb_syn_F'}->{$lang};
+                        $synonymy = " " . traduc('amb_syn') . " " . traduc('amb_syn_M') . " " . traduc('non_amb') . " " . traduc('amb_syn_F');
                 }
                 elsif ( !$global and $male and !$female ){
-                        $synonymy = " " . $trans->{'non_amb'}->{$lang} . " " . $trans->{'amb_syn_M'}->{$lang} . " " . $trans->{'amb_syn'}->{$lang} . " " . $trans->{'amb_syn_F'}->{$lang};
+                        $synonymy = " " . traduc('non_amb') . " " . traduc('amb_syn_M') . " " . traduc('amb_syn') . " " . traduc('amb_syn_F');
                 }
                 else { # There must something wrong !
                 }
@@ -8545,35 +8508,35 @@ sub completeness {
                         $completeness = "";
                 }
                 elsif ( $global eq '' and $male eq '' and $female ){
-                        $completeness = " " . $trans->{'complete'}->{$lang} . " " . $trans->{'amb_syn_F'}->{$lang};
+                        $completeness = " " . traduc('complete') . " " . traduc('amb_syn_F');
                 }
                 elsif ( $global eq '' and $male and $female eq '' ){
-                        $completeness = " " . $trans->{'complete'}->{$lang} . " " . $trans->{'amb_syn_M'}->{$lang};
+                        $completeness = " " . traduc('complete') . " " . traduc('amb_syn_M');
                 }
                 elsif ( !$global and $male eq '' and $female eq '' ){
-                        $completeness = " " . $trans->{'partial'}->{$lang};
+                        $completeness = " " . traduc('partial');
                 }
                 elsif ( !$global and $male eq '' and !$female ){
-                        $completeness = " " . $trans->{'partial'}->{$lang} . " " . $trans->{'amb_syn_F'}->{$lang};
+                        $completeness = " " . traduc('partial') . " " . traduc('amb_syn_F');
                 }
                 elsif ( !$global and !$male and $female eq '' ){
-                        $completeness = " " . $trans->{'partial'}->{$lang} . " " . $trans->{'amb_syn_M'}->{$lang};
+                        $completeness = " " . traduc('partial') . " " . traduc('amb_syn_M');
                 }
                 else { # There must something wrong !
                 }
         }
         else {
                 if ( $global and $male and $female ){
-                        $completeness = " " . $trans->{'complete'}->{$lang};
+                        $completeness = " " . traduc('complete');
                 }
                 elsif ( !$global and !$male and !$female ){
-                        $completeness = " " . $trans->{'partial'}->{$lang};
+                        $completeness = " " . traduc('partial');
                 }
                 elsif ( !$global and !$male and $female ){
-                        $completeness = " " . $trans->{'partial'}->{$lang} . " " . $trans->{'amb_syn_M'}->{$lang} . " " . $trans->{'complete'}->{$lang} . " " . $trans->{'amb_syn_F'}->{$lang};
+                        $completeness = " " . traduc('partial') . " " . traduc('amb_syn_M') . " " . traduc('complete') . " " . traduc('amb_syn_F');
                 }
                 elsif ( !$global and $male and !$female ){
-                        $completeness = " " . $trans->{'complete'}->{$lang} . " " . $trans->{'amb_syn_M'}->{$lang} . " " . $trans->{'partial'}->{$lang} . " " . $trans->{'amb_syn_F'}->{$lang};
+                        $completeness = " " . traduc('complete') . " " . traduc('amb_syn_M') . " " . traduc('partial') . " " . traduc('amb_syn_F');
                 }
                 else { # There must something wrong !
                 }
@@ -9029,7 +8992,7 @@ sub search_results {
                                        else { $card = 'name'; ($id) = keys(%done); }
                                }
                                else {
-                                       $content .= !$content ? div({-class=>'titre'},  scalar(keys(%done))." $trans->{'match_names'}->{$lang}") : '';
+                                       $content .= !$content ? div({-class=>'titre'},  scalar(keys(%done))." ".traduc('match_names')) : '';
                                        $content .= start_ul({});
                                        $content .= $rows;
                                        $content .= end_ul();
@@ -9145,7 +9108,7 @@ sub search_results {
 
                 if ( $nbresults ){
                         if ( $nbresults > 1 ){
-                                $content .= div({-class=>'titre'},  "$nbresults $trans->{'match_names'}->{$lang}");
+                                $content .= div({-class=>'titre'},  "$nbresults ".traduc('match_names'));
                                 $content .= start_ul({});
 
                                 if ($searchtable eq 'noms_complets') {
@@ -9192,7 +9155,7 @@ sub search_results {
                         }
                }
                 else {
-                        $content .=     div({-style=>'margin: 50px 0 0 200px;'},  $trans->{'noresults'}->{$lang} );
+                        $content .=     div({-style=>'margin: 50px 0 0 200px;'},  traduc('noresults') );
                }
 
                if($nbresults != 1) {
@@ -9210,7 +9173,7 @@ sub search_results {
         else {
                 $fullhtml =     div({-class=>'content'},
                                         $totop,
-                                        span({-class=>'subject'},  $trans->{'noresults'}->{$lang} . " no searchstring given")
+                                        span({-class=>'subject'},  traduc('noresults') . " no searchstring given")
                                 );
                 print $fullhtml;
         }
