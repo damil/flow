@@ -78,3 +78,19 @@ docker exec -i flow_postgres_container psql -U postgres -d traduction_utf8 < ./d
 Site can be found at
 
 http://localhost:5000/flow
+
+### Deploy dumps to supabase databases (Flow and traduction_utf8)
+
+Example query (adapt url and port to your instance)
+
+```shell
+PGPASSWORD=[YOUR-PASSWORD] psql -h db.qykgrbswttjovptkiqtg.supabase.co -p 5432 -d postgres -U postgres -f ./dumps/flow.sql
+```
+
+### Deploy backend to fly.io
+
+At root add a file `deploy.flow_conf.yaml` with config of the production environment.
+
+Then `flyctl deploy` will deploy to fly.io using the Dockerfile.
+
+Fly documentation: https://fly.io/docs/languages-and-frameworks/dockerfile/

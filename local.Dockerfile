@@ -10,13 +10,13 @@ WORKDIR /app
 
 # Copy the cpanfile and install the necessary Perl modules
 COPY cpanfile .
-RUN cpanm App::cpanminus && cpanm --notest --installdeps .
+RUN cpanm App::cpanminus && cpanm --installdeps .
 
 # Copy the rest of your application's files into the image
 COPY . .
 
 # Overwrite the flow_conf.yaml with the updated one
-COPY deploy.flow_conf.yaml flow_conf.yaml
+COPY docker.flow_conf.yaml flow_conf.yaml
 
 # Expose the port your app will run on
 EXPOSE 5000

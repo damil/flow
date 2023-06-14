@@ -1,3 +1,5 @@
 .DS_Store
+www/.DS_Store
 www/etc/
 etc/
+deploy.flow_conf.yaml
