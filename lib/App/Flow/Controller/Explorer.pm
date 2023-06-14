@@ -3428,7 +3428,7 @@ sub taxon_card {
 
                                         push(@sons_ids, $xid);
 
-                                        my $typestr;
+                                        my $typestr = '';
                                         if ($xtype) { $typestr = span({-class=>'typeSpecies'}, "&nbsp;  ".traduc("type$rken")) }
                                         $descendants .= Tr(
                                                                 td({-colspan=>2, -class=>'sonsMagicCell magicCell', -style=>"display: $dm;"}, a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=taxon&rank=$xrank&id=$xid"}, i($xname) . " $xauthority" . $typestr ))
@@ -3723,6 +3723,9 @@ sub taxon_card {
                                 foreach my $syn ( @{$names_list} ){
                                         if ($syn->[0]) { push(@names_index, $syn->[0]); }
                                         if ( $syn->[3] eq 'synonym' or $syn->[3] eq 'junior synonym' ){
+
+                                                no warnings 'uninitialized';
+
                                                 my @pub_den = publication($syn->[5], 0, 1, $dbc );
                                                 my $sl = a({-href=>"$scripts{$dbase}db=$dbase&lang=$lang&card=name&id=$syn->[0]"}, i($syn->[1]) . "&nbsp;$syn->[2]" );
                                                 $sl = $syn->[27] ? $sl . " $syn->[27]" : $sl;
@@ -4554,17 +4557,15 @@ sub taxon_card {
                                 @sons_ids = @{$tab};
                 }
 
-                my $taxsonsids = scalar(@sons_ids) ? ', ' . join(', ', @sons_ids) : undef;
+                my $taxsonsids = scalar(@sons_ids) ? ', ' . join(', ', @sons_ids) : '';
                 my $partial;
                 my @sons_rank_names;
                 foreach (sort {$a <=> $b} keys(%sons_ranks)) { push(@sons_rank_names, $sons_ranks{$_}{nom}); }
 
                 if ($privacy) {
                         my $r = "SELECT h.index_taxon_fils FROM hierarchie AS h WHERE index_taxon_parent IN (".join(',',split('_',$privacy)).");";
-                        #die $r;
                         my $l = request_tab($r,$dbc,1);
                         $taxsonsids = ','.join(', ', @{$l});
-                        #die $taxsonsids;
                 }
 
                 unless ($dbase eq 'psylles' and $rank eq 'subfamily') {
@@ -4862,26 +4863,18 @@ sub taxon_card {
                                                                 onMouseOver=".'"'."this.style.cursor='pointer';".'"'."
                                                                 onclick=".'"'."ImageMax('$maprest?$areas&$styles&ms=1000');".'"'.">";
 
-                                                #if($dbase eq 'cool') { $map .= $bound.$zoom; } else { $map = $mappos eq 'left' ? $zoom.$bound.$map : $map.$bound.$zoom; }
-
                                                 my $mapWidth = 720;
                                                 my $mapHeight = 450;
                                                 if ($dbase eq 'cool') { $mapWidth = 570; $mapHeight = 360; }
 
-                                                #if ($mode eq 'full') {
-                                                        #die $valid_name->[1].'##'.$valid_name->[18];
-                                                        #/explorerdocs/js/compositeMaps.js
-                                                        #$map .= '<div id="map" name="map" style="width:'+$map_width+'px; height:'+$map_width+'px;"></div>';
-                                                        $map .= '<div class="olMap" id="map" name="map" style="width:'.$mapWidth.'px; height:'.$mapHeight.'px"></div>';
-                                                        #$map .= '<input type="hidden" id="hd_name_taxon" name="hd_name_taxon" value="Canis lupus##Linnaeus|Canis lupus##Linnaeus|Oryctolagus cuniculus##Linnaeus"/>';
-                                                        $map .= '<input type="hidden" id="hd_name_taxon" name="hd_name_taxon" value="'.$valid_name->[1].'##'.$valid_name->[18].'|'.$valid_name->[1].'##'.$valid_name->[18].'"/>';
-                                                        $map .= '<script type="text/javascript">';
-                                                        $map .= "urlMapREST = \"$maprest?$areas&$styles&ms=$map_width&recalculate=false&img=false\";";
-                                                        $map .= "makeCompositeMap('$dbase');";
-                                                        $map .= '</script>';
-                                                #}
+                                                $map .= '<div class="olMap" id="map" name="map" style="width:'.$mapWidth.'px; height:'.$mapHeight.'px"></div>';
+                                                $map .= '<input type="hidden" id="hd_name_taxon" name="hd_name_taxon" value="'.$valid_name->[1].'##'.$valid_name->[18].'|'.$valid_name->[1].'##'.$valid_name->[18].'"/>';
+                                                $map .= '<script type="text/javascript">';
+                                                $map .= "urlMapREST = \"$maprest?$areas&$styles&ms=$map_width&recalculate=false&img=false\";";
+                                                $map .= "makeCompositeMap('$dbase');";
+                                                $map .= '</script>';
 
-                                                my $lgnd;
+                                                my $lgnd = '';
                                                 if($area_color_np ne $area_color and scalar(keys(%tdwg123))) {
                                                         $lgnd .= table({-style=>'margin-top: 5px;'},
                                                                         Tr(
@@ -5309,6 +5302,7 @@ sub taxon_card {
 
                 my $elements;
                 foreach my $key (sort {$a <=> $b} keys(%orderedElements)) {
+                        no warnings 'uninitialized';
                         $elements .= $orderedElements{$key};
                 }
 
