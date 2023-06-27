@@ -79,6 +79,8 @@ Site can be found at
 
 http://localhost:5000/flow
 
+## Example of remote deployment with fly and supabase
+
 ### Deploy dumps to supabase databases (Flow and traduction_utf8)
 
 Example query (adapt url and port to your instance)
