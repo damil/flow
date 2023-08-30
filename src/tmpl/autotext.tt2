@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+
+<meta http-equiv="Content-Type"               content="text/html; charset=UTF-8" />
+<link rel="stylesheet" type="text/css"        href="/flowdocs/autotext_fancy_graph.css" /> <!-- I moved the css around a bit and couldn't get it to work (perhaps plackup interefre with it or something. For now, the css is included below. -->
+<!-- note the current absence of meta and link; these remain to be added -->
+</head><!-- the css below should be enclosed in a separate file and linked -which I haven't managed to do yet -->
+<style>
+
+.y_label {
+	transform: rotate(-90deg); translate: -50px 0px;
+	transform-origin: top right;
+	display: block;
+	padding: .5em;
+	right: 100%;
+	top: 0%;
+
+	position: absolute;
+	white-space: nowrap;
+	background: transparent;
+	font-size: 13px;
+	line-height: 1;
+	text-align: center;
+	vertical-align: right;
+	overflow: visible;
+}
+
+.graph_fancy {
+	border-width: 0 0 1px 1px;
+	border-style: solid;
+	border-color: rgba(0, 0, 0, .25);
+	margin: 0 0 55px 0;
+	position: relative;
+	white-space: nowrap;
+
+	background: transparent;
+	font-size: 0;
+}
+
+.graph_fancy:after { /* X-axis label */
+	display: block;
+	left: 0;
+	margin: 1.7em 0 0 0;
+	padding: .75em 0;
+	position: absolute;
+	width: 100%;
+
+	content: attr(data-x-label);
+	font-size: 13px;
+	line-height: 1;
+	text-align: center;
+	background: transparent;
+}
+.graph_fancy .bar {
+	display: inline-block;
+	margin: 0 0 0 1px;
+	vertical-align: bottom;
+	position: relative;
+	background: #00297A;
+	cursor: pointer;
+}
+.graph_fancy .bar:first-child {
+	height: 100%;
+	margin: 0;
+	width: 0;
+	/*invisible car largeur nulle, mais occupe toute la hauteur du graphe, forçant les barres suivantes "véritables" à s'aligner sur la base*/
+}
+.graph_fancy .bar:hover {
+	z-index: 100;
+	background: #fc0;
+	box-shadow: 0 0 10px rgba(0, 0, 0, .25);
+}
+.graph_fancy .bar:before { /* Bar label */
+	display: block;
+	left: 0;
+	padding: .15em 0;
+	position: absolute;
+	top: 100%;
+	width: 100%;
+
+	content: attr(data-bar-label);
+	font-size: 0px;
+	opacity: .5;
+	text-align: center;
+}
+.graph_fancy .bar:after { /* Bar data value */
+	bottom: 100%;
+	display: block;
+	left: 0;
+	position: absolute;
+	width: 100%;
+
+	content: attr(data-bar-value);
+	font-size: 0px;
+	opacity: .5;
+	text-align: center;
+}
+.graph_fancy .bar, .graph_fancy .bar:before, .graph_fancy .bar:after {
+	transition: background .25s ease-out, opacity .25s ease-out, box-shadow .25s ease-out;
+}
+.graph_fancy .bar:hover:before, .graph_fancy .bar:hover:after {margin-top: 14px; font-size: 12px; opacity: 1; }
+
+
+/*Echelle de l'axe y*/
+	ul.y-axis {
+		list-style-type: none;
+		position: absolute;
+		height: inherit;
+
+		/*positioning the ul box - the box that goes around the scale*/
+		left: -45px;
+		bottom: -5%;
+		width: 40px;
+		text-align: right;
+		margin: 0; padding: 0;
+		}
+
+	ul.y-axis li {
+		margin: 0; padding: 0;
+		color: #aba8a8;
+		font-size: 12px;
+		text-align: right;
+	}
+
+
+/*Echelle de l'axe x*/
+	.x-axis {
+		/*positioning the ul box - the box that goes around the scale*/
+		list-style-type: none;
+		position: absolute;
+		right: 0px;
+		margin-top: 3px;
+		padding: .75em 0;
+		
+		display: block;
+		top: 100%;
+		width: 100%;
+
+		line-height: 1;
+		text-align: center;
+		}
+
+		.x-axis li {
+			display: inline-block;
+			vertical-align: bottom;
+			position: relative;
+			
+			color: #aba8a8;
+			font-size: 14px;
+			text-align: center;
+			overflow: visible;
+			white-space: nowrap;
+		}
+		
+	}
+</style>
+
+<body>
+
+<!-- Here are values and blocks defined for use further down. -->
+	[% current_day = current_date.0 %]
+	[% months_name = ["", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+		current_month = months_name.${current_date.1} %]
+	[% current_year = current_date.2 %]
+	 
+	 <!-- Sometime a plural is required for proper redaction, and FLOW doesn't have those. So I'm manually adding them here. -->
+	[% help_plural_rank.suborder = "suborders";
+	help_plural_rank.family = "families";
+	help_plural_rank.genus = "genera";
+	help_plural_rank.species = "species";
+	help_plural_rank.subgenus = "subgenera";
+	help_plural_rank.subfamily = "subfamilies";
+	rank = "super species"; help_plural_rank.$rank = "super species";
+	rank = "super subspecies"; help_plural_rank.$rank = "super subspecies";
+	help_plural_rank.subspecies = "subspecies";
+	help_plural_rank.order = "orders";
+	rank = "super family"; help_plural_rank.$rank = "super families";
+	help_plural_rank.variety = "varieties";
+	help_plural_rank.tribe = "tribes";
+	help_plural_rank.subtribe = "subtribes";
+	help_plural_rank.supertribe = "supertribes";%]
+	
+	[% help_order_rank = rank_order_help.items.reverse.hash %] <!-- assuming rank_order_help (which gives rank order for eah rank) is a bijection, we obtain the "reverse" hash, of rank for each rank order. -->
+	
+	[% FOREACH rankorder IN nb_children.keys %] <!-- nb_children contains the numbers of extant and fossil children by rank order; this merely sums them to create the total number of children by rank order -->
+		[% IF nb_children.$rankorder.extant.defined AND nb_children.$rankorder.fossil %]
+			[% nb_children.$rankorder.all = nb_children.$rankorder.extant + nb_children.$rankorder.fossil %]
+		[% ELSIF nb_children.$rankorder.extant.defined %]
+			[% nb_children.$rankorder.all = nb_children.$rankorder.extant %]
+		[% ELSIF nb_children.$rankorder.fossil.defined %]
+			[% nb_children.$rankorder.all = nb_children.$rankorder.fossil %]
+		[% END ;# nb_children.$rankorder.extant.defined AND nb_children.$rankorder.fossil %]
+	[% END ;# FOREACH rankorder IN nb_children %]
+	[% FOREACH rankorder IN nb_all.keys %] <!-- same thing for nb_all -->
+		[% IF nb_all.$rankorder.extant.defined AND nb_all.$rankorder.fossil %]
+			[% nb_all.$rankorder.all = nb_all.$rankorder.extant + nb_all.$rankorder.fossil %]
+		[% ELSIF nb_all.$rankorder.extant.defined %]
+			[% nb_all.$rankorder.all = nb_all.$rankorder.extant %]
+		[% ELSIF nb_all.$rankorder.fossil.defined %]
+			[% nb_all.$rankorder.all = nb_all.$rankorder.fossil %]
+		[% END ;# nb_all.$rankorder.extant.defined AND nb_all.$rankorder.fossil %]
+	[% END ;# FOREACH rankorder IN nb_all %]
+	
+	[% number_of_mentionned_figures = 0 %] <!-- Helps dynamically numbering figures as they are made. Each figure is assigned an unique "id" number pulled from number_of_mentionned_figures, which is then incremented, and this id is later used to legend the figure. -->
+	
+	[% BLOCK complete_name %] <!-- properly write a taxon's complete name from its name_data array-->
+		<i>[% taxon_data_hash.name %]</i> (
+		[%~ FOREACH name IN taxon_data_hash.authors -%]
+			[%- UNLESS loop.first OR loop.last %], [% END %][% IF loop.last AND NOT loop.first %] & [% END %]
+				[%- name -%]
+		[%- END; # FOREACH name IN taxon_data_hash.authors ~%]
+		, [% taxon_data_hash.date %])
+	[%~ END; #BLOCK complete_name ~%]
+	
+	[% BLOCK proper_list %] <!-- Makes written lists out of an array, by pluralizing or not the preceding sentence part (both variants have to be included as parameters), formatting the items presentation (through the paramters "before_item" and "after_item"), and putting ", " and " and " in between items as needed.-->
+							<!-- I ended up not using it that much, as many "lists" I needed to display aren't associated with an array in the first place. Adjustments will be needed for better writing.-->
+		[% IF array.size == 1 %]
+			[% intro_singular %] [% before_item -%][% array.first ~%][%- after_item ~%]
+		[% ELSE %]
+			[% intro_plural %]
+			[% FOREACH item IN array %]
+				[%- UNLESS loop.first OR loop.last %], [% END %][% IF loop.last %] and [% END %]
+					[% before_item -%][% item -%][%- after_item -%]
+			[%- END; # FOREACH item IN array %]
+		[%- END; # IF array.size == 1 ~%]
+	[% END; #BLOCK proper_list %]
+	<!-- note: I only learnt afterwards of the ".join" virtual method, which could have been useful... Consider reading back everything to see if it can be written more concisely using this. -->
+	
+	[% BLOCK round ~%] <!-- an ad hoc rounding function. Due to the limitations of base available functions, the number of decimals is sent through the argument round_help in the form of 10^(number of decimals). -->
+		[%~ ((to_round * round_help + 0.5) div 1) / round_help ~%]
+	[% END; #BLOCK round %]
+	
+	[% BLOCK graph %] <!-- display the content of a graph table as a graph. Note that it may be useful to have this remade by experts at some point, as it appears to rely on crude and near-deprecated methods...-->
+		[% min_graph_width = 322; max_graph_width = 600; min_graph_height = 200; max_graph_height = 400 %] <!-- preferred size for the graph, aesthetically. Adjust as you wish!-->
+
+		[% final_graph_width = graph_data.bars_data.size * 10 ; final_graph_height = graph_data.record_height * 8.3 %]<!-- these default values for lisibility over everything else; aesthetic values override the default ones if those are out of the acceptable boundaries-->
+		[% IF final_graph_width < min_graph_width %][% final_graph_width = min_graph_width %][% END %]
+		[% IF final_graph_width > max_graph_width %][% final_graph_width = max_graph_width %][% END %]
+		[% IF final_graph_height < min_graph_height %][% final_graph_height = min_graph_height %][% END %]
+		[% IF final_graph_height > max_graph_height %][% final_graph_height = max_graph_height %][% END %]
+		
+		<div style= 'width: [% final_graph_width %]px; position: relative;'>
+			<span class='y_label' style='width: [% 0.9 * final_graph_height %]px;'>[%- graph_data.y_label %]</span><!-- trying to get a y label as an element with the correct width-->
+		</div> 
+		<div class='graph_fancy' style= 'width: [% final_graph_width %]px; height: [% final_graph_height %]px' data-x-label='[%- graph_data.x_label %]' data-y-label='[%- graph_data.y_label %]'>
+			
+			<span class='bar'></span> <!-- in theory, the css uses this empty bar to resize the graph as a whole, or something. Should retroengineer what happened in the archived php.-->
+			
+		<!-- the bar occupy 90% of the available height, for aesthetic purpose-->
+		[% bar_width = final_graph_width / graph_data.bars_data.size - 1 %]
+		[% FOREACH bar IN graph_data.bars_data %]
+			<span class='bar' style='height: [% (bar.height / graph_data.record_height) *90 %]%; width: [% bar_width %]px;' data-bar-label='[% bar.label %]' data-bar-value='[% bar.value %]'></span>
+		[% END %]
+		<ul class='y-axis'>
+		[% graduation_height = 90 / graph_data.y_axis_graduations.max %]
+		[% FOREACH graduation IN graph_data.y_axis_graduations.reverse %]
+			<li style='height: [% graduation_height %]%;'>[% graduation %]</li>
+		[% END ;# FOREACH graduation IN graph_data.y_axis_graduations%]
+		</ul><ul class='x-axis'>
+		[% graduation_width = 100 / (graph_data.x_axis_graduations.size ) %]
+		[% FOREACH graduation IN graph_data.x_axis_graduations %]
+			<li style='width: [% graduation_width %]%;'><span style='display: flex; justify-content: center;'>[% graduation %]</span></li> <!-- /!\ I don't know yet how to align these captions with the in-graph bars. Some adjustment from examples may be necessary.-->
+		[% END ;# FOREACH graduation IN graph_data.x_axis_graduations%]
+		</ul>
+		</div>
+	[% END ;# BLOCK graph%]
+	
+	<!-- put all data about the reference princeps into a string-->
+		[% headless_ref_princeps = "${main_taxon_data.reference}." %] <!-- this reference princeps without author or date is used at some point in the text, at least for now. Ctrl F "paper" -->
+			[% IF main_taxon_data.revue.defined %][% headless_ref_princeps = "$headless_ref_princeps <i>$main_taxon_data.revue</i>" %][%END%]
+			[% IF main_taxon_data.volume.defined %]
+				[% IF headless_ref_princeps.substr(-1,1) != "." %]
+					[% headless_ref_princeps = "$headless_ref_princeps," %]
+				[% END ;# IF headless_ref_princeps.substr(-1,1) != "." %]
+				[% headless_ref_princeps = "${headless_ref_princeps} <b>$main_taxon_data.volume</b>" %]
+			[% END ;# IF main_taxon_data.volume.defined %]
+			[% IF main_taxon_data.fascicule.defined %][% headless_ref_princeps = "$headless_ref_princeps($main_taxon_data.fascicule)" %][%END%]
+			[% IF main_taxon_data.page_debut.defined %]
+				[% IF headless_ref_princeps.substr(-1,1) == "." %]
+					[% headless_ref_princeps = "$headless_ref_princeps " %]
+				[% ELSIF headless_ref_princeps.substr(-1,1) == ")" %]
+					[% headless_ref_princeps = "$headless_ref_princeps : " %]
+				[% ELSIF headless_ref_princeps.substr(-4,4) == "</i>" %]
+					[% headless_ref_princeps = "$headless_ref_princeps, " %]
+				[% ELSIF headless_ref_princeps.substr(-4,4) == "</b>" %]
+					[% headless_ref_princeps = "$headless_ref_princeps: " %]
+				[% END ;# IF headless_ref_princeps.substr(-1,1) != "." %]
+				[% headless_ref_princeps = "$headless_ref_princeps$main_taxon_data.page_debut" %]
+			[% END ;# IF main_taxon_data.page_debut.defined %]
+			[% IF main_taxon_data.page_fin.defined %][% headless_ref_princeps = "$headless_ref_princeps-$main_taxon_data.page_fin" %][%END%]
+		[% ref_princeps = "$main_taxon_data.full_authorship $main_taxon_data.date - $headless_ref_princeps" %]
+		
+	<!-- assembling the list used for the bibliographical references: biblio -->
+	[% taxon_biblio = [ref_princeps] %]
+	[% common_biblio = [
+		"Bourgoin Th. $current_year - FLOW (Fulgoromorpha Lists on The Web): a world knowledge base dedicated to Fulgoromorpha. Version 8, updated ${current_day}-${current_month}-${current_year}. http://hemiptera.infosyslab.fr/flow/",
+		"Brummitt R. K. 2001 - World geographical scheme for recording plant distributions. Edition 2. TDWG 136pp. updated 08-May-2007. http://www.tdwg.org/standards/109/",
+		"Holt B. G. et al. 2013 - An Update of Wallace's Zoogeographic Regions of the World. <i>Science</i>, <b>339</b>: 74-78.",
+		"Linn&eacute; C. 1758 - Systema Naturae. Editio Decima, reformata. 1: 824 pp.",
+		"Wallace A. R. 1876 - The Geographical Distribution of Animals. <i>Cambridge University Press</i>, Cambridge."
+		] %] <!-- Note: check the exact formatting of these references, pretty sure there are italics or bolds missing here and there.-->
+	[% biblio = taxon_biblio.merge(common_biblio) %] <!-- for now, references about FLOW are included with the others; if you'd prefer, I can display all of them before the rest, instead.-->
+
+
+<br><div id='mainCardDiv' style='padding-left: 30px;'>
+	
+	<h2 style='margin-left: 0%;'>[% INCLUDE complete_name taxon_data_hash = main_taxon_data %]</h2>
+		<span style='font-size: 12px;'>(according to FLOW data updated on [% current_month %] [% current_day %], [% current_year %])</span> <!-- NB: adjust style later -->
+		
+		<h3>1. [% INCLUDE complete_name taxon_data_hash = main_taxon_data %] taxonomy</h3>
+		<p>		
+		[% IF main_taxon_data.rank_order < rank_order_help.genus %] <!-- suprageneric -->
+		
+			[% INCLUDE complete_name taxon_data_hash = main_taxon_data %] is currently considered a valid taxon of Fulgoromorpha of [% main_taxon_data.rank %] rank
+			[%- IF hash_of_higher_taxa_data.keys.first.defined %], classified in
+				[% FOREACH rankorder IN hash_of_higher_taxa_data.keys.nsort ~%]
+					[% UNLESS loop.first %], [% END %]
+					[% hash_of_higher_taxa_data.$rankorder.rank %] [% INCLUDE complete_name taxon_data_hash = hash_of_higher_taxa_data.$rankorder %]
+				[%- END ;# FOREACH rankorder IN hash_of_higher_taxa_data.keys.nsort %]
+			[% END ;# IF hash_of_higher_taxa_data.keys.first.defined ~%]
+			. It was first described by [% INCLUDE proper_list	array = main_taxon_data.authors_with_forename ~%] in [% main_taxon_data.date %] in the following paper: [% headless_ref_princeps %].
+			
+			</p><p>	<!-- Question: is "taxonomy" the best section to put the extant/fossil status?-->
+			<i>[% main_taxon_data.name %]</i> 
+			[% IF main_taxon_data.is_fossil == 1 %]
+				is an extinct taxon, known only from fossils from the 
+				[% main_taxon_data.earliest_period.name %] period ([% main_taxon_data.earliest_period.debut %] - [% main_taxon_data.earliest_period.fin %] Mya)
+				[% IF main_taxon_data.earliest_period.name != main_taxon_data.latest_period.name %]
+					to the [% main_taxon_data.latest_period.name %] period ([% main_taxon_data.latest_period.debut %] - [% main_taxon_data.latest_period.fin %] Mya)
+				[%- END ;# IF main_taxon_data.earliest_period.name != main_taxon_data.latest_period.name ~%]
+				. It includes [% nb_children.${rank_order_help.genus}.fossil %]
+				[% IF nb_children.${rank_order_help.genus}.fossil == 1%]genus[% ELSE %]genera[% END %]
+				(about [%- INCLUDE round
+					to_round = (nb_children.${rank_order_help.genus}.fossil / nb_all.${rank_order_help.genus}.fossil)
+					round_help = 100 -%]% of all known fossil Fulgoromorpha genera)
+				and [% nb_children.${rank_order_help.species}.fossil %] species
+				(about [%- INCLUDE round
+					to_round = (nb_children.${rank_order_help.species}.fossil / nb_all.${rank_order_help.species}.fossil)
+					round_help = 100 -%]% of all known fossil Fulgoromorpha species).
+			[% ELSE %] <!-- ... I don't really like the check below. If allowed, consider making it so main_taxon_data.earliest_period and main_taxon_data.earliest_species_period already coincide in the provided data, so the double check is unnecessary.-->
+				[%- IF (main_taxon_data.earliest_species_period.name AND main_taxon_data.earliest_species_period.name != "Extant")
+					OR (main_taxon_data.earliest_period.name AND main_taxon_data.earliest_period.name != "Extant") ~%]
+					include extant representatives -
+					[%~ nb_children.${rank_order_help.genus}.extant %]
+					[% IF nb_children.${rank_order_help.genus}.extant == 1%]genus[% ELSE %]genera[% END %]
+					(about [%- INCLUDE round
+						to_round = (nb_children.${rank_order_help.genus}.extant / nb_all.${rank_order_help.genus}.extant)
+						round_help = 100 -%]% of all known extant Fulgoromorpha genera)
+					and [% nb_children.${rank_order_help.species}.extant %] species (about
+					[% INCLUDE round
+						to_round = (nb_children.${rank_order_help.species}.extant / nb_all.${rank_order_help.species}.extant)
+						round_help = 100 ~%]
+					% of all known extant Fulgoromorpha species)-, but its earliest fossil is known from the
+					[% main_taxon_data.earliest_species_period.name %] period ([% main_taxon_data.earliest_species_period.debut %] - [% main_taxon_data.earliest_species_period.fin %] Mya);
+					it includes [% nb_children.${rank_order_help.genus}.fossil %] fossil
+					[% IF nb_children.${rank_order_help.genus}.fossil == 1%]genus[% ELSE %]genera[% END %]
+					(about [%- INCLUDE round
+						to_round = (nb_children.${rank_order_help.genus}.fossil / nb_all.${rank_order_help.genus}.fossil)
+						round_help = 100 -%]% of all known fossil Fulgoromorpha genera)
+					and [% nb_children.${rank_order_help.species}.fossil %] fossil species
+					(about [%- INCLUDE round
+						to_round = (nb_children.${rank_order_help.species}.fossil / nb_all.${rank_order_help.species}.fossil)
+						round_help = 100 -%]% of all known fossil Fulgoromorpha species).
+				[% ELSE %]
+					is currently only known through its extant representatives.
+					It includes [% nb_children.${rank_order_help.genus}.extant %]
+					[% IF nb_children.${rank_order_help.genus}.extant == 1%]genus[% ELSE %]genera[% END %]
+					(about [%- INCLUDE round
+						to_round = (nb_children.${rank_order_help.genus}.extant / nb_all.${rank_order_help.genus}.extant)
+						round_help = 100 -%]% of all known extant Fulgoromorpha genera)
+					and [% nb_children.${rank_order_help.species}.extant %] species
+					(about [%- INCLUDE round
+						to_round = (nb_children.${rank_order_help.species}.extant / nb_all.${rank_order_help.species}.extant)
+						round_help = 100 -%]% of all known extant Fulgoromorpha species).
+				[%- END ;# IF main_taxon_data.earliest_species_period.name AND main_taxon_data.earliest_period.name != main_taxon_data.earliest_species_period.name %]
+			[% END ;# IF main_taxon_data.is_fossil == 1 %]
+			
+			<!-- This next section and the previous one may be repeating if the only children taxa are genera and species. -->
+			</p><p>From a taxonomic point of view, the <i>[% main_taxon_data.name %]</i> are subdivided into
+				[% relevant_children_rank_orders = nb_children.keys.nsort.reverse; FOREACH rankorder IN nb_children.keys.nsort.reverse %] <!-- we need to only number lower taxons above species (?) rank; for this, we copy nb_children.keys and kick every rank_order above the chosen one; then we can use this cut array as keys to consult nb_children.  -->
+					[% IF rankorder >= rank_order_help.species %][% kicked = relevant_children_rank_orders.shift %][% ELSE %][% BREAK %][% END %]
+				[% END %]
+				[% FOREACH rankorder IN relevant_children_rank_orders.nsort %] 
+					[%~ UNLESS loop.first OR loop.last %], [% END %][% IF loop.last AND relevant_children_rank_orders.size >1 %] and [% END %]
+					[% nb_children.$rankorder.all %]
+					[% IF nb_children.$rankorder.all == 1 %]
+						[% help_order_rank.$rankorder ~%]
+					[% ELSE %]
+						[% help_plural_rank.${help_order_rank.$rankorder} ~%]
+					[% END ;# IF nb_children.$rankorder.all == 1 %]
+				[%- END ;# FOREACH rankorder IN rank_by_children_rank_order.keys.nsort ~%]
+			.
+			<br>Since Linn&eacute; (1758), [% nb_children.${rank_order_help.species}.all %] species of <i>[% main_taxon_data.name %]</i> have been described.
+			Figure
+				[% number_of_mentionned_figures = number_of_mentionned_figures +1 %][% number_of_mentionned_figures %][% graph_punc_species_by_year_nb = number_of_mentionned_figures %]
+			displays the number of species described per year and figure
+				[% number_of_mentionned_figures = number_of_mentionned_figures +1 %][% number_of_mentionned_figures %][% graph_sum_speices_by_year_nb = number_of_mentionned_figures %]
+			their cumulative totals.
+			
+				<div align=center><br><table>
+					<tr>
+						<td align=center style='padding-left: 50px'>
+							[% taxonomic_graph1_data.x_label = "Year"; taxonomic_graph1_data.y_label = "Number of new species described";
+							INCLUDE graph 
+								graph_data = taxonomic_graph1_data%] 
+						</td>
+						<td width=75></td>
+						<td align=center style='padding-left: 50px'>
+							[% taxonomic_graph2_data.x_label = "Year"; taxonomic_graph2_data.y_label = "Total number of described species";
+							INCLUDE graph 
+								graph_data = taxonomic_graph2_data%]
+						</td>
+					</tr><tr>
+						<td style='text-align: center;'>
+							<b>Figure [% graph_punc_species_by_year_nb %].</b> Number of newly described [% INCLUDE complete_name taxon_data_hash = main_taxon_data %] species by year.
+						</td>
+						<td></td>
+						<td style='text-align: center;'>
+							<b>Figure [% graph_sum_speices_by_year_nb %].</b> Total number of described [% INCLUDE complete_name taxon_data_hash = main_taxon_data %] species by year.
+						</td>
+					</tr>
+				</table></div>
+			<br>
+			
+		[% ELSIF main_taxon_data.rank_order == rank_order_help.genus %] <!-- genus -->
+			<!-- introductory section: complete name, rank, family, first bibliographical reference. -->
+			[% INCLUDE complete_name taxon_data_hash = main_taxon_data %] is currently considered as a valid taxon of genus rank in the family
+			[% family_rank = rank_order_help.family; INCLUDE complete_name taxon_data_hash = hash_of_higher_taxa_data.$family_rank %]
+			of the Fulgoromorpha.
+			The genus was first described by [% INCLUDE proper_list	array = main_taxon_data.authors_with_forename ~%] in [% main_taxon_data.date %] in the following paper: [% headless_ref_princeps %].
+			</p><p> <!-- section about higher taxa in the hierarchy -->
+			It is currently classified in
+			[% relevant_parents_rank_orders = hash_of_higher_taxa_data.keys.nsort; FOREACH rankorder IN hash_of_higher_taxa_data.keys.nsort %] <!-- we need to only check parents until we hit the family; for this, we copy hash_of_higher_taxa_data.keys and kick every rank_order under the chosen one; then we can use this cut array as keys to consult hash_of_higher_taxa_data.  -->
+					[% IF rankorder <= rank_order_help.family %][% kicked = relevant_parents_rank_orders.shift %][% ELSE %][% BREAK %][% END %]
+				[% END %]
+				<!-- just add ".reverse" after nsort to reverse the order, if you'd prefer it so -->
+			[% FOREACH rankorder IN relevant_parents_rank_orders.nsort ~%]
+				[% UNLESS loop.first %], [% END %]
+				[% hash_of_higher_taxa_data.$rankorder.rank %] [% INCLUDE complete_name taxon_data_hash = hash_of_higher_taxa_data.$rankorder %]
+			[%- END ;# FOREACH rankorder IN hash_of_higher_taxa_data.keys.nsort ~%]
+			[%- IF main_taxon_data.is_type.defined AND main_taxon_data.is_type == 1 -%], and represent a type genus for its suprageneric group taxon[%~ END ~%]
+			.
+			<p></p> <!-- section about lower taxa in the hierarchy -->
+			[% IF nb_children.${rank_order_help.species}.all > 1 %]
+				Currently [% nb_children.${rank_order_help.species}.all %] species have been described in <i>[% main_taxon_data.name %]</i>.
+				<!-- guess I should check is there IS a type species, even thougb they should all have one-->
+				Its species type is [% INCLUDE complete_name taxon_data_hash = type_taxon_data %]
+				[%- IF type_taxon_data.depositories.first.depository.defined ~%]
+					, deposited in 
+					[% FOREACH depot IN type_taxon_data.depositories -%]
+						[%- UNLESS loop.first OR loop.last %], [% END %][% IF loop.last AND NOT loop.first %] & [% END %]
+							[%- depot.depository -%][%- IF depot.country.defined ~%], in [%- depot.country -%][% END ;# IF depot.country.defined %]
+					[%- END; # FOREACH depot IN type_taxon_data.depositories ~%].
+				[% END ;# IF type_taxon_data.depositories.first.depository.defined %]
+			[% ELSE %]
+				The genus is monospecific with its species type, [% INCLUDE complete_name taxon_data_hash = type_taxon_data %]
+				[%- IF type_taxon_data.depositories.first.depository.defined ~%]
+					, deposited in 
+					[% FOREACH depot IN type_taxon_data.depositories -%]
+						[%- UNLESS loop.first OR loop.last %], [% END %][% IF loop.last AND NOT loop.first %] & [% END %]
+						[%- depot.depository -%][%- IF depot.country.defined ~%], in [%- depot.country -%][% END ;# IF depot.country.defined %]
+					[%- END; # FOREACH depot IN type_taxon_data.depositories ~%].
+				[% END ;# IF type_taxon_data.depositories.first.depository.defined %]
+			[% END ;# IF nb_children.${rank_order_help.species}.all > 1%]
+			<p></p> <!-- geological period(s) section-->
+				<!-- Question: is "taxonomy" the best section to put the extant/fossil status?-->
+			<i>[% main_taxon_data.name %]</i> 
+			[% IF main_taxon_data.is_fossil == 1 %]
+				is an extinct taxon, known only from fossils from the 
+				[% main_taxon_data.earliest_period.name %] period ([% main_taxon_data.earliest_period.debut %] - [% main_taxon_data.earliest_period.fin %] Mya)
+				[% IF main_taxon_data.earliest_period.name != main_taxon_data.latest_period.name %] <!-- I know, it's unlikely a genus is spread across two periods. Still, I prefer to be thorough, if only to copy this later for larger taxa. -->
+					to the [% main_taxon_data.latest_period.name %] period ([% main_taxon_data.latest_period.debut %] - [% main_taxon_data.latest_period.fin %] Mya)
+				[%- END ;# IF main_taxon_data.earliest_period.name != main_taxon_data.latest_period.name %]
+			[% ELSE %]
+				is an extant taxon
+				[%- IF main_taxon_data.earliest_species_period.name AND main_taxon_data.earliest_period.name != main_taxon_data.earliest_species_period.name ~%]
+				, but it includes fossil species known from the [% main_taxon_data.earliest_species_period.name %] period ([% main_taxon_data.earliest_species_period.debut %] - [% main_taxon_data.earliest_species_period.fin %] Mya)
+				[%- END ;# IF main_taxon_data.earliest_species_period.name AND main_taxon_data.earliest_period.name != main_taxon_data.earliest_species_period.name %]
+			[%- END ;# IF main_taxon_data.is_fossil == 1 ~%]
+			.
+			
+		[% ELSE %] <!-- infrageneric --> <!-- will add species-level when more data is available for the content -->
+		
+		[% END; # IF main_taxon_data.rank_order > rank_order_help.genus %]
+		
+		[% IF petit_train %] <!-- Put proper place, syntax and content when available. -->
+			Figure
+			[% number_of_mentionned_figures = number_of_mentionned_figures +1 %][% number_of_mentionned_figures %][% petit_train_nb = number_of_mentionned_figures %]
+			displays a graphical summary of the taxonomy and nomenclature history of the taxon.
+			<div style='margin-left: 30px;'>
+				<table border=0>
+					<tr>
+						<td>[% petit_train %]</td> <!-- NOT IMPLEMENTED YET -->
+					</tr>
+				</table>
+				<br><div style='margin: -20px 0 40px 40px'><b>Figure [% petit_train_nb %].</b> Graphical summary of the taxonomy and nomenclature history of the [% INCLUDE complete_name taxon_data_hash = main_taxon_data %].</div>
+			</div>
+		[% END; # IF petit_train %]
+		</p>
+		
+		
+		<h3>2. [% INCLUDE complete_name taxon_data_hash = main_taxon_data %] geographical distribution and bioregions</h3>
+		<p>
+		[% IF main_taxon_data.is_fossil != 1 %]
+			According to the geographical TDWG standard (2001), [% INCLUDE complete_name taxon_data_hash = main_taxon_data %] are distributed in 
+			<!-- the rank of the TDWG areas listed is decided in the .pm rather than here-->
+			[% INCLUDE proper_list
+					array = tdwg_array.sort
+					intro_singular = "the following area: "
+					intro_plural = "the following areas: "	~%]
+			. 
+			[% IF lat_graph_data %] <!-- A single check for both graphs, because presumably if we have one, we should have the other. -->
+			Figures
+			[% number_of_mentionned_figures = number_of_mentionned_figures +1 %] [% number_of_mentionned_figures %][% long_profile_figure_nb = number_of_mentionned_figures %]
+			and
+			[% number_of_mentionned_figures = number_of_mentionned_figures +1%] [% number_of_mentionned_figures %][% lat_profile_figure_nb = number_of_mentionned_figures %]
+			are dynamic graphs that present respectively the longitudinal and latitudinal profiles of [% INCLUDE complete_name taxon_data_hash = main_taxon_data %] arround the world in term of specific richness.
+				
+				<div align=center><br><table><!-- and somewhere near here I would put my TDWG map... IF I HAD ONE-->
+					<tr>
+						<td align=center style='padding-left: 50px'>
+							[% long_graph_data.x_label = "Longitude"; long_graph_data.y_label = "Number of species";
+							INCLUDE graph 
+								graph_data = long_graph_data%]
+						</td>
+						<td width=75></td>
+						<td align=center style='padding-left: 50px'> <!-- it would be prettier for a latitudinal graph to be vertical, but the important thing now is that it works -->
+							[% lat_graph_data.x_label = "Latitude"; lar_graph_data.y_label = "Number of species";
+							INCLUDE graph 
+								graph_data = lat_graph_data%]
+						</td>
+					</tr><tr>
+						<td style='text-align: center;'>
+							<b>Figure [% long_profile_figure_nb %].</b> [% INCLUDE complete_name taxon_data_hash = main_taxon_data %] longitudinal profile.
+						</td>
+						<td></td>
+						<td style='text-align: center;'>
+							<b>Figure [% lat_profile_figure_nb %].</b> [% INCLUDE complete_name taxon_data_hash = main_taxon_data %] latitudinal profile.
+						</td>
+					</tr>
+				</table></div>
+				<br>
+				
+			[% END; # IF $latitudinal_profile %]
+			
+			</p><p>This distribution corresponds to the
+				[% INCLUDE proper_list array = wallace_array.sort %] biogeographical [% IF wallace_array.size == 1 %]region[% ELSE %]regions[% END %]
+			as defined by Wallace (1876) or, more precisely, to the
+				[% INCLUDE proper_list array = holt_array.sort %] zoogeographic [% IF holt_array.size == 1 %]region[% ELSE %]regions[% END %]
+			as defined by Holt (2013).
+		[% ELSE %]
+			This taxa is extinct and has no current geographical distribution.<!-- Presumbaly, more info would go there someday, ideally.-->
+		[% END; #IF main_taxon_data.is_fossil != 1 %]
+		</p>
+		
+		
+		<h3>3. [% INCLUDE complete_name taxon_data_hash = main_taxon_data %] biological interactions</h3>
+		<p>All [% INCLUDE complete_name taxon_data_hash = main_taxon_data %]
+			[% IF main_taxon_data.is_fossil != 1 %]
+				are
+			[% ELSE %]
+				were
+			[% END %]
+			obligatory phytophagous terrestrial insects
+			[%- IF plants_orders.first.defined ~%]
+				; they mainly
+				[% IF main_taxon_data.is_fossil != 1 %]
+					feed
+				[% ELSE %]
+					fed
+				[% END %]
+				on host plants belonging to the
+				[% INCLUDE proper_list
+					array = plants_orders.sort
+					before_item = "<i>"
+					after_item = "</i>"
+					intro_singular = "order: "
+					intro_plural = "following orders: "	%]
+			[%- END; # IF plants_orders ~%]
+		.</p>
+		
+		
+		<h3>References:</h3>
+			<ul>
+				[% FOREACH ref IN biblio.sort %]
+					<li>[% ref %]</li>
+				[% END; #FOREACH ref IN biblio.sort %]
+			</ul>
+</div>
+
+</body>
+</html>
